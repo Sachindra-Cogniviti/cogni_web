@@ -1,19 +1,54 @@
-import { Button } from "@/components/ui/button"
-import { home } from "@/content/site"
+import { Careers } from "@/components/careers"
+import { ClientWork } from "@/components/client-work"
+import { Contact } from "@/components/contact"
+import { CoupaTraining } from "@/components/coupa-training"
+import { Credentials } from "@/components/credentials"
+import { Hero } from "@/components/hero"
+import { PlatformServices } from "@/components/platform-services"
+import { ProductExplorer } from "@/components/product-explorer"
+import { ProductPortfolio } from "@/components/product-portfolio"
+import { Resources } from "@/components/resources"
+import { SiteFooter } from "@/components/site-footer"
+import { SiteNav } from "@/components/site-nav"
+import { Together } from "@/components/together"
+import { TrustedBy } from "@/components/trusted-by"
+import { TwoSides } from "@/components/two-sides"
+import { WhyCogniviti } from "@/components/why-cogniviti"
 
+/**
+ * Homepage.
+ *
+ * Section order is the design's narrative, and it is the reason the page holds
+ * together: position the company, prove it, split into the two halves of the
+ * business, show the products twice in different registers, then the services
+ * that deliver them, then the evidence, then the ask.
+ *
+ * The light/dark alternation is structural, not decorative. The two dark
+ * blocks - portfolio plus explorer, then contact plus footer - bracket the
+ * light editorial middle, so the page has two deliberate technical moments
+ * rather than one uniform surface.
+ */
 export default function Page() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">{home.heading}</h1>
-          {home.body.map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-          <Button className="mt-2">{home.cta}</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">({home.hint})</div>
-      </div>
-    </div>
+    <>
+      <SiteNav />
+      <main>
+        <Hero />
+        <TrustedBy />
+        <TwoSides />
+        <ProductPortfolio />
+        <ProductExplorer />
+        <PlatformServices />
+        <CoupaTraining />
+        <Credentials />
+        <ClientWork />
+        <WhyCogniviti />
+        <Together />
+        <Resources />
+        <Careers />
+        <Contact />
+      </main>
+      <SiteFooter />
+    </>
   )
 }
