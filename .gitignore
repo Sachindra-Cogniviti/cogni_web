@@ -1,4 +1,5 @@
 # dependencies
+# node_modules must never reach the server (inode limit). The server never builds.
 /node_modules
 /.pnp
 .pnp.*
@@ -13,7 +14,7 @@
 
 # next.js
 /.next/
-/out/
+# NOTE: /out/ is deliberately NOT ignored. It is committed and deployed by .cpanel.yml.
 
 # production
 /build

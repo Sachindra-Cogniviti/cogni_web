@@ -1,0 +1,80 @@
+# Static Next.js export served by Apache on Bluehost.
+# Copied to the document root by .cpanel.yml (it is not part of out/).
+
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+
+# 404. This path is resolved from the document root, not from this folder.
+# When serving from a subfolder (BASE_PATH=/new) change it to /new/404.html.
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Serve /route as /route.html when a bare .html file exists (routes without
+  # trailingSlash). Folders with index.html are handled by DirectoryIndex.
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.*)$ $1.html [L]
+</IfModule>
+
+# MIME types
+<IfModule mod_mime.c>
+  AddType application/javascript          .js .mjs
+  AddType text/css                        .css
+  AddType application/json                .json
+  AddType image/svg+xml                   .svg
+  AddType image/webp                      .webp
+  AddType image/avif                      .avif
+  AddType image/x-icon                    .ico
+  AddType font/woff                       .woff
+  AddType font/woff2                      .woff2
+  AddType font/ttf                        .ttf
+  AddType application/manifest+json       .webmanifest
+  AddCharset utf-8 .html .css .js .mjs .json .svg .xml .txt
+</IfModule>
+
+# Gzip
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml application/manifest+json
+  AddOutputFilterByType DEFLATE font/ttf
+</IfModule>
+
+# Cache headers
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 hour"
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/xml "access plus 0 seconds"
+  ExpiresByType text/plain "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/avif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/ttf "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Hashed build assets are immutable.
+  <FilesMatch "\.(js|css|woff2?|ttf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  # HTML must always revalidate so deploys show up immediately.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  Header always set X-Content-Type-Options "nosniff"
+</IfModule>
