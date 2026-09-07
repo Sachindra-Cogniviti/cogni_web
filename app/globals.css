@@ -7,6 +7,46 @@
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+    --font-serif: var(--font-serif);
+
+    /* ---------------------------------------------------------------
+     * Cogniviti Labs v1 palette.
+     *
+     * Kept as literal hex, deliberately: these are lifted straight from
+     * the design file so the built page matches it exactly. Converting to
+     * oklch (as the shadcn tokens below do) would round every value and
+     * put the hairlines and paper tints visibly off.
+     *
+     * The scale runs light -> dark. "paper" is the page ground, "ink" is
+     * type, "rule" is borders, "night" is the dark contrast sections.
+     * --------------------------------------------------------------- */
+    --color-paper: #faf8f5; /* page ground */
+    --color-paper-alt: #f3efe7; /* alternate section band */
+    --color-paper-soft: #f6f3ed; /* row hover fill */
+    --color-paper-tint: #f1ede4; /* placeholder hatching */
+
+    --color-ink: #17140f; /* headings, primary type */
+    --color-ink-soft: #4c463d; /* body copy */
+    --color-ink-muted: #7a7266; /* small print */
+    --color-ink-faint: #8a8172; /* mono labels */
+    --color-ink-ghost: #a69c8a; /* placeholder captions */
+
+    --color-rule: #e8e3d9; /* default hairline */
+    --color-rule-strong: #d8d2c4; /* section-opening rule */
+    --color-rule-faint: #f0ebe1; /* list dividers */
+    --color-edge: #c9c1b2; /* outline-button border */
+
+    --color-oxblood: #8e2030; /* brand accent */
+    --color-oxblood-lift: #c86a72; /* accent on dark ground */
+
+    --color-night: #161310; /* products, contact, footer */
+    --color-night-deep: #0e0b09; /* product explorer */
+    --color-night-panel: #1c1814; /* spec readout panel */
+    --color-night-fg: #f5f1ea; /* type on dark */
+    --color-night-muted: #b3a996; /* body copy on dark */
+    --color-night-value: #e8dfce; /* data values on dark */
+
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -126,4 +166,143 @@
   html {
     @apply font-sans;
     }
+
+  /* Anchor navigation. scroll-padding clears the 68px fixed nav plus a
+   * little breathing room, so a jumped-to section does not sit under it. */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px;
+    }
+  body {
+    @apply bg-paper text-ink;
+    text-rendering: optimizeLegibility;
+    }
+  ::selection {
+    @apply bg-oxblood text-paper;
+    }
+}
+
+/* -------------------------------------------------------------------------
+ * Scroll reveals
+ *
+ * Elements carrying data-reveal start hidden and are released by an
+ * IntersectionObserver (see components/reveal.tsx). The observer sets the
+ * transition inline so it can vary the timing per element: the hero uses a
+ * long 600ms stagger to establish reading order, everything below is capped
+ * at 90ms/450ms so mid-page content never feels gated behind an animation.
+ *
+ * The hidden state lives here rather than inline so that content is visible
+ * when CSS loads but JS does not, and is neutralised entirely under
+ * reduced-motion.
+ * ------------------------------------------------------------------------- */
+/* Scoped to .js, set synchronously by a head script before first paint. With
+ * scripting off the content is simply visible - a static export must not hide
+ * its own copy behind an animation that can never run. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.js [data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * The oxblood streak gradient
+ *
+ * Used on both faces of the two-sides flip card. It is four stacked layers:
+ * a diagonal base ramp, hard-edged light/dark streaks, a corner sheen, and
+ * fractal-noise grain over the top in overlay blend. The grain is what stops
+ * it reading as a generic CSS gradient, so it is not optional.
+ *
+ * The reverse face mirrors the ramp (232deg vs 128deg) so the two sides read
+ * as related but not identical when the card flips.
+ * ------------------------------------------------------------------------- */
+.streak-gradient {
+  background: linear-gradient(
+    128deg,
+    #4a0b18 0%,
+    #8e2030 28%,
+    #c93b52 52%,
+    #e0526b 66%,
+    #7e1a2c 88%,
+    #3e0912 100%
+  );
+}
+
+.streak-gradient-reverse {
+  background: linear-gradient(
+    232deg,
+    #3e0912 0%,
+    #7e1a2c 15%,
+    #c93b52 42%,
+    #e0526b 55%,
+    #8e2030 78%,
+    #4a0b18 100%
+  );
+}
+
+.streak-lines {
+  background: repeating-linear-gradient(
+    118deg,
+    rgb(255 255 255 / 0) 0px,
+    rgb(255 255 255 / 0) 60px,
+    rgb(255 214 205 / 0.16) 78px,
+    rgb(255 255 255 / 0) 96px,
+    rgb(0 0 0 / 0.18) 150px,
+    rgb(255 255 255 / 0) 190px,
+    rgb(255 190 180 / 0.1) 230px,
+    rgb(255 255 255 / 0) 260px
+  );
+}
+
+.streak-sheen {
+  background:
+    radial-gradient(
+      120% 90% at 15% 0%,
+      rgb(255 255 255 / 0.12),
+      rgb(255 255 255 / 0) 45%
+    ),
+    radial-gradient(100% 80% at 85% 100%, rgb(0 0 0 / 0.3), rgb(0 0 0 / 0) 55%);
+}
+
+.streak-grain {
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* Diagonal hatching that marks a slot awaiting a real asset - client logos,
+ * certification badges, resource photography. Deliberately obvious. */
+.placeholder-hatch {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-paper-soft),
+    var(--color-paper-soft) 6px,
+    var(--color-paper-tint) 6px,
+    var(--color-paper-tint) 12px
+  );
+}
+
+.placeholder-hatch-lg {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-paper-soft),
+    var(--color-paper-soft) 8px,
+    var(--color-paper-tint) 8px,
+    var(--color-paper-tint) 16px
+  );
 }
