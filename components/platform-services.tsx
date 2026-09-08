@@ -1,10 +1,21 @@
+import Image, { type StaticImageData } from "next/image"
+
 import {
   Container,
   Kicker,
   QuietLink,
   sectionPadding,
 } from "@/components/primitives"
+import { Stagger } from "@/components/stagger"
 import { services } from "@/content/site"
+
+import coupa from "@/public/logos/platforms/coupa.png"
+import gep from "@/public/logos/platforms/gep.png"
+import ivalua from "@/public/logos/platforms/ivalua.png"
+import onestream from "@/public/logos/platforms/onestream.png"
+
+/** Platform logo files, keyed by the `logo` id used in content. */
+const logos: Record<string, StaticImageData> = { coupa, gep, ivalua, onestream }
 
 /**
  * Platform services: the five delivery stages, then the platform and
@@ -17,6 +28,15 @@ import { services } from "@/content/site"
  *
  * The #platforms anchor lives on the experience block rather than the section,
  * because that is what the nav link is pointing at.
+ *
+ * The stage cells, the logo tiles and the chips each rise in a few tens of
+ * milliseconds apart (components/stagger.tsx) instead of arriving as blocks.
+ *
+ * Platform experience is the one list that carries logos, and it gets a
+ * different register from the integration chips: a row of logo tiles in a
+ * hairline grid, the marks in their own colours at heights set per logo in
+ * content. Items without a logo fall back to a text chip, so more logos can
+ * be dropped in one at a time.
  */
 export function PlatformServices() {
   return (
@@ -34,17 +54,21 @@ export function PlatformServices() {
           </div>
         </div>
 
-        <div
-          data-reveal="120"
+        <Stagger
+          step={0.07}
           className="mt-16 grid grid-cols-[repeat(auto-fit,minmax(230px,1fr))] border-t border-l border-t-rule-strong border-l-rule"
         >
           {services.stages.map((stage) => (
             <div
               key={stage.num}
-              className="relative border-r border-b border-rule px-6 pt-7 pb-8 transition-colors duration-[250ms] hover:bg-paper-soft"
+              data-stagger
+              className="group relative border-r border-b border-rule px-6 pt-7 pb-8 transition-colors duration-[250ms] hover:bg-paper-soft"
             >
-              {/* Short oxblood tick riding the top rule, marking each cell. */}
+              {/* Short oxblood tick riding the top rule, marking each cell. On
+                  hover a second line grows from it across the whole cell: a
+                  transform, not a width, so it costs nothing to animate. */}
               <div className="absolute top-[-1px] left-0 h-[2px] w-9 bg-oxblood" />
+              <div className="absolute top-[-1px] left-0 h-[2px] w-full origin-left scale-x-0 bg-oxblood transition-transform duration-300 ease-[cubic-bezier(.23,1,.32,1)] group-hover:scale-x-100 motion-reduce:transition-none" />
               <div className="font-mono text-[11px] text-oxblood">
                 {stage.num}
               </div>
@@ -56,30 +80,64 @@ export function PlatformServices() {
               </p>
             </div>
           ))}
-        </div>
+        </Stagger>
 
-        <div
-          id="platforms"
-          data-reveal="160"
-          className="mt-16 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-[clamp(24px,4vw,64px)]"
-        >
-          {services.experience.map((group) => (
-            <div key={group.label} className="border-t border-rule-strong pt-5">
-              <div className="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
-                {group.label}
-              </div>
-              <div className="mt-4 flex flex-wrap gap-[10px]">
-                {group.items.map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-[2px] border border-rule-strong px-[18px] py-[9px] text-[14.5px] font-medium"
+        <div id="platforms" className="mt-16">
+          {services.experience.map((group, index) => {
+            const hasLogos = group.items.some((item) => "logo" in item)
+            return (
+              <div
+                key={group.label}
+                data-reveal={160 + index * 40}
+                className={`grid gap-x-[clamp(24px,4vw,64px)] gap-y-4 pt-6 lg:grid-cols-[minmax(180px,240px)_1fr] ${
+                  index === 0 ? "border-t border-rule-strong" : "mt-8 border-t border-rule"
+                }`}
+              >
+                <div className="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase lg:pt-[2px]">
+                  {group.label}
+                </div>
+
+                {hasLogos ? (
+                  <Stagger
+                    as="ul"
+                    step={0.05}
+                    className="m-0 grid list-none grid-cols-2 gap-px border border-rule bg-rule sm:grid-cols-4"
                   >
-                    {item}
-                  </span>
-                ))}
+                    {group.items.map((item) => (
+                      <li
+                        key={item.name}
+                        data-stagger
+                        className="flex h-[88px] items-center justify-center bg-paper px-5"
+                      >
+                        {"logo" in item && logos[item.logo] ? (
+                          <Image
+                            src={logos[item.logo]}
+                            alt={item.name}
+                            className="w-auto max-w-full"
+                            style={{ height: item.height }}
+                          />
+                        ) : (
+                          <span className="text-[15px] font-semibold">{item.name}</span>
+                        )}
+                      </li>
+                    ))}
+                  </Stagger>
+                ) : (
+                  <Stagger step={0.04} className="flex flex-wrap gap-[10px]">
+                    {group.items.map((item) => (
+                      <span
+                        key={item.name}
+                        data-stagger
+                        className="rounded-[2px] border border-rule-strong px-[18px] py-[9px] text-[14.5px] font-medium"
+                      >
+                        {item.name}
+                      </span>
+                    ))}
+                  </Stagger>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         <div data-reveal="200" className="mt-12">

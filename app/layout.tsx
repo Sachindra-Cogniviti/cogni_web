@@ -1,8 +1,10 @@
 import type { Metadata } from "next"
+import { MotionConfig } from "motion/react"
 
 import "./globals.css"
 import { fontMono, fontSans, fontSerif } from "@/app/fonts"
 import { RevealObserver } from "@/components/reveal-observer"
+import { SmoothAnchors } from "@/components/smooth-anchors"
 import { ThemeProvider } from "@/components/theme-provider"
 import { site, siteUrl } from "@/content/site"
 import { cn } from "@/lib/utils"
@@ -62,14 +64,22 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: markScripted }} />
       </head>
-      <body>
+      {/* Browser extensions (the VS Code preview adds class="vsc-initialized")
+          mutate <body> before React hydrates. The warning is scoped to this
+          element's own attributes; children still hydrate strictly. */}
+      <body suppressHydrationWarning>
         {/* The design is light-only: its dark sections are deliberate contrast
             against a light page, not a dark theme. forcedTheme pins it there
             while leaving the provider wired up, so a real dark mode can be
             added later without re-plumbing the app. */}
         <ThemeProvider forcedTheme="light">
-          <RevealObserver />
-          {children}
+          {/* Every Motion component on the page honours the visitor's
+              reduced-motion setting: transforms are dropped, opacity stays. */}
+          <MotionConfig reducedMotion="user">
+            <RevealObserver />
+            <SmoothAnchors />
+            {children}
+          </MotionConfig>
         </ThemeProvider>
       </body>
     </html>

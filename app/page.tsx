@@ -5,9 +5,10 @@ import { CoupaTraining } from "@/components/coupa-training"
 import { Credentials } from "@/components/credentials"
 import { Hero } from "@/components/hero"
 import { PlatformServices } from "@/components/platform-services"
-import { ProductExplorer } from "@/components/product-explorer"
-import { ProductPortfolio } from "@/components/product-portfolio"
+import { ProductDesktop } from "@/components/product-desktop"
+// import { ProductPortfolio } from "@/components/product-portfolio"
 import { Resources } from "@/components/resources"
+import { SectionRail } from "@/components/section-rail"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNav } from "@/components/site-nav"
 import { Together } from "@/components/together"
@@ -24,9 +25,14 @@ import { WhyCogniviti } from "@/components/why-cogniviti"
  * that deliver them, then the evidence, then the ask.
  *
  * The light/dark alternation is structural, not decorative. The two dark
- * blocks - portfolio plus explorer, then contact plus footer - bracket the
+ * blocks - portfolio plus desktop, then contact plus footer - bracket the
  * light editorial middle, so the page has two deliberate technical moments
  * rather than one uniform surface.
+ *
+ * The product portfolio table is hidden for now, not removed: the component
+ * and its content stay in place, and the `#products` anchor has moved to the
+ * desktop so every link to the products still lands. Restore it by
+ * uncommenting the import and the element below and moving the id back.
  */
 export default function Page() {
   return (
@@ -36,8 +42,8 @@ export default function Page() {
         <Hero />
         <TrustedBy />
         <TwoSides />
-        <ProductPortfolio />
-        <ProductExplorer />
+        {/* <ProductPortfolio /> */}
+        <ProductDesktop />
         <PlatformServices />
         <CoupaTraining />
         <Credentials />
@@ -49,6 +55,7 @@ export default function Page() {
         <Contact />
       </main>
       <SiteFooter />
+      <SectionRail />
     </>
   )
 }

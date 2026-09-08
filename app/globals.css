@@ -2,6 +2,13 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Explicit source roots for Tailwind's class scan. Turbopack's persistent
+ * dev cache has served stale CSS after new utilities were introduced in a
+ * component file; declaring the roots keeps the scan deterministic. */
+@source "../components";
+@source "../app";
+@source "../content";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -168,10 +175,16 @@
     }
 
   /* Anchor navigation. scroll-padding clears the 68px fixed nav plus a
-   * little breathing room, so a jumped-to section does not sit under it. */
+   * little breathing room, so a jumped-to section does not sit under it.
+   * The native smooth scroll is the no-JS fallback only: with scripting on,
+   * components/smooth-anchors.tsx drives the scroll itself and needs the
+   * browser's own easing out of the way (see the `.js` rule below). */
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 88px;
+    }
+  html.js {
+    scroll-behavior: auto;
     }
   body {
     @apply bg-paper text-ink;
@@ -180,6 +193,152 @@
   ::selection {
     @apply bg-oxblood text-paper;
     }
+
+  /* One focus ring for the page: oxblood, offset, keyboard only. Dark
+   * grounds lift it so it holds contrast. Controls with their own ring
+   * (logo cells, dock, rail) opt out locally. */
+  :where(a, button, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-oxblood);
+    outline-offset: 2px;
+    border-radius: 2px;
+    }
+  :where(.bg-night, .bg-night-deep, .desktop) :where(a, button, [tabindex]):focus-visible {
+    outline-color: var(--color-oxblood-lift);
+    }
+}
+
+/* Site nav (components/site-nav.tsx).
+ *
+ * The bar reads the ground under it: over the dark sections it switches to
+ * the night palette so the two fixed elements (this and the rail) agree.
+ * The compact panel enters with @starting-style: 180ms ease-out from a few
+ * pixels up, and leaves instantly. */
+.site-nav {
+  --nav-bg: rgb(250 248 245 / 0.85);
+  --nav-border: var(--color-rule);
+  --nav-link: var(--color-ink-soft);
+  --nav-link-hover: var(--color-oxblood);
+  --nav-active: var(--color-oxblood);
+  --nav-cta-bg: var(--color-ink);
+  --nav-cta-fg: var(--color-paper);
+  --nav-cta-hover: var(--color-oxblood);
+  --nav-outline: var(--color-edge);
+  --nav-outline-fg: var(--color-ink);
+  --nav-panel-bg: var(--color-paper);
+  --nav-panel-fg: var(--color-ink);
+  --nav-panel-rule: var(--color-rule-faint);
+  --nav-logo: none;
+  background: var(--nav-bg);
+  border-color: var(--nav-border);
+  transition:
+    background-color 250ms ease,
+    border-color 250ms ease;
+}
+
+.site-nav[data-dark] {
+  --nav-bg: rgb(22 19 16 / 0.85);
+  --nav-border: rgb(245 241 234 / 0.12);
+  --nav-link: var(--color-night-muted);
+  --nav-link-hover: var(--color-night-fg);
+  --nav-active: var(--color-oxblood-lift);
+  --nav-cta-bg: var(--color-night-fg);
+  --nav-cta-fg: var(--color-ink);
+  --nav-cta-hover: var(--color-oxblood-lift);
+  --nav-outline: rgb(245 241 234 / 0.35);
+  --nav-outline-fg: var(--color-night-fg);
+  --nav-panel-bg: var(--color-night);
+  --nav-panel-fg: var(--color-night-fg);
+  --nav-panel-rule: rgb(245 241 234 / 0.1);
+  --nav-logo: brightness(1.35) saturate(0.9);
+}
+
+.nav-logo {
+  filter: var(--nav-logo);
+  transition: filter 250ms ease;
+}
+
+.nav-link {
+  color: var(--nav-link);
+  transition: color 200ms ease;
+}
+
+.nav-link:hover {
+  color: var(--nav-link-hover);
+}
+
+.nav-link[aria-current] {
+  color: var(--nav-active);
+}
+
+.nav-dot,
+.nav-progress {
+  background: var(--nav-active);
+}
+
+.nav-cta {
+  background: var(--nav-cta-bg);
+  color: var(--nav-cta-fg);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.nav-cta:hover {
+  background: var(--nav-cta-hover);
+}
+
+.nav-cta:active {
+  transform: scale(0.97);
+}
+
+.nav-toggle {
+  border-color: var(--nav-outline);
+  color: var(--nav-outline-fg);
+  transition:
+    color 200ms ease,
+    border-color 200ms ease,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.nav-toggle:hover {
+  border-color: var(--nav-active);
+  color: var(--nav-active);
+}
+
+.nav-toggle:active {
+  transform: scale(0.97);
+}
+
+.nav-panel {
+  background: var(--nav-panel-bg);
+  border-color: var(--nav-border);
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.nav-panel-link {
+  color: var(--nav-panel-fg);
+  border-color: var(--nav-panel-rule);
+  transition: color 200ms ease;
+}
+
+.nav-panel-link:hover {
+  color: var(--nav-active);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-panel {
+    transition: none;
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -305,4 +464,344 @@
     var(--color-paper-tint) 8px,
     var(--color-paper-tint) 16px
   );
+}
+
+/* World map (components/ui/world-map.tsx). Arcs, pins and labels animate
+ * with Motion; only the pulse ring is here, and it is hidden under reduced
+ * motion. */
+@media (prefers-reduced-motion: reduce) {
+  .map-pulse {
+    display: none;
+  }
+}
+
+/* Client logo wall (components/trusted-by.tsx).
+ *
+ * Logos keep their own colours. A white logo is rendered dark so it shows on
+ * the paper. Hover only tints the cell, where a fine pointer exists. Cells
+ * fade up in a short sequence once the wrapper has been revealed. */
+.logo-mark[data-tone="light"] {
+  filter: brightness(0);
+  opacity: 0.8;
+}
+
+.logo-link {
+  transition: background-color 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .logo-link:hover {
+    background-color: var(--color-paper-soft);
+  }
+}
+
+
+/* Group entrances driven by Motion (components/stagger.tsx). Items start
+ * hidden only when scripting is on; Motion animates them in. */
+.js [data-stagger] {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-stagger] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Product desktop (components/product-desktop.tsx).
+ *
+ * Wallpaper and the static styling of the window, Dock and tooltips. The
+ * motion (window open/close, app switch, menus, Spotlight, Dock springs) is
+ * Motion's, in the component, so nothing here transitions transform. */
+.desktop {
+  background:
+    radial-gradient(70% 60% at 50% 30%, rgb(142 32 48 / 0.55), rgb(142 32 48 / 0) 70%),
+    radial-gradient(45% 40% at 18% 85%, rgb(74 11 24 / 0.6), rgb(74 11 24 / 0) 65%),
+    radial-gradient(40% 35% at 85% 80%, rgb(200 106 114 / 0.18), rgb(200 106 114 / 0) 60%),
+    var(--color-night-deep);
+}
+
+/* The drag wrapper owns the window's position. Motion drives its transform
+ * (drag, elastic edges, and the ease home on zoom or close), so no CSS
+ * transition may touch transform here or the drag would lag the pointer. */
+.window-drag {
+  transition: max-width 260ms cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+.app-window {
+  transform-origin: 50% 110%;
+  backdrop-filter: blur(12px);
+}
+
+.traffic-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  border: 1px solid rgb(0 0 0 / 0.25);
+  cursor: pointer;
+  transition:
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1),
+    filter 120ms ease;
+}
+
+.traffic-light:active {
+  transform: scale(0.85);
+  filter: brightness(0.8);
+}
+
+.traffic-light:focus-visible {
+  outline: 2px solid var(--color-night-fg);
+  outline-offset: 2px;
+}
+
+.dock-item {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Magnification is Motion's (transform, per icon, on a spring). The press
+ * uses the separate `scale` property so it composes with it. */
+.dock-icon {
+  transition:
+    scale 100ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dock-item:active .dock-icon {
+  scale: 0.94;
+}
+
+.dock-item:focus-visible {
+  outline: none;
+}
+
+.dock-item:focus-visible .dock-icon {
+  box-shadow:
+    0 0 0 2px var(--color-night-deep),
+    0 0 0 4px var(--color-oxblood-lift);
+}
+
+.dock-tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 4px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  background: var(--color-night-fg);
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 120ms ease-out,
+    translate 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.dock-item:focus-visible .dock-tip {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dock-item:hover .dock-tip {
+    opacity: 1;
+    translate: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window-drag,
+  .dock-icon,
+  .dock-tip,
+  .traffic-light {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* Selected client work (components/client-work.tsx) and Why Cogniviti
+ * Labs (components/why-motion.tsx). The choreography is Motion's; what is
+ * left here is the static stroke of the Why thread and the two pulse rings,
+ * which are hidden under reduced motion. */
+.work-pulse {
+  animation: work-pulse 2.2s cubic-bezier(0.23, 1, 0.32, 1) 0.6s infinite;
+}
+
+.why-pulse {
+  animation: work-pulse 2.4s cubic-bezier(0.22, 1, 0.36, 1) 1.2s infinite;
+}
+
+@keyframes work-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.why-thread {
+  fill: none;
+  stroke: var(--color-oxblood);
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-pulse,
+  .why-pulse {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Section rail (components/section-rail.tsx).
+ *
+ * One capsule, always laid out at its open width and clipped with a
+ * rounded inset: closed, the clip shows only the tick strip; open, the
+ * clip slides out to the full box and uncovers the labels. Animating the
+ * clip rather than the width keeps it off layout. clip-path also clips hit
+ * testing, so the hidden part never takes the pointer. Colours come from
+ * custom properties so the rail flips for dark sections with one
+ * attribute. Opening is 220ms, closing 160ms: fast where the system is
+ * responding, unhurried where the user is reading. */
+.section-rail {
+  --rail-ink: var(--color-ink-ghost);
+  --rail-active: var(--color-oxblood);
+  --rail-panel: rgb(250 248 245 / 0.96);
+  --rail-border: var(--color-rule);
+  --rail-label: var(--color-ink-muted);
+  --rail-label-strong: var(--color-ink);
+  --rail-hover: var(--color-paper-soft);
+  --rail-closed: 44px;
+  --rail-open: 184px;
+  opacity: 0;
+  transform: translate(-8px, -50%);
+  pointer-events: none;
+  /* The clip lives on the nav, not the box, because the nav is what
+     listens for the pointer: clip-path clips hit testing on the element it
+     is set on, so the hidden part of the capsule takes no hover. */
+  clip-path: inset(0 calc(var(--rail-open) - var(--rail-closed)) 0 0 round 14px);
+  transition:
+    opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    clip-path 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.section-rail[data-open] {
+  clip-path: inset(0 0 0 0 round 14px);
+  transition:
+    opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    clip-path 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.section-rail[data-visible] {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.section-rail[data-dark] {
+  --rail-ink: #5f5749;
+  --rail-active: var(--color-oxblood-lift);
+  --rail-panel: rgb(28 24 20 / 0.96);
+  --rail-border: rgb(245 241 234 / 0.12);
+  --rail-label: var(--color-night-muted);
+  --rail-label-strong: var(--color-night-fg);
+  --rail-hover: rgb(245 241 234 / 0.07);
+}
+
+.rail-box {
+  width: var(--rail-open);
+  background: var(--rail-panel);
+  border-color: var(--rail-border);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.section-rail[data-visible] {
+  pointer-events: auto;
+}
+
+.rail-item {
+  transition: background-color 120ms ease;
+}
+
+.section-rail[data-open] .rail-item:hover,
+.rail-item:focus-visible {
+  background: var(--rail-hover);
+}
+
+.rail-tick {
+  display: block;
+  flex: none;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--rail-ink);
+  transform-origin: left center;
+  transition:
+    transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 200ms ease;
+}
+
+.rail-active-tick {
+  position: absolute;
+  left: 6px;
+  top: 10px;
+  width: 22px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--rail-active);
+}
+
+.rail-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--rail-label);
+  transition: color 150ms ease;
+}
+
+.rail-item[aria-current] .rail-label {
+  color: var(--rail-active);
+}
+
+.section-rail[data-open] .rail-item:hover .rail-label,
+.rail-item:focus-visible .rail-label {
+  color: var(--rail-label-strong);
+}
+
+.rail-item[aria-current]:hover .rail-label {
+  color: var(--rail-active);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .section-rail[data-open] .rail-item:hover .rail-tick {
+    transform: scaleX(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-rail,
+  .rail-box,
+  .rail-tick,
+  .rail-label,
+  .rail-item {
+    transition: none;
+  }
 }

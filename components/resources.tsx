@@ -4,6 +4,7 @@ import {
   QuietLink,
   sectionPadding,
 } from "@/components/primitives"
+import { Stagger } from "@/components/stagger"
 import { resources } from "@/content/site"
 
 /**
@@ -15,6 +16,9 @@ import { resources } from "@/content/site"
  * not be - no stock boardrooms, no handshakes, no teams pointing at laptops -
  * so the caption records the intent rather than letting a stand-in image set
  * the wrong expectation. Swap `image` in content/site.ts for { src, alt }.
+ *
+ * The three cards rise in 60ms apart (components/stagger.tsx) rather than
+ * landing as one block, matching the logo wall and the Why tiles.
  */
 export function Resources() {
   return (
@@ -38,15 +42,13 @@ export function Resources() {
           </p>
         </div>
 
-        <div
-          data-reveal="120"
-          className="mt-[52px] grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6"
-        >
+        <Stagger className="mt-[52px] grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6">
           {resources.items.map((item) => (
             <a
               key={item.title}
               href={item.href}
-              className="flex flex-col overflow-hidden rounded-[3px] border border-rule text-ink transition-[border-color,transform] duration-[250ms] hover:-translate-y-[3px] hover:border-oxblood motion-reduce:hover:translate-y-0"
+              data-stagger
+              className="flex flex-col overflow-hidden rounded-[3px] border border-rule text-ink transition-[border-color,transform] duration-[250ms] hover:-translate-y-[3px] hover:border-oxblood active:translate-y-0 active:scale-[0.985] active:duration-100 motion-reduce:hover:translate-y-0"
             >
               <div className="placeholder-hatch-lg flex h-40 items-center justify-center border-b border-rule font-mono text-[10.5px] tracking-[0.12em] text-ink-ghost uppercase">
                 {item.image}
@@ -64,7 +66,7 @@ export function Resources() {
               </div>
             </a>
           ))}
-        </div>
+        </Stagger>
 
         <div data-reveal="160" className="mt-10">
           <QuietLink href={resources.cta.href}>

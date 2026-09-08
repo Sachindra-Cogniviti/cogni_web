@@ -19,9 +19,13 @@ import * as React from "react"
 export function LocalTime({
   timeZone,
   hour12 = false,
+  withDay = false,
 }: {
-  timeZone: string
+  /** IANA zone. Omit for the visitor's own zone. */
+  timeZone?: string
   hour12?: boolean
+  /** Prefix the short weekday and date, as a menu bar clock does. */
+  withDay?: boolean
 }) {
   const subscribe = React.useCallback((onChange: () => void) => {
     // 30s is enough for a minute-resolution clock and keeps five of these
@@ -33,12 +37,13 @@ export function LocalTime({
   const getSnapshot = React.useCallback(
     () =>
       new Intl.DateTimeFormat("en-GB", {
+        ...(withDay ? { weekday: "short", day: "numeric", month: "short" } : {}),
         hour: "2-digit",
         minute: "2-digit",
         hour12,
         timeZone,
       }).format(new Date()),
-    [timeZone, hour12]
+    [timeZone, hour12, withDay]
   )
 
   const time = React.useSyncExternalStore(subscribe, getSnapshot, () => "—")

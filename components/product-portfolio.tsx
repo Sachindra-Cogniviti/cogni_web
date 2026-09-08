@@ -51,7 +51,9 @@ export function ProductPortfolio() {
 
   return (
     <section
-      id="products"
+      // Hidden from the page for now (see app/page.tsx). When it returns, the
+      // `products` anchor comes back here from the explorer.
+      id="portfolio"
       className={`bg-night text-night-fg ${sectionPadding}`}
     >
       <Container>

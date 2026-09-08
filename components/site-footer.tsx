@@ -1,6 +1,9 @@
 import Image from "next/image"
 
+import logoFile from "@/public/cogniviti-labs-logo.webp"
+
 import { Container } from "@/components/primitives"
+import { Stagger } from "@/components/stagger"
 import { footer, site } from "@/content/site"
 
 /**
@@ -19,13 +22,11 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-night-fg/12 bg-night pt-[72px] pb-10 text-night-muted">
       <Container>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-10">
-          <div>
+        <Stagger step={0.07} amount={0.3} className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-10">
+          <div data-stagger>
             <Image
-              src={site.logo.src}
+              src={logoFile}
               alt={site.logo.alt}
-              width={site.logo.width}
-              height={site.logo.height}
               className="block h-[26px] w-auto brightness-135 saturate-90"
             />
             <p className="mt-4 max-w-[28ch] text-[13px] leading-[1.6]">
@@ -41,7 +42,7 @@ export function SiteFooter() {
           </div>
 
           {footer.columns.map((column) => (
-            <div key={column.label}>
+            <div key={column.label} data-stagger>
               <div className="mb-[18px] font-mono text-[10.5px] tracking-[0.2em] text-ink-faint uppercase">
                 {column.label}
               </div>
@@ -58,7 +59,7 @@ export function SiteFooter() {
               </div>
             </div>
           ))}
-        </div>
+        </Stagger>
 
         <div className="mt-14 flex flex-wrap justify-between gap-4 border-t border-night-fg/12 pt-6 font-mono text-[11.5px] text-ink-faint">
           <span>

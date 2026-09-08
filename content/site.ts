@@ -16,14 +16,11 @@ export const site = {
     "Cogniviti Labs implements and supports enterprise procurement and EPM platforms, and builds proprietary products for master data, integrations, spend intelligence, cash-flow management, platform adoption and agentic operations.",
   locale: "en",
   email: "contact@cognivitilabs.com",
-  logo: {
-    src: "/cogniviti-labs-logo.webp",
-    // Intrinsic size of the source file. Both are needed by next/image, which
-    // runs unoptimised here (no server) but still uses them to reserve space.
-    width: 2048,
-    height: 384,
-    alt: "Cogniviti Labs",
-  },
+  // The logo file itself is statically imported where it is rendered
+  // (site-nav, site-footer). A string src would not get BASE_PATH prepended
+  // by next/image, so a subfolder deploy would 404 on it; the import lets
+  // Next hash and prefix the asset like any other.
+  logo: { alt: "Cogniviti Labs" },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -41,6 +38,27 @@ export const nav = {
     { label: "Careers", href: "#careers" },
   ],
   cta: { label: "Talk to Our Team", href: "#contact" },
+} as const
+
+/**
+ * Section rail (components/section-rail.tsx): the sections in page order.
+ * `dark` marks sections on the night ground so the rail flips to light ink.
+ */
+export const rail = {
+  label: "Page sections",
+  sections: [
+    { id: "two-sides", label: "Two sides" },
+    { id: "products", label: "Products", dark: true },
+    { id: "services", label: "Services" },
+    { id: "platforms", label: "Platforms" },
+    { id: "training", label: "Coupa Training" },
+    { id: "company", label: "Company" },
+    { id: "work", label: "Client work" },
+    { id: "why", label: "Why Cogniviti" },
+    { id: "resources", label: "Resources" },
+    { id: "careers", label: "Careers" },
+    { id: "contact", label: "Contact", dark: true },
+  ],
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -67,20 +85,75 @@ export const hero = {
   ],
   footnote:
     "Operating across Singapore, India, Indonesia, the United Kingdom and South Africa — with partner-supported delivery in Thailand and other markets.",
+  // The galaxy in the hero's right-hand whitespace (components/hero-galaxy.tsx).
+  // Five capability nodes orbit a core: `r` is orbit radius, `a` the angle in
+  // radians, `product` marks Cogniviti products against platforms we serve.
+  // Hovering a node blooms its `items` around it.
+  galaxy: {
+    nodes: [
+      {
+        label: "Agentic Operating System",
+        product: true,
+        r: 2.35,
+        a: 0.35,
+        items: ["Sourcing agent", "Invoice agent", "Supplier agent"],
+      },
+      {
+        label: "Intelligence and adoption",
+        product: true,
+        r: 3.1,
+        a: 1.55,
+        items: ["Spend Analytics", "CogniFlow", "Adoption Copilot"],
+      },
+      {
+        label: "Integration and data",
+        product: true,
+        r: 2.7,
+        a: 2.85,
+        items: ["Cogniviti Bridge", "Master Data Management"],
+      },
+      {
+        label: "Procurement and EPM platforms",
+        product: false,
+        r: 3.3,
+        a: 4.0,
+        items: ["Coupa", "GEP", "Ivalua", "OneStream"],
+      },
+      {
+        label: "Enterprise systems",
+        product: false,
+        r: 2.9,
+        a: 5.2,
+        items: ["SAP", "Oracle", "NetSuite", "Dynamics", "Enterprise APIs"],
+      },
+    ],
+  },
 } as const
 
 /* ---------------------------------------------------------------------------
  * Trusted by
- *
- * PLACEHOLDER: the six logo slots are awaiting real client logos. Replace
- * `logoCount` with a `logos` array of { src, alt } once assets arrive.
  * ------------------------------------------------------------------------- */
 
+/**
+ * Client logos. Files live in public/logos and are imported statically in
+ * components/trusted-by.tsx, keyed by `id`. `height` is the rendered height in
+ * pixels, set per logo so wide wordmarks and stacked marks sit at the same
+ * optical weight. `tone: "light"` marks a white logo, which is rendered dark
+ * so it shows on the paper ground. Each logo links to `href`.
+ */
 export const trustedBy = {
   kicker: "Trusted by industry leaders",
   body: "Enterprise teams across industries and regions have worked with Cogniviti Labs to implement platforms, connect systems, improve data and support business adoption.",
-  logoCount: 6,
-  logoPlaceholder: "Client logo",
+  logos: [
+    { id: "indosat", name: "Indosat Ooredoo Hutchison", href: "https://ioh.co.id/EN/home", height: 40 },
+    { id: "nets", name: "NETS", href: "https://www.nets.com.sg/", height: 30 },
+    { id: "carsome", name: "Carsome", href: "https://www.carsome.my/", height: 26 },
+    { id: "pil", name: "Pacific International Lines", href: "https://www.pilship.com/", height: 34 },
+    { id: "bangchak", name: "Bangchak", href: "https://www.bangchak.co.th/en/home", height: 60 },
+    { id: "mirvac", name: "Mirvac", href: "https://mirvac.com/", height: 56 },
+    { id: "dynapack", name: "Dynapack Asia", href: "https://www.dynapackasia.com/", height: 50 },
+    { id: "wearnes", name: "Wearnes", href: "https://wearnes-preowned.com/", height: 30, tone: "light" },
+  ],
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -111,9 +184,9 @@ export const twoSides = {
 /* ---------------------------------------------------------------------------
  * Product portfolio
  *
- * One list drives three surfaces: the dark portfolio table, the Raycast-style
- * explorer, and the footer product column. `glyph` is the two-letter mark used
- * by the explorer's app icons and dock.
+ * One list drives three surfaces: the portfolio table (hidden for now), the
+ * product desktop, and the footer product column. `glyph` is the two-letter
+ * mark used by the desktop's app icons and dock.
  * ------------------------------------------------------------------------- */
 
 export type Product = {
@@ -227,15 +300,52 @@ export const productPortfolio = {
   ],
 } as const
 
-export const productExplorer = {
-  kicker: "Product explorer",
+/**
+ * Product desktop (components/product-desktop.tsx): the suite shown as a
+ * small operating system. `menuBar` holds the menu titles and items ({name}
+ * is replaced by the open product), `spotlight` the search panel's copy, and
+ * `dock.contact` the extra Dock item that links to the contact section.
+ */
+export const productDesktop = {
+  kicker: "Product portfolio",
   heading: "One suite. Six systems.",
-  searchPlaceholder: "Search Cogniviti products…",
-  scopeLabel: "All products",
-  listLabel: "Suite",
+  body: "Every product runs on the same foundation, so data, integrations and agents work together rather than side by side.",
+  brand: "Cogniviti",
+  menuBar: {
+    app: {
+      open: "Open {name}",
+      zoom: "Zoom",
+      unzoom: "Restore size",
+      minimise: "Minimise",
+      quit: "Quit {name}",
+    },
+    window: "Window",
+    help: "Help",
+    helpItems: [
+      { label: "Talk to our team", href: "#contact" },
+      { label: "Request a demonstration", href: "#contact" },
+    ],
+  },
+  spotlight: {
+    label: "Search products",
+    placeholder: "Search Cogniviti products…",
+    results: "Products",
+    empty: "No products match",
+    open: "Open",
+    close: "Close search",
+  },
+  windowTitleSuffix: "Cogniviti Suite",
   detailLabel: "Information",
-  footerLabel: "Cogniviti Product Suite",
-  footerAction: "Request a Demonstration",
+  closedHint: "Choose a product from the Dock to open it",
+  dock: {
+    label: "Dock",
+    contact: { label: "Talk to our team", href: "#contact" },
+  },
+  controls: {
+    close: "Close window",
+    minimise: "Minimise window",
+    zoom: "Zoom window",
+  },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -273,19 +383,30 @@ export const services = {
       body: "Production support, monitoring, administration, enhancements and continuous improvement.",
     },
   ],
+  /**
+   * Experience lists. An item with a `logo` renders as a logo tile (file in
+   * public/logos/platforms, imported in components/platform-services.tsx and
+   * keyed by id; `height` is the rendered height in px). Items without one
+   * render as text chips, so a logo can be added per item as files arrive.
+   */
   experience: [
     {
       label: "Platform experience",
-      items: ["Coupa", "GEP", "Ivalua", "OneStream"],
+      items: [
+        { name: "Coupa", logo: "coupa", height: 28 },
+        { name: "GEP", logo: "gep", height: 30 },
+        { name: "Ivalua", logo: "ivalua", height: 36 },
+        { name: "OneStream", logo: "onestream", height: 24 },
+      ],
     },
     {
       label: "Integration experience",
       items: [
-        "SAP",
-        "Oracle",
-        "Microsoft Dynamics",
-        "NetSuite",
-        "Enterprise APIs",
+        { name: "SAP" },
+        { name: "Oracle" },
+        { name: "Microsoft Dynamics" },
+        { name: "NetSuite" },
+        { name: "Enterprise APIs" },
       ],
     },
   ],
@@ -357,54 +478,79 @@ export const credentials = {
 /* ---------------------------------------------------------------------------
  * Global presence
  *
- * `left` is the percentage position along the meridian rule; `above` puts the
- * label over the line rather than under it, so adjacent labels do not collide.
- * `tz` is an IANA zone - the clock is formatted in the browser on mount.
+ * Rendered as a dotted map (components/presence-map.tsx). `region` is the
+ * whole world less Antarctica and the polar fringe. `anchor` says which side
+ * of a pin its label sits on, chosen so the Southeast Asian cluster does not
+ * collide. `tz` is an IANA zone - the clock is formatted in the browser on
+ * mount. `hub` is the office the arcs radiate from, and `bow` is how high
+ * each office's arc rises above its straight line (1 is the default),
+ * varied so the arcs leave the hub at different angles.
  * ------------------------------------------------------------------------- */
 
 export const globalPresence = {
   kicker: "Global presence",
   heading: "Regional presence. Cross-border delivery.",
   body: "Cogniviti Labs supports enterprise programs through teams operating across Singapore, India, Indonesia, the United Kingdom and South Africa. Our partner network extends delivery into Thailand and other markets, with local coordination alongside consistent program governance.",
+  region: { lat: { min: -56, max: 78 }, lng: { min: -170, max: 180 } },
+  hub: "sg",
   locations: [
     {
+      id: "uk",
       name: "United Kingdom",
       offset: "GMT+1",
       tz: "Europe/London",
-      left: 4,
-      above: true,
+      lat: 51.5,
+      lng: -0.12,
+      anchor: "top",
+      bow: 1.3,
     },
     {
+      id: "za",
       name: "South Africa",
       offset: "GMT+2",
       tz: "Africa/Johannesburg",
-      left: 20,
-      above: false,
+      lat: -26.2,
+      lng: 28.05,
+      anchor: "bottom",
+      bow: 1,
     },
     {
+      id: "in",
       name: "India",
       offset: "GMT+5:30",
       tz: "Asia/Kolkata",
-      left: 52,
-      above: true,
+      lat: 19.1,
+      lng: 72.9,
+      anchor: "left",
+      bow: 0.85,
     },
     {
+      id: "id",
       name: "Indonesia",
       offset: "GMT+7",
       tz: "Asia/Jakarta",
-      left: 72,
-      above: false,
+      lat: -6.2,
+      lng: 106.8,
+      anchor: "bottom",
+      bow: 0.5,
     },
     {
+      id: "sg",
       name: "Singapore",
       offset: "GMT+8",
       tz: "Asia/Singapore",
-      left: 88,
-      above: true,
+      lat: 1.35,
+      lng: 103.8,
+      anchor: "right",
+      bow: 0,
     },
   ],
   partner: {
-    left: 66,
+    id: "th",
+    lat: 13.75,
+    lng: 100.5,
+    anchor: "right",
+    bow: 0.8,
     label: "Partner-supported",
     detail: "Thailand + other markets",
   },
@@ -419,6 +565,9 @@ export const clientWork = {
   heading: "Work that reaches production",
   cta: { label: "View All Client Stories", href: "#contact" },
   readLabel: "Read the Client Story",
+  /** The delivery path lays each story's tags out as stops ending here. */
+  pathLabel: "Delivery path",
+  pathEnd: "Production",
   stories: [
     {
       num: "01",
@@ -462,6 +611,16 @@ export const why = {
     after: " the platforms",
   },
   body: "Enterprise programs rarely fail because of one configuration decision. Difficulties emerge between business processes, data, integrations, controls, users and operational ownership. Cogniviti Labs works across these boundaries.",
+  /** The six things the body names; drawn as a grid with the gaps between. */
+  boundaries: [
+    "Business processes",
+    "Data",
+    "Integrations",
+    "Controls",
+    "Users",
+    "Operational ownership",
+  ],
+  betweenLabel: "Cogniviti Labs works here",
   pillars: [
     {
       title: "Business-process understanding",
@@ -488,7 +647,7 @@ export const why = {
 
 export const together = {
   kicker: "Products and services, working together",
-  heading: "Use our products independently—or as part of a wider program",
+  heading: "Use our products independently⁠—or as part of a wider program",
   body: "Every Cogniviti product can address a defined business requirement on its own. Where appropriate, we also combine our products with platform implementation, integration and managed services. This gives clients the flexibility to solve an immediate problem or establish a broader transformation capability.",
   cta: { label: "Discuss Your Requirements", href: "#contact" },
 } as const
@@ -548,7 +707,7 @@ export const careers = {
 export const contact = {
   disciplines: ["Procurement", "Finance", "Data", "Integration"],
   heading:
-    "Planning an enterprise platform program—or evaluating one of our products?",
+    "Planning an enterprise platform program⁠—or evaluating one of our products?",
   body: "Speak with our team about your business processes, technology landscape and operational requirements.",
   actions: [
     { label: "Discuss a Services Requirement", variant: "solid" },

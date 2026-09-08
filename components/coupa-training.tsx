@@ -4,6 +4,7 @@ import {
   sectionPadding,
   solidButton,
 } from "@/components/primitives"
+import { Stagger } from "@/components/stagger"
 import { training } from "@/content/site"
 
 /**
@@ -66,10 +67,11 @@ export function CoupaTraining() {
           <div className="border-b border-rule px-[22px] py-4 font-mono text-[10.5px] tracking-[0.18em] text-ink-faint uppercase">
             {training.panelLabel}
           </div>
-          <div className="py-2">
+          <Stagger step={0.05} amount={0.4} className="py-2">
             {training.offerings.map((offering, index) => (
               <div
                 key={offering.tag}
+                data-stagger
                 className={`flex justify-between gap-4 px-[22px] py-4 text-[14.5px] ${
                   index < training.offerings.length - 1
                     ? "border-b border-rule-faint"
@@ -82,7 +84,7 @@ export function CoupaTraining() {
                 </span>
               </div>
             ))}
-          </div>
+          </Stagger>
         </div>
       </Container>
     </section>

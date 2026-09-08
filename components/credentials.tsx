@@ -1,5 +1,7 @@
 import { Container, Kicker } from "@/components/primitives"
-import { LocalTime } from "@/components/local-time"
+import { PresenceMap } from "@/components/presence-map"
+import { Stagger } from "@/components/stagger"
+import { StatValue } from "@/components/stat-value"
 import { credentials, globalPresence } from "@/content/site"
 
 /**
@@ -12,7 +14,8 @@ import { credentials, globalPresence } from "@/content/site"
  * The stats are a hard 2x2 quadrant, not an auto-fitting grid. Four figures
  * across a wide viewport wrapped 3+1 and left a dead cell; forcing two columns
  * keeps the block square at every width and lets the numerals run to 96px,
- * which is what gives the section its weight.
+ * which is what gives the section its weight. The numerals count up once on
+ * first view (components/stat-value.tsx); the markup carries the final value.
  */
 export function Credentials() {
   return (
@@ -26,17 +29,15 @@ export function Credentials() {
           {credentials.heading}
         </h2>
 
-        <div
-          data-reveal="140"
-          className="mt-14 grid grid-cols-2 border-t border-l border-rule-strong"
-        >
-          {credentials.stats.map((stat) => (
+        <Stagger step={0.08} className="mt-14 grid grid-cols-2 border-t border-l border-rule-strong">
+          {credentials.stats.map((stat, index) => (
             <div
               key={stat.label}
+              data-stagger
               className="border-r border-b border-rule-strong px-[clamp(20px,3vw,40px)] py-[clamp(28px,4vw,52px)]"
             >
               <div className="text-[clamp(52px,6.5vw,96px)] leading-none font-semibold tracking-[-0.045em]">
-                {stat.value}
+                <StatValue value={stat.value} index={index} />
                 {stat.suffix && (
                   <span className="text-oxblood">{stat.suffix}</span>
                 )}
@@ -46,7 +47,7 @@ export function Credentials() {
               </p>
             </div>
           ))}
-        </div>
+        </Stagger>
       </Container>
 
       <Container className="pt-[clamp(88px,10vw,140px)]">
@@ -65,75 +66,11 @@ export function Credentials() {
           </p>
         </div>
 
-        {/* The meridian. Offices are pinned along a single horizontal rule in
-            longitude order, labels alternating above and below so adjacent
-            entries never collide. It is a time line, not a map - which is why
-            it can carry live clocks without pretending to be geography.
-
-            Pins are placed by percentage, so below roughly 880px the labels
-            start colliding and running out of the frame. Rather than stack the
-            offices vertically - which would destroy the single-line idea the
-            section is built on - the track keeps its proportions and scrolls
-            horizontally. Above 880px this is inert and the composition is
-            exactly as designed. */}
-        <div
-          data-reveal="120"
-          className="mt-[72px] overflow-x-auto border-y border-rule bg-paper-soft"
-        >
-          <div className="relative h-[260px] min-w-[880px]">
-            <div className="absolute inset-x-0 top-1/2 h-px bg-edge" />
-
-            {globalPresence.locations.map((location) => (
-              <div key={location.name}>
-                <div
-                  className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${location.left}%` }}
-                >
-                  <div className="size-[9px] rotate-45 bg-oxblood" />
-                </div>
-                <div
-                  className="absolute -translate-x-2"
-                  style={{
-                    left: `${location.left}%`,
-                    ...(location.above
-                      ? { bottom: "50%", marginBottom: "22px" }
-                      : { top: "50%", marginTop: "22px" }),
-                  }}
-                >
-                  <div className="text-[15px] font-semibold tracking-[-0.01em]">
-                    {location.name}
-                  </div>
-                  <div className="mt-1 font-mono text-[11.5px] text-ink-faint">
-                    {location.offset}&nbsp;&nbsp;
-                    <LocalTime timeZone={location.tz} />
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {/* Partner markets: hollow pin, sitting lower than the owned
-              offices so the hierarchy is unmistakable. */}
-            <div
-              className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${globalPresence.partner.left}%` }}
-            >
-              <div className="size-[9px] rotate-45 border-[1.5px] border-ink-ghost bg-paper-soft" />
-            </div>
-            {/* Cleared to 72px rather than the design's 56px. At 56px this
-              caption sat on top of Indonesia's clock line, which reads as
-              broken rather than dense - Indonesia's own two-line block already
-              runs to 58px below the rule. */}
-            <div
-              className="absolute top-1/2 mt-[72px] -translate-x-2"
-              style={{ left: `${globalPresence.partner.left}%` }}
-            >
-              <div className="font-mono text-[10.5px] tracking-[0.1em] whitespace-nowrap text-ink-ghost uppercase">
-                {globalPresence.partner.label}
-                <br />
-                {globalPresence.partner.detail}
-              </div>
-            </div>
-          </div>
+        {/* The map. Offices pinned by coordinate on a dotted map cropped to
+            the footprint, arcs radiating from the Singapore hub, each pin
+            carrying its live clock. See components/presence-map.tsx. */}
+        <div data-reveal="120" className="mt-[72px]">
+          <PresenceMap />
         </div>
 
         <div

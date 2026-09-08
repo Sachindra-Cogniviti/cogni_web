@@ -60,7 +60,7 @@ export function QuietLink({ className, ...props }: React.ComponentProps<"a">) {
   return (
     <a
       className={cn(
-        "border-b border-oxblood/35 pb-[3px] text-[15px] font-medium text-oxblood transition-colors hover:text-ink",
+        "border-b border-oxblood/35 pb-[3px] text-[15px] font-medium text-oxblood transition-[color,border-color] duration-200 hover:border-ink/35 hover:text-ink",
         className
       )}
       {...props}
@@ -68,10 +68,16 @@ export function QuietLink({ className, ...props }: React.ComponentProps<"a">) {
   )
 }
 
+/**
+ * Shared by every pressable on the page: a 3% scale-down on press so the
+ * control answers the finger, and full width below the small breakpoint so
+ * a stacked pair keeps one edge. The focus ring is global (globals.css).
+ */
+export const pressable =
+  "transition-transform duration-[160ms] ease-[cubic-bezier(.23,1,.32,1)] active:scale-[0.97] max-sm:w-full max-sm:text-center"
+
 /** Solid ink button. Goes oxblood on hover, and lifts 1px on the hero pair. */
-export const solidButton =
-  "inline-block rounded-[2px] bg-ink px-[28px] py-[15px] text-[15px] font-medium text-paper transition-[background-color,transform] duration-200 hover:bg-oxblood"
+export const solidButton = `inline-block rounded-[2px] bg-ink px-[28px] py-[15px] text-[15px] font-medium text-paper transition-[background-color,transform] duration-200 hover:bg-oxblood ${pressable}`
 
 /** Hairline-outlined button, the quieter half of a button pair. */
-export const outlineButton =
-  "inline-block rounded-[2px] border border-edge px-[28px] py-[14px] text-[15px] font-medium text-ink transition-colors duration-200 hover:border-oxblood hover:text-oxblood"
+export const outlineButton = `inline-block rounded-[2px] border border-edge px-[28px] py-[14px] text-[15px] font-medium text-ink transition-[color,border-color,transform] duration-200 hover:border-oxblood hover:text-oxblood ${pressable}`
