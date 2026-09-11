@@ -8,9 +8,14 @@ import { credentials, globalPresence } from "@/content/site"
 /**
  * Experience and credentials, then global presence.
  *
- * These share one <section> because they share the #company anchor and read as
- * one argument: here is the scale of the practice, and here is where it
- * operates.
+ * These share one <section> because they read as one argument: here is the
+ * scale of the practice, and here is where it operates.
+ *
+ * The #company anchor is NOT here any more. It moved to components/our-story
+ * .tsx, which now opens the company block - the nav and the rail should land
+ * on why the company exists, not on its statistics. The three sections that
+ * follow it (this one, the presence map, and the team) have no ids of their
+ * own, so the rail holds "Company" highlighted across all of them.
  *
  * The stats are a hard 2x2 quadrant, not an auto-fitting grid. Four figures
  * across a wide viewport wrapped 3+1 and left a dead cell; forcing two columns
@@ -22,7 +27,7 @@ import { credentials, globalPresence } from "@/content/site"
  */
 export function Credentials() {
   return (
-    <section id="company" className="pt-[clamp(88px,10vw,140px)]">
+    <section className="pt-[clamp(88px,10vw,140px)]">
       <Container>
         <Kicker data-reveal="0" data-flow="left">
           {credentials.kicker}

@@ -725,6 +725,62 @@ export const training = {
 } as const
 
 /* ---------------------------------------------------------------------------
+ * Our story
+ *
+ * Opens the #company block. It is the only thing on the site that explains how
+ * a platform-implementation practice came to be building an Agentic Operating
+ * System - which already sits in `products` above with no stated origin.
+ *
+ * The four stages are a causal chain, not a list of equal capabilities: each
+ * one is the consequence of the one before, and 04 is a problem statement that
+ * `close` answers. That is why they are numbered here and drawn as a spine
+ * rather than as a grid of matching cells - see components/our-story.tsx.
+ * ------------------------------------------------------------------------- */
+
+export const story = {
+  kicker: "Our story",
+  heading: "From implementing platforms to governing AI at scale",
+  body: "We didn't set out to build an AI operating system. We arrived here by following a problem — one our clients kept running into as AI moved from promise to production.",
+  stages: [
+    {
+      num: "01",
+      label: "Where we began",
+      title: "Mastering enterprise platform implementation.",
+      body: "We launched as a team of senior experts dedicated to implementing top-tier finance and procurement platforms — Coupa, Ivalua, GEP and OneStream. We didn't just configure software: we integrated ERPs, cleaned data, and ensured high adoption.",
+    },
+    {
+      num: "02",
+      label: "The shift",
+      title: "Platforms transitioned to AI-native ecosystems.",
+      body: "With the rise of native AI agents and agent studios, our work shifted from basic configuration to intelligent composition — building agents that reason and act across the entire source-to-pay lifecycle.",
+    },
+    {
+      num: "03",
+      label: "The response",
+      title: "Engineering custom agents for complex enterprise workflows.",
+      body: "We followed the technology, building bespoke AI agents tailored to our clients' exact data and workflows. But as we deployed more agents, a massive infrastructure gap became obvious.",
+    },
+    {
+      num: "04",
+      label: "The solution",
+      title:
+        "Bridging the gap between agent scaling and enterprise governance.",
+      body: "Enterprise AI rarely fails due to a shortage of agents; it fails due to a deficit of control. As companies scale from a few isolated agents to hundreds, they face a critical need for centralized orchestration, continuous monitoring, and rigorous risk safeguards.",
+    },
+  ],
+  /**
+   * The end of the spine, and the only place on the site that says AOS is
+   * still being built. Keep "we are developing" - it is the difference between
+   * a roadmap and a claim.
+   */
+  close: {
+    label: "What we are building",
+    body: "To bridge this gap, we are developing the Agentic Operating System (AOS) — the essential governance layer that empowers enterprises to scale AI agents with the absolute trust, transparency, and auditability that mission-critical operations demand.",
+    cta: { label: "Explore Agentic Operating System", href: "#products" },
+  },
+} as const
+
+/* ---------------------------------------------------------------------------
  * Experience and credentials
  *
  * PLACEHOLDER: these four figures were illustrative in the design and have not
@@ -836,6 +892,154 @@ export const globalPresence = {
     label: "Partner-supported",
     detail: "Thailand + other markets",
   },
+} as const
+
+/* ---------------------------------------------------------------------------
+ * Founders and team
+ *
+ * Closes the #company block. `photo` is an id, not a path: the files live in
+ * public/founders and public/team and are statically imported and keyed in
+ * components/people.tsx, the same arrangement the platform logos use, so this
+ * file stays plain data.
+ *
+ * `role` and `tenure` are separate fields and `previously` is a list, because
+ * the "·" between them is punctuation the component draws. Storing
+ * "Director · 15+ yrs" as one string would bake a separator into the copy and
+ * make it impossible to set the two halves differently, which is exactly what
+ * the design does.
+ *
+ * Team members carry no `tenure` - it was not supplied for them, and inventing
+ * years of experience for a named individual is not a gap to fill in with a
+ * plausible number.
+ * ------------------------------------------------------------------------- */
+
+export const people = {
+  kicker: "Founders and team",
+  heading: "The people behind it",
+  body: "A boutique team of senior practitioners — with the hands-on experience to implement, the engineering depth to build, and the judgment to govern AI at enterprise scale.",
+  connectLabel: "Connect",
+  groups: [
+    {
+      label: "Our founders",
+      members: [
+        {
+          name: "Mohammed Zafar Ali",
+          photo: "zafar",
+          role: "Executive Director",
+          tenure: "25+ yrs",
+          previously: ["Accenture", "Deloitte", "KPMG"],
+          body: "Large-scale procurement transformation programs.",
+          linkedin: "https://www.linkedin.com/in/mdzafarali/",
+        },
+        {
+          name: "John Philip",
+          photo: "john",
+          role: "Executive Director",
+          tenure: "22+ yrs",
+          previously: ["SAP", "KPMG", "BCT"],
+          body: "Tech consulting, value selling and enterprise delivery.",
+          linkedin: "https://www.linkedin.com/in/john-philip-07a29416/",
+        },
+        {
+          name: "Sushil Yerunkar",
+          photo: "sushil",
+          role: "Director",
+          tenure: "14+ yrs",
+          previously: ["Coupa"],
+          body: "25+ source-to-pay implementations across APAC.",
+          linkedin: "https://www.linkedin.com/in/sushil-yerunkar-8a852820/",
+        },
+        {
+          name: "Robin Garg",
+          photo: "robin",
+          role: "Director",
+          tenure: "15+ yrs",
+          previously: ["BCG"],
+          body: "Procurement strategy across BCG's global offices.",
+          linkedin: "https://www.linkedin.com/in/robingarg15/",
+        },
+        {
+          name: "Kriti Gaurav",
+          photo: "kriti",
+          role: "Director",
+          tenure: "15+ yrs",
+          previously: ["EY", "PwC", "KPMG"],
+          body: "Transformation and change management at Big-Four scale.",
+          linkedin: "https://www.linkedin.com/in/kriti-gaurav-64850a11/",
+        },
+        {
+          name: "Manav Sachdeva",
+          photo: "manav",
+          role: "Managing Director, Africa",
+          tenure: "15+ yrs",
+          previously: ["PSA Group", "Letsema"],
+          body: "Enterprise transformation and delivery leadership.",
+          linkedin: "https://www.linkedin.com/in/manav-sachdeva-b191212/",
+        },
+      ],
+    },
+    {
+      label: "Our team",
+      members: [
+        {
+          name: "Niko Sutiono",
+          photo: "niko",
+          role: "Senior Manager",
+          previously: ["Deloitte", "EY"],
+          body: "Tech-enabled transformation in finance and procurement.",
+          linkedin: "https://www.linkedin.com/in/niko-sutiono/",
+        },
+        {
+          name: "Animesh Singhal",
+          photo: "animesh",
+          role: "Product Manager",
+          previously: ["Bahwan CyberTek", "IBM"],
+          body: "AI-powered products across procurement, data and automation.",
+          linkedin: "https://www.linkedin.com/in/animsin/",
+        },
+        {
+          name: "Sandesh Jagtap",
+          photo: "sandesh",
+          role: "Manager",
+          previously: ["Bahwan CyberTek", "Zycus"],
+          body: "Digital transformation and eProcurement practice across S2P.",
+          linkedin: "https://www.linkedin.com/in/sandesh-jagtap-4a1221103/",
+        },
+        {
+          name: "Rahul Pawar",
+          photo: "rahul",
+          role: "Senior Solution Consultant",
+          previously: ["Bahwan CyberTek", "Zycus"],
+          body: "Solution design and delivery across procurement platforms.",
+          linkedin: "https://www.linkedin.com/in/rahul-pawar-88993ba0/",
+        },
+        {
+          name: "Leroy Vieira",
+          photo: "leroy",
+          role: "Solution Consultant",
+          previously: ["Bahwan CyberTek", "Decathlon"],
+          body: "End-to-end Source-to-Pay delivery across global clients.",
+          linkedin: "https://www.linkedin.com/in/leroy-vieira/",
+        },
+        {
+          name: "Joyce Kuppekar",
+          photo: "joyce",
+          role: "Solutions Consultant",
+          previously: ["Bahwan CyberTek", "WNS"],
+          body: "Supply chain management, Coupa-certified P2P & S2P.",
+          linkedin: "https://www.linkedin.com/in/joyce-kuppekar-7bb7491b8/",
+        },
+        {
+          name: "Valentina Aranjo",
+          photo: "valentina",
+          role: "Software Implementation Consultant",
+          previously: ["Bahwan CyberTek"],
+          body: "SaaS implementation and supply-chain optimization, S2P & P2P.",
+          linkedin: "https://www.linkedin.com/in/valentina-aranjo-b11892131/",
+        },
+      ],
+    },
+  ],
 } as const
 
 /* ---------------------------------------------------------------------------

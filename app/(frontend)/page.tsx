@@ -5,6 +5,8 @@ import { Contact } from "@/components/contact"
 import { CoupaTraining } from "@/components/coupa-training"
 import { Credentials } from "@/components/credentials"
 import { Hero } from "@/components/hero"
+import { OurStory } from "@/components/our-story"
+import { People } from "@/components/people"
 import { HatchBand } from "@/components/primitives"
 import { PlatformServices } from "@/components/platform-services"
 import { ProductDesktop } from "@/components/product-desktop"
@@ -30,6 +32,11 @@ import { WhyCogniviti } from "@/components/why-cogniviti"
  * and the certifications answer what we are independently held to, and they
  * are adjacent because either alone is half an answer. They share an armature
  * for the same reason - see components/certifications.tsx.
+ *
+ * The company block is four sections under one anchor, for the same reason:
+ * the story says why the practice exists, the credentials give its scale, the
+ * map gives its footprint and the team gives its faces. Only the first of the
+ * four carries #company, so the rail holds "Company" across all of them.
  *
  * The light/dark alternation is structural, not decorative. The two dark
  * blocks - portfolio plus desktop, then contact plus footer - bracket the
@@ -59,7 +66,13 @@ export default function Page() {
         <ProductDesktop />
         <PlatformServices />
         <CoupaTraining />
+        {/* The company block, in four movements under one #company anchor: why
+            we exist, the scale of the practice, where it operates, and who is
+            in it. People sit last on purpose - faces are the most concrete
+            thing here, and they hand off to Careers below. */}
+        <OurStory />
         <Credentials />
+        <People />
         <ClientWork />
         <WhyCogniviti />
         <Together />
