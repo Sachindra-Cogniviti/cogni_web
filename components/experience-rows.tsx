@@ -272,25 +272,15 @@ function LogoTile({
         // Only while open: the panel does not exist otherwise, and an
         // aria-controls pointing at an absent id is an invalid reference.
         aria-controls={isOpen ? panelId : undefined}
+        // Three grounds for three states, so hovering a closed tile never
+        // looks like an open one. The open tile is a step darker than hover
+        // rather than a different hue: these cells hold vendor logos in their
+        // own brand colours, and anything with its own colour behind them
+        // starts arguing with the marks.
         className={`group relative flex h-[88px] w-full cursor-pointer items-center justify-center px-5 transition-colors duration-[250ms] ${
-          isOpen ? "bg-paper-soft" : "bg-paper hover:bg-paper-soft"
+          isOpen ? "bg-paper-tint" : "bg-paper hover:bg-paper-soft"
         }`}
       >
-        {/* The same oxblood rule the delivery-stage cells use: a short tick on
-            the top edge that runs the width of the cell on hover. Here it also
-            stays run out while the tile is open, so the open tile and the
-            panel below it read as one object. A transform, not a width. */}
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute top-[-1px] left-0 h-[2px] w-9 bg-oxblood"
-        />
-        <span
-          aria-hidden="true"
-          className={`pointer-events-none absolute top-[-1px] left-0 h-[2px] w-full origin-left bg-oxblood transition-transform duration-300 ease-[cubic-bezier(.23,1,.32,1)] motion-reduce:transition-none ${
-            isOpen ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-          }`}
-        />
-
         {/* Plus turning into a minus. The rotation is on the upright stroke
             alone, never on the box: rotating the box takes the horizontal
             stroke with it and the "minus" comes out standing on end. Turned a

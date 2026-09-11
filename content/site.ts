@@ -482,6 +482,11 @@ export const services = {
    * all - no cursor, no hover, no focus stop - so a tile never invites a click
    * that does nothing. Adding a `detail` is all it takes to switch one on.
    *
+   * Keep `capabilities` at six per item. It is what makes the two groups read
+   * as one system rather than two lists that happen to sit near each other,
+   * and the panel's right-hand column is sized for six rows against the prose
+   * beside it.
+   *
    * `summary` is the one-paragraph position; `body` is the how. They were two
    * disclosure levels in the source copy, behind a "Show more". Here the tile
    * click is already the disclosure, and a second toggle inside a panel the
@@ -582,15 +587,109 @@ export const services = {
       // mark actually reads - the Microsoft lockup says "Dynamics 365" and
       // the current NetSuite mark is an Oracle NetSuite lockup.
       //
-      // No `detail` on these yet, so they render as plain tiles rather than
-      // buttons. Give any of them a `detail` block in the shape used above and
-      // it starts expanding with no component change.
+      //
+      // DRAFT COPY. Unlike the platform blocks above, which came from approved
+      // marketing text, these five were written to the shape of the delivery
+      // work described in stage 03 and need review before launch - particularly
+      // the named technologies, which are the normal furniture of each
+      // integration but are still a claim about what we have actually built.
+      hint: "Select a system",
       items: [
-        { name: "SAP", logo: "sap", height: 32 },
-        { name: "Oracle", logo: "oracle", height: 15 },
-        { name: "Microsoft Dynamics 365", logo: "dynamics", height: 28 },
-        { name: "Oracle NetSuite", logo: "netsuite", height: 28 },
-        { name: "Enterprise APIs", logo: "api", height: 36 },
+        {
+          name: "SAP",
+          logo: "sap",
+          height: 32,
+          detail: {
+            tag: "ERP Integration",
+            summary:
+              "We connect Source-to-Pay and EPM platforms to SAP so procurement and finance work from one set of records — covering master data, the transactional flows between them and the reconciliation that keeps both sides in agreement.",
+            body: "Our work covers interface design, master-data alignment and the day-to-day flows between S/4HANA or ECC and the platform being deployed: requisitions, purchase orders, goods receipt, invoices and payment status. Interfaces are tested against realistic volumes and reconciliation is designed in from the start, so a discrepancy surfaces in the process rather than at period close.",
+            capabilities: [
+              "S/4HANA & ECC",
+              "Master data alignment",
+              "Purchase order & invoice flows",
+              "IDoc, BAPI & OData interfaces",
+              "Reconciliation & controls",
+              "Migration & cutover",
+            ],
+          },
+        },
+        {
+          name: "Oracle",
+          logo: "oracle",
+          height: 15,
+          detail: {
+            tag: "Fusion & E-Business Suite",
+            summary:
+              "We integrate procurement and EPM platforms with Oracle Fusion Cloud and E-Business Suite, aligning supplier, item and accounting structures so spend recorded in one system reconciles cleanly in the other.",
+            body: "We design interfaces around Oracle's supplier, item, purchasing and payables structures, mapping chart-of-accounts and approval data so transactions post correctly the first time. Migration and cutover get the same attention as the steady-state flows, because the first period after go-live is where integration problems actually surface.",
+            capabilities: [
+              "Fusion Cloud & EBS",
+              "Supplier & item master",
+              "Purchasing & payables",
+              "Chart of accounts mapping",
+              "Migration & cutover",
+              "Reconciliation",
+            ],
+          },
+        },
+        {
+          name: "Microsoft Dynamics 365",
+          logo: "dynamics",
+          height: 28,
+          detail: {
+            tag: "Finance & Operations",
+            summary:
+              "We connect Source-to-Pay and EPM platforms to Dynamics 365 Finance and Operations, keeping procurement activity, vendor records and financial postings consistent across both.",
+            body: "We work through Dynamics' data entities and integration services to move vendor, purchase order and invoice data reliably in both directions, and align posting and approval rules so nothing is left stranded between systems. Where the wider estate already runs on Microsoft services, the integration is designed to fit what is in place rather than beside it.",
+            capabilities: [
+              "Finance & Operations",
+              "Vendor & catalogue data",
+              "Purchase order & invoice sync",
+              "Data entities & APIs",
+              "Posting & approval rules",
+              "Environment management",
+            ],
+          },
+        },
+        {
+          name: "Oracle NetSuite",
+          logo: "netsuite",
+          height: 28,
+          detail: {
+            tag: "Cloud ERP",
+            summary:
+              "We integrate NetSuite with procurement and finance platforms, giving multi-subsidiary organizations a single consistent view of spend, suppliers and results without losing the speed that took them to NetSuite in the first place.",
+            body: "We align NetSuite's vendor, item and subsidiary structures with the platform being implemented, and design the purchase-to-pay flows to hold up across multiple subsidiaries and currencies. Configuration is kept as close to standard as the requirement allows, so future upgrades stay routine rather than becoming projects of their own.",
+            capabilities: [
+              "Vendor & item records",
+              "Purchase-to-pay flows",
+              "Multi-subsidiary & currency",
+              "SuiteTalk & REST APIs",
+              "Saved searches & reporting",
+              "Upgrade-safe configuration",
+            ],
+          },
+        },
+        {
+          name: "Enterprise APIs",
+          logo: "api",
+          height: 36,
+          detail: {
+            tag: "Integration Architecture",
+            summary:
+              "Where no packaged connector exists, we build the interface — APIs, file exchanges and middleware flows designed around real volumes, real failure modes and the people who will support them afterwards.",
+            body: "We design to the interface each system actually offers rather than forcing one pattern across the estate: REST and SOAP services, scheduled file transfers, or middleware where an organization already runs one. Error handling, retries, logging and monitoring are part of the build rather than a later addition, so a failed run is visible and recoverable without pulling in a developer.",
+            capabilities: [
+              "REST & SOAP interfaces",
+              "Middleware & iPaaS",
+              "File-based exchange",
+              "Error handling & retries",
+              "Monitoring & alerting",
+              "Security & authentication",
+            ],
+          },
+        },
       ],
     },
   ],
