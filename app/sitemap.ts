@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-import { siteUrl } from "@/content/site"
+import { isProductionDeployment, publicSiteUrl } from "@/lib/deployment"
 
 export const dynamic = "force-static"
 
@@ -16,9 +16,16 @@ export const dynamic = "force-static"
 const routes = ["/"]
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // A preview lists nothing. Emitting production URLs from a preview would
+  // hand a crawler the live site's routes from a deployment that is not the
+  // live site; emitting the preview's own URLs would be asking for the staging
+  // copy to be indexed. Neither is wanted, and an empty sitemap is both.
+  if (!isProductionDeployment) return []
+
+  const origin = publicSiteUrl()
   const lastModified = new Date()
   return routes.map((path) => ({
-    url: `${siteUrl}${path}`,
+    url: `${origin}${path}`,
     lastModified,
     changeFrequency: "monthly",
     priority: path === "/" ? 1 : 0.7,

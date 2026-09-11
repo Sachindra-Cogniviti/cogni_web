@@ -32,12 +32,22 @@ const nextConfig: NextConfig = {
   // MIME types and the immutable cache on /_next/static itself, but it does
   // not add this one, and dropping it silently would be a real regression.
   async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: [{ key: "X-Content-Type-Options", value: "nosniff" }],
-      },
-    ]
+    const headers = [{ key: "X-Content-Type-Options", value: "nosniff" }]
+
+    // Belt and braces over robots.txt and the noindex metadata, and the
+    // strongest of the three: a header needs no file to be fetched and no
+    // markup to be parsed, applies to assets and API routes as well as pages,
+    // and is the one signal Google honours for non-HTML responses.
+    //
+    // Vercel already sends this on preview deployments. This does not rely on
+    // that - it survives attaching a domain to a preview, which is exactly
+    // when their version stops applying and an internal build starts looking
+    // like a real site.
+    if (process.env.VERCEL_ENV !== "production") {
+      headers.push({ key: "X-Robots-Tag", value: "noindex, nofollow" })
+    }
+
+    return [{ source: "/:path*", headers }]
   },
 }
 
