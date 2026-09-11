@@ -1,0 +1,922 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Explicit source roots for Tailwind's class scan. Turbopack's persistent
+ * dev cache has served stale CSS after new utilities were introduced in a
+ * component file; declaring the roots keeps the scan deterministic. */
+@source "../components";
+@source "../app";
+@source "../content";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+    --font-mono: var(--font-mono);
+    --font-serif: var(--font-serif);
+
+    /* ---------------------------------------------------------------
+     * Cogniviti Labs v1 palette.
+     *
+     * Kept as literal hex, deliberately: these are lifted straight from
+     * the design file so the built page matches it exactly. Converting to
+     * oklch (as the shadcn tokens below do) would round every value and
+     * put the hairlines and paper tints visibly off.
+     *
+     * The scale runs light -> dark. "paper" is the page ground, "ink" is
+     * type, "rule" is borders, "night" is the dark contrast sections.
+     * --------------------------------------------------------------- */
+    --color-paper: #faf8f5; /* page ground */
+    --color-paper-alt: #f3efe7; /* alternate section band */
+    --color-paper-soft: #f6f3ed; /* row hover fill */
+    --color-paper-tint: #f1ede4; /* placeholder hatching */
+
+    --color-ink: #17140f; /* headings, primary type */
+    --color-ink-soft: #4c463d; /* body copy */
+    --color-ink-muted: #7a7266; /* small print */
+    --color-ink-faint: #8a8172; /* mono labels */
+    --color-ink-ghost: #a69c8a; /* placeholder captions */
+
+    --color-rule: #e8e3d9; /* default hairline */
+    --color-rule-strong: #d8d2c4; /* section-opening rule */
+    --color-rule-faint: #f0ebe1; /* list dividers */
+    --color-edge: #c9c1b2; /* outline-button border */
+
+    --color-oxblood: #8e2030; /* brand accent */
+    --color-oxblood-lift: #c86a72; /* accent on dark ground */
+
+    --color-night: #161310; /* products, contact, footer */
+    --color-night-deep: #0e0b09; /* product explorer */
+    --color-night-panel: #1c1814; /* spec readout panel */
+    --color-night-fg: #f5f1ea; /* type on dark */
+    --color-night-muted: #b3a996; /* body copy on dark */
+    --color-night-value: #e8dfce; /* data values on dark */
+
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+
+  /* Anchor navigation. scroll-padding clears the 68px fixed nav plus a
+   * little breathing room, so a jumped-to section does not sit under it.
+   * The native smooth scroll is the no-JS fallback only: with scripting on,
+   * components/smooth-anchors.tsx drives the scroll itself and needs the
+   * browser's own easing out of the way (see the `.js` rule below). */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px;
+    }
+  html.js {
+    scroll-behavior: auto;
+    }
+  body {
+    @apply bg-paper text-ink;
+    text-rendering: optimizeLegibility;
+    }
+
+  /* Blocks that arrive from the side start beyond their resting place, which
+   * would widen the document for the length of the animation. `clip` cuts
+   * that off without making a scroll container, so the fixed nav, the rail
+   * and every view-based measurement are untouched. */
+  html {
+    overflow-x: clip;
+    }
+  ::selection {
+    @apply bg-oxblood text-paper;
+    }
+
+  /* One focus ring for the page: oxblood, offset, keyboard only. Dark
+   * grounds lift it so it holds contrast. Controls with their own ring
+   * (logo cells, dock, rail) opt out locally. */
+  :where(a, button, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-oxblood);
+    outline-offset: 2px;
+    border-radius: 2px;
+    }
+  :where(.bg-night, .bg-night-deep, .desktop) :where(a, button, [tabindex]):focus-visible {
+    outline-color: var(--color-oxblood-lift);
+    }
+}
+
+/* Site nav (components/site-nav.tsx).
+ *
+ * The bar reads the ground under it: over the dark sections it switches to
+ * the night palette so the two fixed elements (this and the rail) agree.
+ * Only the palette lives here. The bar's entrance on load and the compact
+ * panel's on open are staggered by Motion in the component, so the two never
+ * animate the same property from opposite sides. */
+.site-nav {
+  --nav-bg: rgb(250 248 245 / 0.85);
+  --nav-border: var(--color-rule);
+  --nav-link: var(--color-ink-soft);
+  --nav-link-hover: var(--color-oxblood);
+  --nav-active: var(--color-oxblood);
+  --nav-cta-bg: var(--color-ink);
+  --nav-cta-fg: var(--color-paper);
+  --nav-cta-hover: var(--color-oxblood);
+  --nav-outline: var(--color-edge);
+  --nav-outline-fg: var(--color-ink);
+  --nav-panel-bg: var(--color-paper);
+  --nav-panel-fg: var(--color-ink);
+  --nav-panel-rule: var(--color-rule-faint);
+  --nav-logo: none;
+  background: var(--nav-bg);
+  border-color: var(--nav-border);
+  transition:
+    background-color 250ms ease,
+    border-color 250ms ease;
+}
+
+.site-nav[data-dark] {
+  --nav-bg: rgb(22 19 16 / 0.85);
+  --nav-border: rgb(245 241 234 / 0.12);
+  --nav-link: var(--color-night-muted);
+  --nav-link-hover: var(--color-night-fg);
+  --nav-active: var(--color-oxblood-lift);
+  --nav-cta-bg: var(--color-night-fg);
+  --nav-cta-fg: var(--color-ink);
+  --nav-cta-hover: var(--color-oxblood-lift);
+  --nav-outline: rgb(245 241 234 / 0.35);
+  --nav-outline-fg: var(--color-night-fg);
+  --nav-panel-bg: var(--color-night);
+  --nav-panel-fg: var(--color-night-fg);
+  --nav-panel-rule: rgb(245 241 234 / 0.1);
+  --nav-logo: brightness(1.35) saturate(0.9);
+}
+
+/* The bar's start state, played to rest one piece at a time on load by the
+ * scroll flow. Scoped to .js and neutralised under reduced motion on the same
+ * terms as [data-reveal] further down: with scripting off the bar is simply
+ * there. The travel is a fraction of the page's 32px because the bar is 68px
+ * tall - anything more and the row drops in from outside its own edge. */
+.js [data-nav-enter] {
+  opacity: 0;
+  translate: 0 -8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-nav-enter] {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+.nav-logo {
+  filter: var(--nav-logo);
+  transition: filter 250ms ease;
+}
+
+.nav-link {
+  color: var(--nav-link);
+  transition: color 200ms ease;
+}
+
+.nav-link:hover {
+  color: var(--nav-link-hover);
+}
+
+.nav-link[aria-current] {
+  color: var(--nav-active);
+}
+
+.nav-dot,
+.nav-progress {
+  background: var(--nav-active);
+}
+
+.nav-cta {
+  background: var(--nav-cta-bg);
+  color: var(--nav-cta-fg);
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.nav-cta:hover {
+  background: var(--nav-cta-hover);
+}
+
+.nav-cta:active {
+  transform: scale(0.97);
+}
+
+.nav-toggle {
+  border-color: var(--nav-outline);
+  color: var(--nav-outline-fg);
+  transition:
+    color 200ms ease,
+    border-color 200ms ease,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.nav-toggle:hover {
+  border-color: var(--nav-active);
+  color: var(--nav-active);
+}
+
+.nav-toggle:active {
+  transform: scale(0.97);
+}
+
+.nav-panel {
+  background: var(--nav-panel-bg);
+  border-color: var(--nav-border);
+}
+
+.nav-panel-link {
+  color: var(--nav-panel-fg);
+  border-color: var(--nav-panel-rule);
+  transition: color 200ms ease;
+}
+
+.nav-panel-link:hover {
+  color: var(--nav-active);
+}
+
+
+/* -------------------------------------------------------------------------
+ * Scroll flow
+ *
+ * Every block on the page arrives the same way: elements carrying
+ * data-reveal, and items carrying data-stagger inside a Stagger group, start
+ * here - transparent and pushed off their resting place - and are played to
+ * rest by Motion when they come into view (lib/scroll-flow.ts).
+ *
+ * Which way a block comes from is `data-flow` on the element, or on a
+ * Stagger wrapper, where the custom properties below inherit down to every
+ * item in the group. A split section marks its two halves `left` and
+ * `right`, so they arrive from their own sides; everything else rises.
+ *
+ * The distances are here and nowhere else. Motion is given only a
+ * destination and reads whatever it finds as the starting point, so there is
+ * no second copy of these numbers to fall out of step with.
+ *
+ * Movement is on the independent `translate` property, never `transform`, so
+ * it composes with the Tailwind hover transforms on cards and links instead
+ * of overwriting them.
+ *
+ * The hidden state lives here rather than inline so that content is visible
+ * when CSS loads but JS does not, and is neutralised entirely under
+ * reduced-motion.
+ * ------------------------------------------------------------------------- */
+/* Scoped to .js, set synchronously by a head script before first paint. With
+ * scripting off the content is simply visible - a static export must not hide
+ * its own copy behind an animation that can never run. */
+.js [data-reveal],
+.js [data-stagger] {
+  opacity: 0;
+  translate: var(--flow-x, 0px) var(--flow-y, 32px);
+}
+
+.js [data-flow="left"] {
+  --flow-x: -52px;
+  --flow-y: 0px;
+}
+
+.js [data-flow="right"] {
+  --flow-x: 52px;
+  --flow-y: 0px;
+}
+
+/* Cells in a hairline grid only fade: sliding one tears the rule it shares
+ * with its neighbour, and those joins are the whole look of the section. */
+.js [data-flow="fade"] {
+  --flow-x: 0px;
+  --flow-y: 0px;
+}
+
+/* A phone screen is narrow enough that the full lateral travel reads as the
+ * layout lurching rather than a block arriving, so it is scaled back. */
+@media (max-width: 640px) {
+  .js [data-flow="left"] {
+    --flow-x: -26px;
+  }
+
+  .js [data-flow="right"] {
+    --flow-x: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .js [data-reveal],
+  .js [data-stagger] {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * The oxblood streak gradient
+ *
+ * Used on both faces of the two-sides flip card. It is four stacked layers:
+ * a diagonal base ramp, hard-edged light/dark streaks, a corner sheen, and
+ * fractal-noise grain over the top in overlay blend. The grain is what stops
+ * it reading as a generic CSS gradient, so it is not optional.
+ *
+ * The reverse face mirrors the ramp (232deg vs 128deg) so the two sides read
+ * as related but not identical when the card flips.
+ * ------------------------------------------------------------------------- */
+.streak-gradient {
+  background: linear-gradient(
+    128deg,
+    #4a0b18 0%,
+    #8e2030 28%,
+    #c93b52 52%,
+    #e0526b 66%,
+    #7e1a2c 88%,
+    #3e0912 100%
+  );
+}
+
+.streak-gradient-reverse {
+  background: linear-gradient(
+    232deg,
+    #3e0912 0%,
+    #7e1a2c 15%,
+    #c93b52 42%,
+    #e0526b 55%,
+    #8e2030 78%,
+    #4a0b18 100%
+  );
+}
+
+.streak-lines {
+  background: repeating-linear-gradient(
+    118deg,
+    rgb(255 255 255 / 0) 0px,
+    rgb(255 255 255 / 0) 60px,
+    rgb(255 214 205 / 0.16) 78px,
+    rgb(255 255 255 / 0) 96px,
+    rgb(0 0 0 / 0.18) 150px,
+    rgb(255 255 255 / 0) 190px,
+    rgb(255 190 180 / 0.1) 230px,
+    rgb(255 255 255 / 0) 260px
+  );
+}
+
+.streak-sheen {
+  background:
+    radial-gradient(
+      120% 90% at 15% 0%,
+      rgb(255 255 255 / 0.12),
+      rgb(255 255 255 / 0) 45%
+    ),
+    radial-gradient(100% 80% at 85% 100%, rgb(0 0 0 / 0.3), rgb(0 0 0 / 0) 55%);
+}
+
+.streak-grain {
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* The page frame: two vertical hairlines at the edges of the 1280px measure,
+ * so every section reads as held between them.
+ *
+ * Fixed and full height rather than `border-x` on Container. Container is used
+ * seventeen times, twice inside one section, and four of those sit on the dark
+ * grounds - a light rule would be wrong on those, and keeping seventeen copies
+ * in step is work with no upside. One element cannot drift.
+ *
+ * The colour is ink-faint at low alpha rather than --color-rule, which is the
+ * one thing that lets a single line serve both grounds: it darkens the paper
+ * and lightens the dark blocks, instead of glowing on one of them.
+ *
+ * `max()` collapses the inset to zero below the measure, so on a narrow
+ * viewport the rules sit on the screen edges rather than off-screen. */
+/* Distance from the viewport edge to the page frame: the edge of the 1280
+ * measure, which is a gutter's width OUTSIDE the content edge - so the frame
+ * stands off the text rather than running along it. It deliberately does not
+ * coincide with the section grids' own verticals: those bound a cell, this
+ * bounds the page, and nesting them with the gutter between is what gives the
+ * columns room to breathe. The floor keeps the rules off the screen edge below
+ * the measure, where `50% - 640px` goes to zero and beyond.
+ *
+ * Anything that should reach the frame rather than stop at the content edge
+ * uses this - see HatchBand in components/primitives.tsx. The `50%` resolves
+ * against whatever element reads it, so only use it on a full-width one. */
+:root {
+  --frame-inset: max(clamp(12px, 2vw, 28px), calc(50% - 640px));
+}
+
+.page-frame {
+  position: fixed;
+  inset: 0;
+  /* Above content, below the nav (100) and the rail (90). The product desktop
+     nests elements up to z-40, and while they sit well inside the measure and
+     could not reach these lines today, a frame that content can paint over is
+     a frame waiting to break. */
+  z-index: 50;
+  pointer-events: none;
+}
+
+.page-frame::before,
+.page-frame::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  /* Heavier than --color-rule on purpose: this reads through the whole page
+     rather than bounding one cell, and at 1px the section hairline is too
+     faint to register as a frame. */
+  background: rgb(138 129 114 / 0.55);
+}
+
+.page-frame::before {
+  left: var(--frame-inset);
+}
+
+.page-frame::after {
+  right: var(--frame-inset);
+}
+
+/* Ruled hatching, used as a structural band rather than as content.
+ *
+ * Kept visually distinct from .placeholder-hatch below on purpose: that one
+ * means "a real asset belongs here and has not arrived", and if a decorative
+ * band wore the same texture nobody could tell an intentional rhythm from an
+ * unfinished slot. So this is thin rules on the page ground at 125deg, and
+ * that is tonal blocks at 45deg - different angle, different weight, no
+ * chance of reading one as the other. */
+.rule-hatch {
+  background: repeating-linear-gradient(
+    125deg,
+    var(--color-rule) 0 1px,
+    transparent 1px 11px
+  );
+}
+
+/* Diagonal hatching that marks a slot awaiting a real asset - client logos,
+ * certification badges, resource photography. Deliberately obvious. */
+.placeholder-hatch {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-paper-soft),
+    var(--color-paper-soft) 6px,
+    var(--color-paper-tint) 6px,
+    var(--color-paper-tint) 12px
+  );
+}
+
+.placeholder-hatch-lg {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-paper-soft),
+    var(--color-paper-soft) 8px,
+    var(--color-paper-tint) 8px,
+    var(--color-paper-tint) 16px
+  );
+}
+
+/* World map (components/ui/world-map.tsx). Arcs, pins and labels animate
+ * with Motion; the pulse ring and the dots that travel the arcs are SMIL,
+ * and both are hidden under reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .map-pulse,
+  .map-traveller {
+    display: none;
+  }
+}
+
+/* Client logo wall (components/trusted-by.tsx).
+ *
+ * Logos keep their own colours. A white logo is rendered dark so it shows on
+ * the paper. Hover only tints the cell, where a fine pointer exists. Cells
+ * fade up in a short sequence once the wrapper has been revealed. */
+.logo-mark[data-tone="light"] {
+  filter: brightness(0);
+  opacity: 0.8;
+}
+
+.logo-link {
+  transition: background-color 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .logo-link:hover {
+    background-color: var(--color-paper-soft);
+  }
+}
+
+
+
+/* Product desktop (components/product-desktop.tsx).
+ *
+ * Wallpaper and the static styling of the window, Dock and tooltips. The
+ * motion (window open/close, app switch, menus, Spotlight, Dock springs) is
+ * Motion's, in the component, so nothing here transitions transform. */
+.desktop {
+  background:
+    radial-gradient(70% 60% at 50% 30%, rgb(142 32 48 / 0.55), rgb(142 32 48 / 0) 70%),
+    radial-gradient(45% 40% at 18% 85%, rgb(74 11 24 / 0.6), rgb(74 11 24 / 0) 65%),
+    radial-gradient(40% 35% at 85% 80%, rgb(200 106 114 / 0.18), rgb(200 106 114 / 0) 60%),
+    var(--color-night-deep);
+}
+
+/* The drag wrapper owns the window's position. Motion drives its transform
+ * (drag, elastic edges, and the ease home on zoom or close), so no CSS
+ * transition may touch transform here or the drag would lag the pointer. */
+.window-drag {
+  transition: max-width 260ms cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+.app-window {
+  transform-origin: 50% 110%;
+  backdrop-filter: blur(12px);
+}
+
+.traffic-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  border: 1px solid rgb(0 0 0 / 0.25);
+  cursor: pointer;
+  transition:
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1),
+    filter 120ms ease;
+}
+
+.traffic-light:active {
+  transform: scale(0.85);
+  filter: brightness(0.8);
+}
+
+.traffic-light:focus-visible {
+  outline: 2px solid var(--color-night-fg);
+  outline-offset: 2px;
+}
+
+.dock-item {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Magnification is Motion's (transform, per icon, on a spring). The press
+ * uses the separate `scale` property so it composes with it. */
+.dock-icon {
+  transition:
+    scale 100ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dock-item:active .dock-icon {
+  scale: 0.94;
+}
+
+.dock-item:focus-visible {
+  outline: none;
+}
+
+.dock-item:focus-visible .dock-icon {
+  box-shadow:
+    0 0 0 2px var(--color-night-deep),
+    0 0 0 4px var(--color-oxblood-lift);
+}
+
+.dock-tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 4px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  background: var(--color-night-fg);
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 120ms ease-out,
+    translate 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.dock-item:focus-visible .dock-tip {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dock-item:hover .dock-tip {
+    opacity: 1;
+    translate: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window-drag,
+  .dock-icon,
+  .dock-tip,
+  .traffic-light {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* Selected client work (components/client-work.tsx) and Why Cogniviti
+ * Labs (components/why-motion.tsx). The choreography is Motion's; what is
+ * left here is the colour of the Why thread and the two pulse rings, which
+ * are hidden under reduced motion. */
+.work-pulse {
+  animation: work-pulse 2.2s cubic-bezier(0.23, 1, 0.32, 1) 0.6s infinite;
+}
+
+.why-pulse {
+  animation: work-pulse 2.4s cubic-bezier(0.22, 1, 0.36, 1) 1.2s infinite;
+}
+
+@keyframes work-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.why-thread {
+  background: var(--color-oxblood);
+  border-radius: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-pulse,
+  .why-pulse {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Section rail (components/section-rail.tsx).
+ *
+ * One capsule, always laid out at its open width and clipped with a
+ * rounded inset: closed, the clip shows only the tick strip; open, the
+ * clip slides out to the full box and uncovers the labels. Animating the
+ * clip rather than the width keeps it off layout. clip-path also clips hit
+ * testing, so the hidden part never takes the pointer. Colours come from
+ * custom properties so the rail flips for dark sections with one
+ * attribute. Opening is 220ms, closing 160ms: fast where the system is
+ * responding, unhurried where the user is reading. */
+.section-rail {
+  --rail-ink: var(--color-ink-ghost);
+  --rail-active: var(--color-oxblood);
+  --rail-panel: rgb(250 248 245 / 0.96);
+  --rail-border: var(--color-rule);
+  --rail-label: var(--color-ink-muted);
+  --rail-label-strong: var(--color-ink);
+  --rail-hover: var(--color-paper-soft);
+  --rail-closed: 44px;
+  --rail-open: 184px;
+  opacity: 0;
+  /* Slides in from the right edge it is anchored to. */
+  transform: translate(8px, -50%);
+  pointer-events: none;
+  /* The clip lives on the nav, not the box, because the nav is what
+     listens for the pointer: clip-path clips hit testing on the element it
+     is set on, so the hidden part of the capsule takes no hover.
+     Inset from the LEFT: the rail is anchored right, so the strip that stays
+     visible when closed is the right-hand end, against the screen edge. */
+  clip-path: inset(0 0 0 calc(var(--rail-open) - var(--rail-closed)) round 14px);
+  transition:
+    opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    clip-path 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.section-rail[data-open] {
+  clip-path: inset(0 0 0 0 round 14px);
+  transition:
+    opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    clip-path 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.section-rail[data-visible] {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.section-rail[data-dark] {
+  --rail-ink: #5f5749;
+  --rail-active: var(--color-oxblood-lift);
+  --rail-panel: rgb(28 24 20 / 0.96);
+  --rail-border: rgb(245 241 234 / 0.12);
+  --rail-label: var(--color-night-muted);
+  --rail-label-strong: var(--color-night-fg);
+  --rail-hover: rgb(245 241 234 / 0.07);
+}
+
+.rail-box {
+  width: var(--rail-open);
+  background: var(--rail-panel);
+  border-color: var(--rail-border);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.section-rail[data-visible] {
+  pointer-events: auto;
+}
+
+.rail-item {
+  transition: background-color 120ms ease;
+}
+
+.section-rail[data-open] .rail-item:hover,
+.rail-item:focus-visible {
+  background: var(--rail-hover);
+}
+
+.rail-tick {
+  display: block;
+  flex: none;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--rail-ink);
+  /* Grows inward, away from the screen edge, on hover. */
+  transform-origin: right center;
+  transition:
+    transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    background-color 200ms ease;
+}
+
+.rail-active-tick {
+  position: absolute;
+  /* Pinned to the same edge the ticks hug. */
+  right: 6px;
+  top: 10px;
+  width: 22px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--rail-active);
+}
+
+.rail-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--rail-label);
+  transition: color 150ms ease;
+}
+
+.rail-item[aria-current] .rail-label {
+  color: var(--rail-active);
+}
+
+.section-rail[data-open] .rail-item:hover .rail-label,
+.rail-item:focus-visible .rail-label {
+  color: var(--rail-label-strong);
+}
+
+.rail-item[aria-current]:hover .rail-label {
+  color: var(--rail-active);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .section-rail[data-open] .rail-item:hover .rail-tick {
+    transform: scaleX(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-rail,
+  .rail-box,
+  .rail-tick,
+  .rail-label,
+  .rail-item {
+    transition: none;
+  }
+}

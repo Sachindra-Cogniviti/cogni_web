@@ -1,4 +1,5 @@
 import { Container, Kicker, solidButton } from "@/components/primitives"
+import { FlowRule, ScrollWords } from "@/components/scroll-motion"
 import { together } from "@/content/site"
 
 /**
@@ -7,22 +8,22 @@ import { together } from "@/content/site"
  * The only centred, measure-constrained block on the page. It sits between the
  * two halves of the argument and gives the layout somewhere to breathe before
  * the resources grid, which is why it is deliberately the quietest section
- * here.
+ * here. Its one move is the heading, which brightens a word at a time as the
+ * reader scrolls through it (components/scroll-motion.tsx).
  */
 export function Together() {
   return (
     <section
       id="together"
-      className="border-b border-rule bg-paper-alt py-[clamp(88px,10vw,130px)]"
+      className="relative bg-paper-alt py-[clamp(88px,10vw,130px)]"
     >
       <Container className="max-w-[900px] text-center">
         <Kicker data-reveal="0">{together.kicker}</Kicker>
-        <h2
-          data-reveal="60"
+        <ScrollWords
+          as="h2"
+          text={together.heading}
           className="mt-[22px] text-[clamp(28px,3.4vw,46px)] leading-[1.1] font-semibold tracking-[-0.03em] text-balance"
-        >
-          {together.heading}
-        </h2>
+        />
         <p
           data-reveal="120"
           className="mx-auto mt-6 max-w-[62ch] text-[16px] leading-[1.65] text-pretty text-ink-soft"
@@ -35,6 +36,7 @@ export function Together() {
           </a>
         </div>
       </Container>
+      <FlowRule />
     </section>
   )
 }

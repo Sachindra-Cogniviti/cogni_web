@@ -72,7 +72,7 @@ export function SectionRail() {
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false)
       }}
-      className="section-rail fixed top-1/2 left-[clamp(10px,1.2vw,22px)] z-90 hidden -translate-y-1/2 lg:block"
+      className="section-rail fixed top-1/2 right-[clamp(10px,1.2vw,22px)] z-90 hidden -translate-y-1/2 lg:block"
     >
       <div className="rail-box rounded-[14px] border p-[8px]">
         <ul className="m-0 flex list-none flex-col gap-[2px]">
@@ -84,7 +84,10 @@ export function SectionRail() {
                   href={`#${section.id}`}
                   aria-current={isActive ? "true" : undefined}
                   onClick={() => setOpen(false)}
-                  className="rail-item relative flex h-[22px] items-center gap-[18px] rounded-[7px] px-[6px] outline-none"
+                  // Reversed because the rail sits on the right edge: the
+                  // ticks have to hug the screen edge and the labels open
+                  // inward, or the capsule would grow off-screen.
+                  className="rail-item relative flex h-[22px] flex-row-reverse items-center gap-[18px] rounded-[7px] px-[6px] outline-none"
                   style={{ "--i": i } as React.CSSProperties}
                 >
                   <span className="rail-tick" />

@@ -2,6 +2,8 @@
 
 import { motion } from "motion/react"
 
+import { SEEN_ABOVE } from "@/components/scroll-motion"
+
 /**
  * The moving parts of the world map, split out so the map itself can stay
  * a server component (its dot grid is computed at build time and must not
@@ -13,7 +15,7 @@ import { motion } from "motion/react"
  * spring as their arc lands, and the HTML labels rise in after them.
  */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
-const VIEW = { once: true, amount: 0.3 } as const
+const VIEW = { once: true, amount: 0.3, margin: SEEN_ABOVE } as const
 
 export function MapArc({
   d,

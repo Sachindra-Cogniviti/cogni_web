@@ -40,7 +40,28 @@ const INK = 0x17140f
 const INK_FAINT = 0x8a8172
 const RULE = 0xe8e3d9
 
-export function HeroGalaxy({ className }: { className?: string }) {
+export function HeroGalaxy({
+  className,
+  startDelay = 0,
+}: {
+  className?: string
+  /**
+   * Milliseconds to wait before loading three.js and building the scene.
+   *
+   * The import fires the moment this mounts, which is the moment the page
+   * hydrates - and that is exactly when the headline is meant to be arriving
+   * a word at a time. Parsing three.js and building the particle field is
+   * several hundred milliseconds of main thread, and the reveal is timed in
+   * JavaScript, so those words do not slow down: they queue up and land
+   * together in the next painted frame. The cascade collapses into a block.
+   *
+   * Holding the boot until the headline has landed keeps the main thread
+   * clear for the one animation the reader is actually looking at. The
+   * galaxy is decorative and desktop-only, and the space it occupies is
+   * empty until three.js arrives either way.
+   */
+  startDelay?: number
+}) {
   const hostRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
@@ -51,16 +72,22 @@ export function HeroGalaxy({ className }: { className?: string }) {
     let disposed = false
     let dispose: (() => void) | undefined
 
-    void import("three").then((THREE) => {
-      if (disposed) return
-      dispose = mount(THREE, host, hero.galaxy.nodes)
-    })
+    const boot = () => {
+      void import("three").then((THREE) => {
+        if (disposed) return
+        dispose = mount(THREE, host, hero.galaxy.nodes)
+      })
+    }
+
+    const timer =
+      startDelay > 0 ? window.setTimeout(boot, startDelay) : (boot(), undefined)
 
     return () => {
+      if (timer !== undefined) window.clearTimeout(timer)
       disposed = true
       dispose?.()
     }
-  }, [])
+  }, [startDelay])
 
   return (
     <div
@@ -163,8 +190,16 @@ function mount(
   disc.rotation.x = 0.85
   world.add(disc)
 
-  const GLOW = glowTexture(THREE, "rgba(200,106,114,0.9)", "rgba(142,32,48,0.45)")
-  const SOFT = glowTexture(THREE, "rgba(200,106,114,0.7)", "rgba(142,32,48,0.2)")
+  const GLOW = glowTexture(
+    THREE,
+    "rgba(200,106,114,0.9)",
+    "rgba(142,32,48,0.45)"
+  )
+  const SOFT = glowTexture(
+    THREE,
+    "rgba(200,106,114,0.7)",
+    "rgba(142,32,48,0.2)"
+  )
 
   /* ---- core ---- */
   const core = new THREE.Group()
@@ -301,7 +336,11 @@ function mount(
         new THREE.Vector3(),
         new THREE.Vector3(),
       ]),
-      new THREE.LineBasicMaterial({ color: OXBLOOD, transparent: true, opacity })
+      new THREE.LineBasicMaterial({
+        color: OXBLOOD,
+        transparent: true,
+        opacity,
+      })
     )
   const setLine = (
     line: InstanceType<ThreeModule["Line"]>,
@@ -551,8 +590,7 @@ function mount(
       if (reduceMotion) n.open = isSel ? 1 : 0
       else
         n.open +=
-          ((isSel ? 1 : 0) - n.open) *
-          (1 - Math.exp(-dt * (isSel ? 5.5 : 9)))
+          ((isSel ? 1 : 0) - n.open) * (1 - Math.exp(-dt * (isSel ? 5.5 : 9)))
       if (n.open < 0.001) n.open = 0
       // Wider hit area while the bloom is out, so the pointer can reach items.
       n.hit.scale.setScalar(isSel ? 1.35 : 0.45)
@@ -655,7 +693,9 @@ function mount(
     scene.traverse((obj) => {
       const mesh = obj as { geometry?: { dispose(): void }; material?: unknown }
       mesh.geometry?.dispose()
-      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      const mats = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material]
       for (const m of mats) (m as { dispose?(): void } | undefined)?.dispose?.()
     })
     GLOW.dispose()

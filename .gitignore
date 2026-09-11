@@ -1,5 +1,4 @@
 # dependencies
-# node_modules must never reach the server (inode limit). The server never builds.
 /node_modules
 /.pnp
 .pnp.*
@@ -14,7 +13,12 @@
 
 # next.js
 /.next/
-# NOTE: /out/ is deliberately NOT ignored. It is committed and deployed by .cpanel.yml.
+# /out/ was committed while cPanel deployed the repo verbatim. Vercel builds
+# from source, and without output: "export" nothing writes here any more.
+/out/
+
+# vercel
+.vercel
 
 # production
 /build

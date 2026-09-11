@@ -9,6 +9,7 @@ import {
   useDragControls,
   useMotionValue,
   useReducedMotion,
+  useScroll,
   useSpring,
   useTransform,
   type MotionValue,
@@ -17,6 +18,7 @@ import {
 
 import { LocalTime } from "@/components/local-time"
 import { Container, Kicker, sectionPadding } from "@/components/primitives"
+import { Spotlight as PointerGlow } from "@/components/scroll-motion"
 import { productDesktop, products } from "@/content/site"
 
 /**
@@ -42,6 +44,12 @@ import { productDesktop, products } from "@/content/site"
  * the edges, so pushing past a bound moves the window a quarter of the way
  * and it settles back on release instead of hitting a wall. Zoom and close
  * ease the offset home over 220ms.
+ *
+ * The screen itself arrives on the scroll rather than on a timer: tilted
+ * back from its base edge and a little smaller while it is low in the
+ * viewport, upright and full size once its top clears the upper 40%, and
+ * back again on the way out. A soft glow follows the pointer across the
+ * section on a spring.
  *
  * Both this and the (currently hidden) portfolio table read the same product
  * list from content/site.ts, so they cannot drift apart.
@@ -103,6 +111,18 @@ export function ProductDesktop() {
   /* ---- dragging the window ---------------------------------------------- */
 
   const reduced = useReducedMotion()
+
+  /* ---- the screen on the scroll ------------------------------------------ */
+
+  const screenRef = React.useRef<HTMLDivElement>(null)
+  const { scrollYProgress: screenProgress } = useScroll({
+    target: screenRef,
+    offset: ["start 96%", "start 40%"],
+  })
+  const screenTilt = useTransform(screenProgress, [0, 1], [14, 0])
+  const screenScale = useTransform(screenProgress, [0, 1], [0.94, 1])
+  const screenOpacity = useTransform(screenProgress, [0, 1], [0.4, 1])
+
   const dragControls = useDragControls()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
@@ -279,23 +299,35 @@ export function ProductDesktop() {
       // `products` is the anchor every products link targets. It belongs to
       // the portfolio table, which is hidden for now (see app/page.tsx).
       id="products"
-      className={`relative overflow-hidden bg-night-deep ${sectionPadding}`}
+      className={`relative overflow-clip bg-night-deep ${sectionPadding}`}
     >
+      <PointerGlow color="rgb(200 106 114 / 0.13)" size={640} />
       <Container className="relative max-w-[1120px]">
-        <div data-reveal="0" className="mx-auto max-w-[62ch] text-center">
-          <Kicker tone="dark">{productDesktop.kicker}</Kicker>
-          <h2 className="mt-5 text-[clamp(28px,3.2vw,44px)] leading-[1.08] font-semibold tracking-[-0.03em] text-balance text-night-fg">
+        <div className="mx-auto max-w-[62ch] text-center">
+          <Kicker tone="dark" data-reveal="0">
+            {productDesktop.kicker}
+          </Kicker>
+          <h2
+            data-reveal="60"
+            className="mt-5 text-[clamp(28px,3.2vw,44px)] leading-[1.08] font-semibold tracking-[-0.03em] text-balance text-night-fg"
+          >
             {productDesktop.heading}
           </h2>
-          <p className="mx-auto mt-5 max-w-[52ch] text-[15.5px] leading-[1.6] text-pretty text-night-muted">
+          <p
+            data-reveal="120"
+            className="mx-auto mt-5 max-w-[52ch] text-[15.5px] leading-[1.6] text-pretty text-night-muted"
+          >
             {productDesktop.body}
           </p>
         </div>
 
-        {/* The screen. */}
-        <div
-          data-reveal="120"
-          className="desktop mt-[48px] flex flex-col overflow-hidden rounded-[16px] border border-night-fg/12 shadow-[0_0_0_1px_rgb(0_0_0/0.5),0_40px_100px_rgb(0_0_0/0.6)]"
+        {/* The screen. Perspective sits on the parent so the tilt reads as
+            depth; the origin is the bottom edge, so it stands up like a lid. */}
+        <div className="mt-[48px] [perspective:1400px]">
+        <motion.div
+          ref={screenRef}
+          style={reduced ? undefined : { rotateX: screenTilt, scale: screenScale, opacity: screenOpacity }}
+          className="desktop flex origin-bottom flex-col overflow-hidden rounded-[16px] border border-night-fg/12 shadow-[0_0_0_1px_rgb(0_0_0/0.5),0_40px_100px_rgb(0_0_0/0.6)]"
         >
           {/* Menu bar */}
           <div
@@ -639,6 +671,7 @@ export function ProductDesktop() {
               </div>
             </div>
           </div>
+        </motion.div>
         </div>
       </Container>
     </section>

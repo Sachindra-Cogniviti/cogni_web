@@ -22,11 +22,16 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-night-fg/12 bg-night pt-[72px] pb-10 text-night-muted">
       <Container>
-        <Stagger step={0.07} amount={0.3} className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-10">
+        <Stagger
+          from="left"
+          step={0.12}
+          className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-10"
+        >
           <div data-stagger>
             <Image
               src={logoFile}
               alt={site.logo.alt}
+              sizes="160px"
               className="block h-[26px] w-auto brightness-135 saturate-90"
             />
             <p className="mt-4 max-w-[28ch] text-[13px] leading-[1.6]">

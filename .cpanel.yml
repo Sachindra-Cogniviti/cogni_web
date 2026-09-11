@@ -1,7 +1,0 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home1/mdniwpmy/public_html/new/
-    - /bin/mkdir -p $DEPLOYPATH
-    - /bin/cp -R out/* $DEPLOYPATH
-    - /bin/cp .htaccess $DEPLOYPATH

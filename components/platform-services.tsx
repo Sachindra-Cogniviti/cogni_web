@@ -6,16 +6,48 @@ import {
   QuietLink,
   sectionPadding,
 } from "@/components/primitives"
+import { FlowRule, Parallax } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
 import { services } from "@/content/site"
 
+import api from "@/public/logos/platforms/api.png"
 import coupa from "@/public/logos/platforms/coupa.png"
+import dynamics from "@/public/logos/platforms/dynamics.svg"
 import gep from "@/public/logos/platforms/gep.png"
 import ivalua from "@/public/logos/platforms/ivalua.png"
+import netsuite from "@/public/logos/platforms/netsuite.png"
 import onestream from "@/public/logos/platforms/onestream.png"
+import oracle from "@/public/logos/platforms/oracle.svg"
+import sap from "@/public/logos/platforms/sap.svg"
 
-/** Platform logo files, keyed by the `logo` id used in content. */
-const logos: Record<string, StaticImageData> = { coupa, gep, ivalua, onestream }
+/**
+ * Platform logo files, keyed by the `logo` id used in content.
+ *
+ * Every mark here has a transparent background. That is a requirement, not a
+ * preference: the tiles sit on `bg-paper`, so a logo carrying its own white or
+ * coloured ground renders as a visible rectangle inside the cell. Vendor press
+ * kits often ship the square app-icon instead - Oracle's and NetSuite's are
+ * white artwork knocked out of a solid colour, which cannot simply have its
+ * background removed because the colour *is* the mark. Use the wordmark.
+ *
+ * `api.png` is the one asset that had its background keyed out here rather
+ * than arriving transparent, and that leaves it light-ground-only: the "API"
+ * lettering inside the gear was white, so it is now transparent and reads as
+ * letters purely because `bg-paper` shows through. Correct while the site is
+ * pinned to the light theme in app/(frontend)/layout.tsx; if that ever
+ * changes, this icon needs re-cutting rather than re-colouring.
+ */
+const logos: Record<string, StaticImageData> = {
+  api,
+  coupa,
+  dynamics,
+  gep,
+  ivalua,
+  netsuite,
+  onestream,
+  oracle,
+  sap,
+}
 
 /**
  * Platform services: the five delivery stages, then the platform and
@@ -29,8 +61,9 @@ const logos: Record<string, StaticImageData> = { coupa, gep, ivalua, onestream }
  * The #platforms anchor lives on the experience block rather than the section,
  * because that is what the nav link is pointing at.
  *
- * The stage cells, the logo tiles and the chips each rise in a few tens of
- * milliseconds apart (components/stagger.tsx) instead of arriving as blocks.
+ * The stage cells, the logo tiles and the chips each resolve one after
+ * another as their row rises through the viewport (components/stagger.tsx)
+ * instead of arriving as blocks.
  *
  * Platform experience is the one list that carries logos, and it gets a
  * different register from the integration chips: a row of logo tiles in a
@@ -40,22 +73,35 @@ const logos: Record<string, StaticImageData> = { coupa, gep, ivalua, onestream }
  */
 export function PlatformServices() {
   return (
-    <section id="services" className={`border-b border-rule ${sectionPadding}`}>
+    <section id="services" className={`relative ${sectionPadding}`}>
       <Container>
-        <div data-reveal="0">
-          <Kicker>{services.kicker}</Kicker>
-          <div className="mt-5 flex flex-wrap items-end justify-between gap-8">
-            <h2 className="max-w-[17ch] text-[clamp(32px,3.8vw,54px)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance">
-              {services.heading}
-            </h2>
-            <p className="max-w-[42ch] text-[15.5px] leading-[1.6] text-pretty text-ink-soft">
-              {services.body}
-            </p>
+        <Parallax y={16}>
+          <div>
+            <Kicker data-reveal="0" data-flow="left">
+              {services.kicker}
+            </Kicker>
+            <div className="mt-5 flex flex-wrap items-end justify-between gap-8">
+              <h2
+                data-reveal="60"
+                data-flow="left"
+                className="max-w-[17ch] text-[clamp(32px,3.8vw,54px)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance"
+              >
+                {services.heading}
+              </h2>
+              <p
+                data-reveal="120"
+                data-flow="left"
+                className="max-w-[42ch] text-[15.5px] leading-[1.6] text-pretty text-ink-soft"
+              >
+                {services.body}
+              </p>
+            </div>
           </div>
-        </div>
+        </Parallax>
 
         <Stagger
-          step={0.07}
+          from="fade"
+          step={0.11}
           className="mt-16 grid grid-cols-[repeat(auto-fit,minmax(230px,1fr))] border-t border-l border-t-rule-strong border-l-rule"
         >
           {services.stages.map((stage) => (
@@ -89,8 +135,11 @@ export function PlatformServices() {
               <div
                 key={group.label}
                 data-reveal={160 + index * 40}
+                data-flow="left"
                 className={`grid gap-x-[clamp(24px,4vw,64px)] gap-y-4 pt-6 lg:grid-cols-[minmax(180px,240px)_1fr] ${
-                  index === 0 ? "border-t border-rule-strong" : "mt-8 border-t border-rule"
+                  index === 0
+                    ? "border-t border-rule-strong"
+                    : "mt-8 border-t border-rule"
                 }`}
               >
                 <div className="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase lg:pt-[2px]">
@@ -100,8 +149,15 @@ export function PlatformServices() {
                 {hasLogos ? (
                   <Stagger
                     as="ul"
-                    step={0.05}
-                    className="m-0 grid list-none grid-cols-2 gap-px border border-rule bg-rule sm:grid-cols-4"
+                    from="fade"
+                    step={0.1}
+                    className={`m-0 grid list-none grid-cols-2 gap-px border border-rule bg-rule ${
+                      // Column count matches the item count so no tile is left
+                      // stranded alone on a second row. Written as whole class
+                      // names because Tailwind scans source text - an
+                      // interpolated `sm:grid-cols-${n}` is never generated.
+                      group.items.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4"
+                    }`}
                   >
                     {group.items.map((item) => (
                       <li
@@ -113,17 +169,24 @@ export function PlatformServices() {
                           <Image
                             src={logos[item.logo]}
                             alt={item.name}
+                            sizes="240px"
                             className="w-auto max-w-full"
                             style={{ height: item.height }}
                           />
                         ) : (
-                          <span className="text-[15px] font-semibold">{item.name}</span>
+                          <span className="text-[15px] font-semibold">
+                            {item.name}
+                          </span>
                         )}
                       </li>
                     ))}
                   </Stagger>
                 ) : (
-                  <Stagger step={0.04} className="flex flex-wrap gap-[10px]">
+                  <Stagger
+                    from="left"
+                    step={0.09}
+                    className="flex flex-wrap gap-[10px]"
+                  >
                     {group.items.map((item) => (
                       <span
                         key={item.name}
@@ -140,12 +203,13 @@ export function PlatformServices() {
           })}
         </div>
 
-        <div data-reveal="200" className="mt-12">
+        <div data-reveal="200" data-flow="left" className="mt-12">
           <QuietLink href={services.cta.href}>
             {services.cta.label}&nbsp;&nbsp;→
           </QuietLink>
         </div>
       </Container>
+      <FlowRule />
     </section>
   )
 }
