@@ -1,35 +1,32 @@
 import { siteUrl } from "@/content/site"
+import { indexingEnabled } from "@/lib/indexing"
+
+export { indexingEnabled }
 
 /**
- * Which deployment this is, and what it may tell search engines.
+ * Whether this deployment is the real, public site.
  *
- * Vercel sets VERCEL_ENV to "production", "preview" or "development" on every
- * build and at runtime. Only a production deployment is allowed to present
- * itself as the real site.
- *
- * Anything that is NOT explicitly a Vercel production deployment is treated as
- * non-indexable, local builds included. That direction is deliberate: the
- * failure mode of getting this wrong is asymmetric. A production site briefly
- * marked noindex costs a few days of ranking and is fixed by redeploying; a
- * staging copy that gets indexed competes with the real domain, splits link
- * equity, and can take months to clear out. So the safe state is the default
- * and the live site is the exception.
+ * Both halves are required. The switch in lib/indexing.ts is the deliberate
+ * launch decision; VERCEL_ENV === "production" keeps previews from claiming to
+ * be the live site afterwards, when that switch is true for every build.
  */
-export const isProductionDeployment = process.env.VERCEL_ENV === "production"
+export const isLiveSite =
+  indexingEnabled && process.env.VERCEL_ENV === "production"
 
 /**
  * The origin this deployment is actually reachable at.
  *
- * A preview must not emit production URLs. Canonicals, OG tags and the sitemap
- * would all point at cognivitilabs.com, which at best is confusing when the
- * team shares a link and at worst feeds a crawler production URLs from a page
- * that is not production.
+ * Anything that is not the live site emits its own hostname. Canonicals, OG
+ * tags and metadataBase would otherwise all point at cognivitilabs.com - which
+ * is not merely untidy: metadataBase resolves relative OG image paths against
+ * it, so a link shared in Slack from a preview would try to load its preview
+ * image from a domain that is not serving this site yet, and show nothing.
  *
  * VERCEL_URL is the per-deployment hostname with no protocol; it is always
  * https.
  */
 export function publicSiteUrl(): string {
-  if (isProductionDeployment) return siteUrl
+  if (isLiveSite) return siteUrl
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   return "http://localhost:3000"
 }

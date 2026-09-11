@@ -7,7 +7,7 @@ import { RevealObserver } from "@/components/reveal-observer"
 import { SmoothAnchors } from "@/components/smooth-anchors"
 import { ThemeProvider } from "@/components/theme-provider"
 import { site } from "@/content/site"
-import { isProductionDeployment, publicSiteUrl } from "@/lib/deployment"
+import { isLiveSite, publicSiteUrl } from "@/lib/deployment"
 import { cn } from "@/lib/utils"
 
 const origin = publicSiteUrl()
@@ -22,10 +22,11 @@ export const metadata: Metadata = {
     template: `%s | ${site.name}`,
   },
   description: site.description,
-  // Indexing is ON for the production deployment only. Every preview and local
-  // build says noindex, nofollow. The WordPress staging install also has it
-  // off; make sure the live site does not inherit a noindex from there.
-  robots: isProductionDeployment
+  // noindex everywhere until the launch switch in lib/indexing.ts is thrown,
+  // and after that on the production deployment only. The WordPress staging
+  // install also has indexing off; make sure the live site does not inherit a
+  // noindex from there on top of this one.
+  robots: isLiveSite
     ? { index: true, follow: true }
     : { index: false, follow: false },
   openGraph: {

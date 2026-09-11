@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next"
 
-import { isProductionDeployment, publicSiteUrl } from "@/lib/deployment"
+import { isLiveSite, publicSiteUrl } from "@/lib/deployment"
 
 export const dynamic = "force-static"
 
@@ -14,10 +14,10 @@ export const dynamic = "force-static"
  * Keep it here. A tidy-up that files it next to layout.tsx un-indexes the site.
  */
 export default function robots(): MetadataRoute.Robots {
-  // Previews and any non-production build refuse every crawler outright, and
-  // advertise no sitemap - handing one over is an invitation to crawl the
-  // thing we just said not to.
-  if (!isProductionDeployment) {
+  // Every deployment refuses every crawler outright until the launch switch is
+  // thrown, and advertises no sitemap - handing one over is an invitation to
+  // crawl the thing we just said not to.
+  if (!isLiveSite) {
     return { rules: { userAgent: "*", disallow: "/" } }
   }
 

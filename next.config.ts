@@ -1,6 +1,7 @@
 import { withPayload } from "@payloadcms/next/withPayload"
 import type { NextConfig } from "next"
 
+import { indexingEnabled } from "./lib/indexing"
 import { publicMediaBaseUrl } from "./lib/media-url"
 
 // The host media is served from, taken from R2_PUBLIC_URL so the bucket's
@@ -39,11 +40,11 @@ const nextConfig: NextConfig = {
     // markup to be parsed, applies to assets and API routes as well as pages,
     // and is the one signal Google honours for non-HTML responses.
     //
-    // Vercel already sends this on preview deployments. This does not rely on
-    // that - it survives attaching a domain to a preview, which is exactly
-    // when their version stops applying and an internal build starts looking
-    // like a real site.
-    if (process.env.VERCEL_ENV !== "production") {
+    // Sent on EVERY deployment until launch, production included. Vercel adds
+    // its own version on previews, but that stops applying the moment a domain
+    // is attached to one - which is exactly when an internal build starts
+    // looking like a real site. This does not rely on it.
+    if (!indexingEnabled) {
       headers.push({ key: "X-Robots-Tag", value: "noindex, nofollow" })
     }
 
