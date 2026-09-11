@@ -1,109 +1,82 @@
 "use client"
 
 import * as React from "react"
-import { animate, inView } from "motion"
+
+import { flowIn, settle, watch } from "@/lib/scroll-flow"
 
 /**
- * Scroll reveals for the whole page, driven by Motion.
+ * Scroll flow for the whole page.
  *
- * Mounted once in the layout. It watches every `[data-reveal]` element in the
- * document with Motion's `inView` rather than wrapping each one in a
- * component, which keeps all the page sections as server components and,
- * more importantly, adds no wrapper elements that would perturb the grid and
- * flex layouts they sit in. When an element enters, Motion animates it from
- * the CSS hidden state (opacity 0, 14px down; see globals.css, scoped to
- * `.js` so nothing is hidden with scripting off) to rest, and the element
- * is stamped `data-revealed="true"`, which is what the section-level
- * choreography (arcs, threads, tiles) keys off.
+ * Mounted once in the layout. It finds every `[data-reveal]` element in the
+ * document and plays it in when it arrives (see lib/scroll-flow.ts) rather
+ * than wrapping each one in a component, which keeps all the page sections
+ * as server components and, more importantly, adds no wrapper elements that
+ * would perturb the grid and flex layouts they sit in.
  *
- * Timing follows the motion pass from the design:
+ * The `data-reveal` value is the element's place in its block's sequence,
+ * carried as a delay in milliseconds because that is what the markup already
+ * said, and read here as an index at 60ms a step: a kicker at 0, its heading
+ * at 60, the paragraph at 120, the action at 180. Those four then arrive a
+ * clear beat apart rather than as one block.
  *
- *   - The hero uses the full per-element delay over 600ms. A long stagger there
- *     establishes reading order on arrival, and is the one place it earns its
- *     keep.
- *   - Everything below the hero is capped at 90ms and shortened to 450ms.
- *     Mid-page content inheriting a hero-length stagger felt gated behind the
- *     animation - you scroll to a section and wait for it.
+ * Which way an element comes from is `data-flow` on the element itself, and
+ * the offset it starts at is the stylesheet's (globals.css). A split section
+ * marks its two halves `left` and `right` so they arrive from their own
+ * sides; everything else rises.
  *
- * Two safety nets force everything visible if the normal path cannot run: a
- * background tab (no intersections while hidden, which breaks print and
- * screenshot pipelines) and an observer that never fires at all. Both only
- * act when no reveal has happened, so they never interrupt normal scrolling.
+ * One safety net forces everything visible if the normal path cannot run: a
+ * background tab, which may never fire an intersection and would otherwise
+ * break print and screenshot pipelines. It is conditioned on
+ * `document.hidden`, which is a fact rather than a guess.
+ *
+ * There is deliberately no "nothing has played yet" net. An earlier version
+ * had one, and it fired in ordinary use: the hero fills the first screen and
+ * carries no `data-reveal`, so on a normal load nothing has played after a
+ * couple of seconds, and the net would settle the entire page flat before
+ * the reader ever scrolled. Every block below the fold then simply appeared,
+ * fully formed, with no animation at all. A watcher that cannot be
+ * constructed is caught below instead, which is the only failure that net
+ * was ever really guarding against.
  *
  * In development, Fast Refresh can replace a section's elements after this
- * has already collected them; the replacements would then sit at their hidden
- * starting state until a reload. A mutation observer, development only, picks
- * them up. Production markup never changes after load, so it is left out.
+ * has already collected them; the replacements would then sit at their
+ * hidden starting state until a reload. A mutation observer, development
+ * only, picks them up. Production markup never changes after load, so it is
+ * left out.
  */
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
-
 export function RevealObserver() {
   React.useEffect(() => {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const all = () => Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"))
 
-    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"))
-    const stops: (() => void)[] = []
-
-    if (prefersReduced) {
-      // CSS already neutralises the hidden state under reduced motion; mark
-      // them anyway so the DOM is consistent either way.
-      elements.forEach((el) => el.setAttribute("data-revealed", "true"))
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      all().forEach(settle)
       return
     }
 
-    let fired = false
+    const stops: (() => void)[] = []
+    const seen = new WeakSet<HTMLElement>()
 
-    const reveal = (el: HTMLElement, delay: number, duration: number) => {
-      if (el.getAttribute("data-revealed") === "true") return
-      el.setAttribute("data-revealed", "true")
-      animate(
-        el,
-        { opacity: [0, 1], y: [14, 0] },
-        { duration, ease: EASE, delay: delay / 1000 }
-      )
+    const bind = (element: HTMLElement) => {
+      if (seen.has(element)) return
+      seen.add(element)
+      // The markup carries the old per-element delay; 60ms is one step.
+      const index = Math.round(Number(element.dataset.reveal ?? 0) / 60)
+      try {
+        stops.push(watch(element, () => flowIn(element, { index })))
+      } catch {
+        settle(element)
+      }
     }
 
-    const watch = (el: HTMLElement) => {
-      const stop = inView(
-        el,
-        () => {
-          fired = true
-          const isHero = Boolean(el.closest("[data-reveal-scope='hero']"))
-          const declared = Number(el.dataset.reveal ?? 0)
-          const delay = isHero ? declared : Math.min(declared, 90)
-          reveal(el, delay, isHero ? 0.6 : 0.45)
-          // Fire once: returning nothing keeps the element out of further
-          // callbacks, and we stop the watcher too.
-          stop()
-        },
-        { amount: 0.12, margin: "0px 0px -6% 0px" }
-      )
-      stops.push(stop)
-    }
-
-    elements.forEach(watch)
-
-    const forceAll = () => {
-      elements.forEach((el) => reveal(el, 0, 0.4))
-    }
+    all().forEach(bind)
 
     const hiddenTimer = window.setTimeout(() => {
-      if (document.hidden) forceAll()
+      if (document.hidden) all().forEach(settle)
     }, 800)
-
-    const stalledTimer = window.setTimeout(() => {
-      if (!fired) forceAll()
-    }, 2000)
 
     let mutations: MutationObserver | undefined
     if (process.env.NODE_ENV !== "production") {
-      mutations = new MutationObserver(() => {
-        document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
-          if (elements.includes(el)) return
-          elements.push(el)
-          watch(el)
-        })
-      })
+      mutations = new MutationObserver(() => all().forEach(bind))
       mutations.observe(document.body, { childList: true, subtree: true })
     }
 
@@ -111,7 +84,6 @@ export function RevealObserver() {
       stops.forEach((stop) => stop())
       mutations?.disconnect()
       window.clearTimeout(hiddenTimer)
-      window.clearTimeout(stalledTimer)
     }
   }, [])
 

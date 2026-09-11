@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { motion, type Variants } from "motion/react"
 
 import { Container, pressable } from "@/components/primitives"
+import { Spotlight } from "@/components/scroll-motion"
+import { Stagger } from "@/components/stagger"
 import { contact, site } from "@/content/site"
 
 /**
@@ -11,64 +12,53 @@ import { contact, site } from "@/content/site"
  *
  * Reprises the hero's discipline strip on a dark ground, which closes the loop
  * on the page: the same four words that opened it, now over the CTA, and
- * arriving the same way, one word at a time.
+ * arriving the same way, one word at a time. A soft oxblood glow follows
+ * the pointer across the dark ground on a spring.
  *
  * Both actions are mailto links. There is no form because there is no server -
  * this is a static export on shared hosting, so a form would need a standalone
  * PHP endpoint that does not exist yet.
  */
-const strip: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-}
-
-const word: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-}
-
 export function Contact() {
   return (
     <section
       id="contact"
-      className="bg-night py-[clamp(96px,12vw,160px)] text-night-fg"
+      className="relative overflow-clip bg-night py-[clamp(96px,12vw,160px)] text-night-fg"
     >
-      <Container className="max-w-[1000px] text-center">
-        <motion.div
-          variants={strip}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.5 }}
+      <Spotlight color="rgb(200 106 114 / 0.14)" size={620} />
+      <Container className="relative max-w-[1000px] text-center">
+        <Stagger
+          step={0.11}
           className="flex flex-wrap justify-center gap-[14px] font-mono text-[11px] font-medium tracking-[0.22em] text-oxblood-lift uppercase"
         >
           {contact.disciplines.map((item, index) => (
             <React.Fragment key={item}>
               {index > 0 && (
-                <motion.span variants={word} className="text-night-fg/30">
+                <span data-stagger className="text-night-fg/30">
                   ·
-                </motion.span>
+                </span>
               )}
-              <motion.span variants={word}>{item}</motion.span>
+              <span data-stagger>{item}</span>
             </React.Fragment>
           ))}
-        </motion.div>
+        </Stagger>
 
         <h2
-          data-reveal="80"
+          data-reveal="120"
           className="mt-7 text-[clamp(32px,4.4vw,60px)] leading-[1.06] font-semibold tracking-[-0.03em] text-balance"
         >
           {contact.heading}
         </h2>
 
         <p
-          data-reveal="140"
+          data-reveal="180"
           className="mx-auto mt-[26px] max-w-[52ch] text-[16.5px] leading-[1.65] text-pretty text-night-muted"
         >
           {contact.body}
         </p>
 
         <div
-          data-reveal="200"
+          data-reveal="240"
           className="mt-[38px] flex flex-wrap justify-center gap-[14px]"
         >
           {contact.actions.map((action) => (

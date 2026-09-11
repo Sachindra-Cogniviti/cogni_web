@@ -1,9 +1,17 @@
 "use client"
 
 import * as React from "react"
-import { AnimatePresence, motion, type Variants } from "motion/react"
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  type Variants,
+} from "motion/react"
 
 import { Container, Kicker, QuietLink, sectionPadding } from "@/components/primitives"
+import { FlowRule, SEEN_ABOVE } from "@/components/scroll-motion"
 import { clientWork } from "@/content/site"
 
 /**
@@ -24,6 +32,10 @@ import { clientWork } from "@/content/site"
  * large breakpoint the index becomes a row of numerals with a rule under
  * the chosen one, and the sheet carries the title alone, so the same words
  * are not printed twice a few lines apart.
+ *
+ * The serif numeral is tied to the scroll and runs ahead of the sheet by
+ * thirty pixels over the section's passage, so the case sheet reads as two
+ * planes rather than one flat block.
  */
 const EASE: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
@@ -46,6 +58,14 @@ export function ClientWork() {
   const [active, setActive] = React.useState(0)
   const listRef = React.useRef<HTMLDivElement>(null)
   const [marker, setMarker] = React.useState({ top: 0, height: 0 })
+
+  const sectionRef = React.useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  })
+  const numeralY = useTransform(scrollYProgress, [0, 1], [30, -30])
 
   // Measure the active index entry for the sliding marker. Re-run on resize
   // since the entries wrap to different heights.
@@ -73,17 +93,23 @@ export function ClientWork() {
   const story = clientWork.stories[active]
 
   return (
-    <section id="work" className={`border-b border-rule ${sectionPadding}`}>
+    <section id="work" ref={sectionRef} className={`relative ${sectionPadding}`}>
       <Container>
-        <div data-reveal="0">
-          <Kicker>{clientWork.kicker}</Kicker>
-          <h2 className="mt-5 text-[clamp(32px,3.8vw,54px)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance">
+        <div>
+          <Kicker data-reveal="0" data-flow="left">
+            {clientWork.kicker}
+          </Kicker>
+          <h2
+            data-reveal="60"
+            data-flow="left"
+            className="mt-5 text-[clamp(32px,3.8vw,54px)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance"
+          >
             {clientWork.heading}
           </h2>
         </div>
 
         <div
-          data-reveal="80"
+          data-reveal="120"
           className="mt-14 grid gap-x-[clamp(32px,5vw,80px)] gap-y-8 border-t border-rule-strong pt-8 lg:grid-cols-[minmax(240px,340px)_1fr] lg:pt-0"
         >
           {/* Index */}
@@ -157,12 +183,13 @@ export function ClientWork() {
                 transition={{ duration: 0.22, ease: EASE }}
               >
                 <div className="flex items-start gap-6">
-                  <span
+                  <motion.span
                     aria-hidden="true"
+                    style={reduced ? undefined : { y: numeralY }}
                     className="font-serif text-[clamp(56px,7vw,96px)] leading-[0.85] font-medium tracking-[-0.03em] text-oxblood italic"
                   >
                     {story.num}
-                  </span>
+                  </motion.span>
                   <div className="min-w-0 pt-1">
                     <h3 className="max-w-[22ch] text-[clamp(24px,2.8vw,38px)] leading-[1.1] font-semibold tracking-[-0.025em] text-balance">
                       {story.title}
@@ -184,7 +211,7 @@ export function ClientWork() {
                     variants={path}
                     initial="hidden"
                     whileInView="show"
-                    viewport={{ once: true, amount: 0.5 }}
+                    viewport={{ once: true, amount: 0.5, margin: SEEN_ABOVE }}
                     className="m-0 mt-4 flex list-none flex-wrap items-center gap-y-3"
                   >
                     {story.tags.map((tag) => (
@@ -232,12 +259,13 @@ export function ClientWork() {
           </div>
         </div>
 
-        <div data-reveal="0" className="mt-12">
+        <div data-reveal="0" data-flow="left" className="mt-12">
           <QuietLink href={clientWork.cta.href}>
             {clientWork.cta.label}&nbsp;&nbsp;→
           </QuietLink>
         </div>
       </Container>
+      <FlowRule />
     </section>
   )
 }

@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { motion, useReducedMotion } from "motion/react"
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react"
 
 import { Container, Kicker, sectionPadding } from "@/components/primitives"
+import { Parallax } from "@/components/scroll-motion"
 import { twoSides } from "@/content/site"
 
 /**
@@ -23,26 +24,60 @@ import { twoSides } from "@/content/site"
  *     mirrors (Motion, 300ms) once the reverse is showing.
  *   - The reverse face mirrors the gradient ramp rather than repeating it, so
  *     the two sides read as a pair rather than a duplicate.
+ *
+ * The card is also tied to the scroll: it leans back seven degrees as it
+ * enters, passes through flat at the middle of the viewport and leans
+ * forward on the way out, running a little slower than the copy beside it.
+ * The button rides with it so the two never separate.
  */
 export function TwoSides() {
   const [flipped, setFlipped] = React.useState(false)
   const reduced = useReducedMotion()
   const [front, back] = twoSides.faces
 
+  const cardRef = React.useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"],
+  })
+  const cardTilt = useTransform(scrollYProgress, [0, 1], [7, -7])
+  const cardY = useTransform(scrollYProgress, [0, 1], [-28, 28])
+
   return (
     <section id="two-sides" className={sectionPadding}>
       <Container className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[clamp(40px,5vw,80px)]">
-        <div data-reveal="0">
-          <Kicker>{twoSides.kicker}</Kicker>
-          <h2 className="mt-5 max-w-[16ch] text-[clamp(32px,3.6vw,52px)] leading-[1.06] font-semibold tracking-[-0.03em] text-balance">
+        <Parallax y={22}>
+        <div>
+          <Kicker data-reveal="0" data-flow="left">
+            {twoSides.kicker}
+          </Kicker>
+          <h2
+            data-reveal="60"
+            data-flow="left"
+            className="mt-5 max-w-[16ch] text-[clamp(32px,3.6vw,52px)] leading-[1.06] font-semibold tracking-[-0.03em] text-balance"
+          >
             {twoSides.heading}
           </h2>
-          <p className="mt-6 max-w-[44ch] text-[16.5px] leading-[1.6] text-pretty text-ink-soft">
+          <p
+            data-reveal="120"
+            data-flow="left"
+            className="mt-6 max-w-[44ch] text-[16.5px] leading-[1.6] text-pretty text-ink-soft"
+          >
             {twoSides.body}
           </p>
         </div>
+        </Parallax>
 
-        <div data-reveal="80" className="relative self-start">
+        <div
+          data-reveal="120"
+          data-flow="right"
+          className="relative self-start [perspective:1600px]"
+        >
+          <motion.div
+            ref={cardRef}
+            style={reduced ? undefined : { rotateX: cardTilt, y: cardY }}
+            className="relative"
+          >
           <motion.button
             type="button"
             onClick={() => setFlipped((value) => !value)}
@@ -85,6 +120,7 @@ export function TwoSides() {
             <CardFace face={front} side="front" hidden={flipped} />
             <CardFace face={back} side="back" hidden={!flipped} />
           </div>
+          </motion.div>
         </div>
       </Container>
     </section>

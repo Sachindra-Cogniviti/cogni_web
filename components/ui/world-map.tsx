@@ -17,6 +17,9 @@ import { cn } from "@/lib/utils"
  *     once the map is in view: arcs draw out from the hub, pins pop as their
  *     arc lands, labels rise after them. The map itself stays a server
  *     component so the dot grid never ships to the browser.
+ *   - After that a dot runs along each solid arc from the hub, on a loop,
+ *     in SMIL so the map stays static markup. Each arc has its own period
+ *     so the dots never line up. Hidden under reduced motion (globals.css).
  *   - Labels are real HTML positioned by grid percentage, so they can carry
  *     live content such as the office clocks.
  */
@@ -158,13 +161,26 @@ export function WorldMap({
           const a = map.points[arc.from]
           const b = map.points[arc.to]
           if (!a || !b) return null
+          const d = arcPath(a, b, map.height, arc.bow ?? 1)
+          const period = `${(3.4 + i * 0.55).toFixed(2)}s`
+          const begin = `${(arcDelay(i) + 1.6).toFixed(2)}s`
           return (
-            <MapArc
-              key={`${arc.from}-${arc.to}`}
-              d={arcPath(a, b, map.height, arc.bow ?? 1)}
-              dashed={arc.dashed}
-              delay={arcDelay(i)}
-            />
+            <g key={`${arc.from}-${arc.to}`}>
+              <MapArc d={d} dashed={arc.dashed} delay={arcDelay(i)} />
+              {!arc.dashed && (
+                <circle className="map-traveller" r="0.42" fill="var(--color-oxblood)" opacity="0">
+                  <animateMotion dur={period} begin={begin} repeatCount="indefinite" path={d} />
+                  <animate
+                    attributeName="opacity"
+                    values="0;0.9;0.9;0"
+                    keyTimes="0;0.12;0.85;1"
+                    dur={period}
+                    begin={begin}
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              )}
+            </g>
           )
         })}
 
