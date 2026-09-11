@@ -17,9 +17,9 @@ export const site = {
   locale: "en",
   email: "contact@cognivitilabs.com",
   // The logo file itself is statically imported where it is rendered
-  // (site-nav, site-footer). A string src would not get BASE_PATH prepended
-  // by next/image, so a subfolder deploy would 404 on it; the import lets
-  // Next hash and prefix the asset like any other.
+  // (site-nav, site-footer). The import gives next/image the file's intrinsic
+  // width and height, which is what lets it emit a srcset and reserve the
+  // right box; a string src would give it neither.
   logo: { alt: "Cogniviti Labs" },
 } as const
 
@@ -32,7 +32,7 @@ export const nav = {
     { label: "Services", href: "#services" },
     { label: "Products", href: "#products" },
     { label: "Platforms", href: "#platforms" },
-    { label: "Coupa Training", href: "#training" },
+    { label: "Training", href: "#training" },
     { label: "Resources", href: "#resources" },
     { label: "Company", href: "#company" },
     { label: "Careers", href: "#careers" },
@@ -145,14 +145,102 @@ export const trustedBy = {
   kicker: "Trusted by industry leaders",
   body: "Enterprise teams across industries and regions have worked with Cogniviti Labs to implement platforms, connect systems, improve data and support business adoption.",
   logos: [
-    { id: "indosat", name: "Indosat Ooredoo Hutchison", href: "https://ioh.co.id/EN/home", height: 40 },
+    {
+      id: "indosat",
+      name: "Indosat Ooredoo Hutchison",
+      href: "https://ioh.co.id/EN/home",
+      height: 40,
+    },
     { id: "nets", name: "NETS", href: "https://www.nets.com.sg/", height: 30 },
-    { id: "carsome", name: "Carsome", href: "https://www.carsome.my/", height: 26 },
-    { id: "pil", name: "Pacific International Lines", href: "https://www.pilship.com/", height: 34 },
-    { id: "bangchak", name: "Bangchak", href: "https://www.bangchak.co.th/en/home", height: 60 },
+    {
+      id: "carsome",
+      name: "Carsome",
+      href: "https://www.carsome.my/",
+      height: 26,
+    },
+    {
+      id: "pil",
+      name: "Pacific International Lines",
+      href: "https://www.pilship.com/",
+      height: 34,
+    },
+    {
+      id: "bangchak",
+      name: "Bangchak",
+      href: "https://www.bangchak.co.th/en/home",
+      height: 60,
+    },
     { id: "mirvac", name: "Mirvac", href: "https://mirvac.com/", height: 56 },
-    { id: "dynapack", name: "Dynapack Asia", href: "https://www.dynapackasia.com/", height: 50 },
-    { id: "wearnes", name: "Wearnes", href: "https://wearnes-preowned.com/", height: 30, tone: "light" },
+    {
+      id: "dynapack",
+      name: "Dynapack Asia",
+      href: "https://www.dynapackasia.com/",
+      height: 50,
+    },
+    {
+      id: "wearnes",
+      name: "Wearnes",
+      href: "https://wearnes-preowned.com/",
+      height: 30,
+      tone: "light",
+    },
+  ],
+} as const
+
+/* ---------------------------------------------------------------------------
+ * Certifications
+ *
+ * Sits directly under the client wall, because the two read as one argument:
+ * who trusts us, and what we are independently held to. That pairing is also
+ * why this section reuses the wall's armature - the same label column and the
+ * same hairline grid - rather than inventing a third layout.
+ *
+ * Typographic rather than a row of badge graphics, and that is deliberate.
+ * ISO does not issue a logo to certified organisations; the mark belongs to
+ * whichever body performed the audit, carries their accreditation, and its
+ * use is governed by their rules. A generic "ISO 27001 certified" graphic off
+ * the web is evidence of nothing, and to a procurement buyer it reads worse
+ * than the plain designation set with confidence. `badge` is an optional slot
+ * for the real certifier artwork once it exists - see components for how it
+ * renders when present.
+ *
+ * `issuer` and `reference` are the two fields that turn a claim into a
+ * checkable fact. Both are empty until the certificates are to hand.
+ * ------------------------------------------------------------------------- */
+
+export const certifications = {
+  kicker: "Certified expertise",
+  body: "Independently audited management systems, and platform accreditation held directly with the vendor.",
+  // PLACEHOLDER: `issuer` and `reference` are blank pending the certificates.
+  // Each renders only when filled, so the cards are complete without them.
+  items: [
+    {
+      id: "iso-27001",
+      eyebrow: "Information security",
+      standard: "ISO/IEC 27001",
+      body: "An audited information security management system, covering how client data is handled across delivery and support.",
+      issuer: "",
+      reference: "",
+    },
+    {
+      id: "iso-9001",
+      eyebrow: "Quality management",
+      // ISO 9000 is the family's vocabulary document and is not certifiable.
+      // Organisations are certified against ISO 9001; that is the claim to
+      // make on a page enterprise buyers read.
+      standard: "ISO 9001",
+      body: "A quality management system audited against defined process, review and continual improvement requirements.",
+      issuer: "",
+      reference: "",
+    },
+    {
+      id: "coupa-partner",
+      eyebrow: "Procurement platform",
+      standard: "Coupa Platform Partner",
+      body: "Accredited by Coupa to implement and support the platform, and an Official Coupa Training Partner.",
+      issuer: "",
+      reference: "",
+    },
   ],
 } as const
 
@@ -401,12 +489,18 @@ export const services = {
     },
     {
       label: "Integration experience",
+      // Five items rather than the four above, so this row runs five columns.
+      // Heights are optical, not arithmetic: Oracle's wordmark is 7.7:1 and
+      // has to sit far shorter than SAP's near-square block to carry the same
+      // weight in the row. Names are the alt text, so they match what each
+      // mark actually reads - the Microsoft lockup says "Dynamics 365" and
+      // the current NetSuite mark is an Oracle NetSuite lockup.
       items: [
-        { name: "SAP" },
-        { name: "Oracle" },
-        { name: "Microsoft Dynamics" },
-        { name: "NetSuite" },
-        { name: "Enterprise APIs" },
+        { name: "SAP", logo: "sap", height: 32 },
+        { name: "Oracle", logo: "oracle", height: 15 },
+        { name: "Microsoft Dynamics 365", logo: "dynamics", height: 28 },
+        { name: "Oracle NetSuite", logo: "netsuite", height: 28 },
+        { name: "Enterprise APIs", logo: "api", height: 36 },
       ],
     },
   ],
@@ -469,10 +563,9 @@ export const credentials = {
       label: "Professional and platform certifications",
     },
   ],
-  // PLACEHOLDER: awaiting real certification artwork.
-  certificationsLabel: "Certified expertise",
-  certificationCount: 4,
-  certificationPlaceholder: "Certification badge",
+  // The certification strip that used to sit here - four hatched placeholders
+  // under the presence map - is now its own section directly beneath the
+  // client wall, with real content. See `certifications` above.
 } as const
 
 /* ---------------------------------------------------------------------------
