@@ -473,18 +473,104 @@ export const services = {
   ],
   /**
    * Experience lists. An item with a `logo` renders as a logo tile (file in
-   * public/logos/platforms, imported in components/platform-services.tsx and
+   * public/logos/platforms, imported in components/experience-rows.tsx and
    * keyed by id; `height` is the rendered height in px). Items without one
    * render as text chips, so a logo can be added per item as files arrive.
+   *
+   * An item with a `detail` becomes clickable and opens a panel under its row
+   * (components/experience-rows.tsx). Items without one are not interactive at
+   * all - no cursor, no hover, no focus stop - so a tile never invites a click
+   * that does nothing. Adding a `detail` is all it takes to switch one on.
+   *
+   * `summary` is the one-paragraph position; `body` is the how. They were two
+   * disclosure levels in the source copy, behind a "Show more". Here the tile
+   * click is already the disclosure, and a second toggle inside a panel the
+   * reader has just deliberately opened is a door behind a door.
    */
   experience: [
     {
       label: "Platform experience",
+      // Shown under the label only while nothing is open. A grid of logos does
+      // not read as clickable on its own, and the tiles carry no text of their
+      // own to hint with.
+      hint: "Select a platform",
       items: [
-        { name: "Coupa", logo: "coupa", height: 28 },
-        { name: "GEP", logo: "gep", height: 30 },
-        { name: "Ivalua", logo: "ivalua", height: 36 },
-        { name: "OneStream", logo: "onestream", height: 24 },
+        {
+          name: "Coupa",
+          logo: "coupa",
+          height: 28,
+          detail: {
+            tag: "Source-to-Pay",
+            summary:
+              "We support organizations across the full lifecycle of Coupa initiatives, from assessment through implementation and optimization — enabling clear spend visibility, efficient Source-to-Pay workflows and consistent supplier management.",
+            body: "We configure Coupa to align with your procurement processes, approval structures and compliance requirements. Integrations with ERP and related systems are handled carefully to maintain data accuracy and operational continuity. Post go-live, we support adoption and incremental improvements to help you realize sustained value.",
+            capabilities: [
+              "Spend visibility & analytics",
+              "Source-to-Pay workflows",
+              "Supplier management",
+              "ERP integration",
+              "Approval & compliance structures",
+              "Adoption & optimization",
+            ],
+          },
+        },
+        {
+          name: "GEP",
+          logo: "gep",
+          height: 30,
+          detail: {
+            tag: "SMART Suite",
+            summary:
+              "We implement and evolve GEP platforms across sourcing, procurement, supplier management, spend analysis and supply chain — with a structured approach to assessment, configuration, integration and data readiness.",
+            body: "Our work spans the GEP SMART suite, ensuring solutions are aligned with business operations and governance needs. We follow a structured approach covering assessment, configuration, integration and data readiness for stable, scalable deployments, with continued optimization post go-live.",
+            capabilities: [
+              "Sourcing & contracts",
+              "Procurement",
+              "Supplier management",
+              "Spend analysis",
+              "Supply chain",
+              "Data readiness",
+            ],
+          },
+        },
+        {
+          name: "Ivalua",
+          logo: "ivalua",
+          height: 36,
+          detail: {
+            tag: "Unified Procurement",
+            summary:
+              "We implement and optimize Ivalua to strengthen control, visibility and consistency across Source-to-Pay — spanning sourcing, procurement, supplier, contract, invoicing and spend management on a configurable platform.",
+            body: "We take a structured approach covering requirements assessment, configuration, integration and data migration to enable stable deployments. The focus is on improving process efficiency, transparency and user adoption using Ivalua's configurable capabilities, with ongoing support post go-live.",
+            capabilities: [
+              "Strategic sourcing",
+              "Contract management",
+              "Supplier management",
+              "Procurement",
+              "Invoicing",
+              "Spend management",
+            ],
+          },
+        },
+        {
+          name: "OneStream",
+          logo: "onestream",
+          height: 24,
+          detail: {
+            tag: "EPM Unified",
+            summary:
+              "We implement and optimize OneStream to simplify consolidation, reporting and planning in a single governed platform — built for complex, multi-entity and multi-currency finance environments.",
+            body: "We work with complex, multi-entity and multi-currency environments to align the solution with finance processes, controls and regulatory requirements. A structured approach covering assessment, configuration, integration and data readiness enables reliable close and reporting cycles, with ongoing optimization.",
+            capabilities: [
+              "Consolidation & close",
+              "Financial reporting",
+              "Planning & budgeting",
+              "Forecasting",
+              "Multi-entity / currency",
+              "Data governance",
+            ],
+          },
+        },
       ],
     },
     {
@@ -495,6 +581,10 @@ export const services = {
       // weight in the row. Names are the alt text, so they match what each
       // mark actually reads - the Microsoft lockup says "Dynamics 365" and
       // the current NetSuite mark is an Oracle NetSuite lockup.
+      //
+      // No `detail` on these yet, so they render as plain tiles rather than
+      // buttons. Give any of them a `detail` block in the shape used above and
+      // it starts expanding with no component change.
       items: [
         { name: "SAP", logo: "sap", height: 32 },
         { name: "Oracle", logo: "oracle", height: 15 },
