@@ -1,9 +1,11 @@
 import { Careers } from "@/components/careers"
+import { Certifications } from "@/components/certifications"
 import { ClientWork } from "@/components/client-work"
 import { Contact } from "@/components/contact"
 import { CoupaTraining } from "@/components/coupa-training"
 import { Credentials } from "@/components/credentials"
 import { Hero } from "@/components/hero"
+import { HatchBand } from "@/components/primitives"
 import { PlatformServices } from "@/components/platform-services"
 import { ProductDesktop } from "@/components/product-desktop"
 // import { ProductPortfolio } from "@/components/product-portfolio"
@@ -24,6 +26,11 @@ import { WhyCogniviti } from "@/components/why-cogniviti"
  * business, show the products twice in different registers, then the services
  * that deliver them, then the evidence, then the ask.
  *
+ * "Prove it" is two sections, not one. The client wall answers who trusts us
+ * and the certifications answer what we are independently held to, and they
+ * are adjacent because either alone is half an answer. They share an armature
+ * for the same reason - see components/certifications.tsx.
+ *
  * The light/dark alternation is structural, not decorative. The two dark
  * blocks - portfolio plus desktop, then contact plus footer - bracket the
  * light editorial middle, so the page has two deliberate technical moments
@@ -39,8 +46,14 @@ export default function Page() {
     <>
       <SiteNav />
       <main>
+        {/* The nav is fixed, so this clears it by the bar's own height rather
+            than sitting at flow top, and the hero's top padding drops by the
+            same amount it adds - the page opens at the height it always did,
+            with the grid declared before the headline rather than after it. */}
+        <HatchBand className="mt-[68px]" />
         <Hero />
         <TrustedBy />
+        <Certifications />
         <TwoSides />
         {/* <ProductPortfolio /> */}
         <ProductDesktop />
