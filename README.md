@@ -1,29 +1,25 @@
 # cogni_web
 
-Next.js App Router with `output: 'export'`, deployed to
-Bluehost shared hosting as plain files behind Apache.
+Next.js App Router, deployed to Vercel.
 
-## Hard constraints
+## Hosting
 
-There is no Node runtime on the server. Everything ships as static HTML, CSS,
-JS and fonts. That rules out API routes, middleware, server actions, ISR,
-`getServerSideProps` and `next/image` optimisation. If a change needs one of
-those, it cannot go on this host as written.
+Vercel builds from source on push. There is no build output in the repo and no
+deploy script: the platform runs `next build` itself and serves the result.
 
-Server-side work goes in a standalone `.php` file next to the static output
-(PHP 8.3 is available), never in Next.
+This replaced Bluehost shared hosting, which had no Node runtime and forced the
+whole site through `output: "export"`. That constraint is gone. API routes,
+middleware, server actions, ISR and `next/image` optimisation are all available
+now.
 
-`node_modules` must never reach the server. The account sits near its inode
-limit.
+Vercel handles HTTPS forcing, compression, MIME types, the immutable cache on
+`/_next/static` and HTML revalidation — all the things `.htaccess` used to do.
+The one header it does not add is `X-Content-Type-Options: nosniff`, so that is
+set in `next.config.ts`.
 
-Enforcement in the repo:
-
-- `next.config.ts` sets `output: "export"`, `trailingSlash: true` and
-  `images.unoptimized: true`. `next build` fails on anything dynamic.
-- `eslint.config.mjs` errors on imports of `next/headers`, `next/server`,
-  `next/cache` and `server-only`.
-- There is no `start` script. `next start` does not apply to an export.
-- `.cpanel.yml` copies only `out/*` and `.htaccess`.
+`trailingSlash: true` is kept deliberately: it is the URL shape the sitemap,
+the canonical metadata and the 301s off the old WordPress site were written
+against.
 
 ## Local
 
@@ -34,43 +30,18 @@ npm run dev
 
 ```bash
 npm run build
+npm start        # serve the production build locally
 ```
 
-`npm run build` writes `out/`. That directory is committed on purpose: cPanel
-Git Version Control pulls the repo and `.cpanel.yml` copies `out/*` to the
-document root. The server never builds.
-
-## Serving from a subfolder
-
-Asset paths are root-absolute (`/_next/...`), so the site must sit at a document
-root. To serve it from a subfolder instead, set `BASE_PATH` to that subfolder:
-
-```bash
-# PowerShell
-$env:BASE_PATH="/new"; npm run build
-
-# bash
-BASE_PATH=/new npm run build
-```
-
-Assets then emit as `/new/_next/...`. Also change `ErrorDocument 404 /404.html`
-in `.htaccess` to `/new/404.html`, since that path is resolved from the document
-root and not from the folder the file sits in.
-
-Unset `BASE_PATH` for the real cutover, where the site is at a domain root.
+`next build` writes `.next/`, which is gitignored.
 
 ## Deploy
 
-1. `npm run build`
-2. Commit the changed files including `out/`
-3. Push
-4. cPanel to Git Version Control to Update from Remote, then Deploy HEAD Commit
+1. Push to `master`
+2. Vercel builds and deploys
 
-`.cpanel.yml` copies to `/home1/mdniwpmy/public_html/new/`. The two-space
-indent and the trailing slash on `DEPLOYPATH` both matter.
-
-`.htaccess` handles HTTPS forcing, the 404, gzip, cache headers and MIME types.
-It is copied separately by `.cpanel.yml` because it is not part of `out/`.
+Pull requests get their own preview URL. Rolling back is a promote of an
+earlier deployment in the Vercel dashboard, not a revert commit.
 
 ## Structure
 
@@ -83,7 +54,7 @@ public/      fonts, logo
 
 Copy lives in `content/` so a wording change is a one-file edit.
 `content/site.ts` also holds `siteUrl`, which feeds `robots.txt`,
-`sitemap.xml` and `metadataBase`. Set it before cutover.
+`sitemap.xml` and `metadataBase`. It must match the production domain.
 
 ## Design
 
@@ -96,7 +67,7 @@ sibling `cogniviti` project without asking first.
 
 ## Cutover
 
-Point the document root at the new folder, verify SSL re-issued, 301 the old
+Point the domain at Vercel, verify the certificate issues, 301 the old
 WordPress URLs, and leave WordPress in place as rollback. Do not delete it.
 Indexing is switched on in `app/layout.tsx` and `app/robots.ts`; the WordPress
 staging install has it disabled, so check the live site does not inherit a
