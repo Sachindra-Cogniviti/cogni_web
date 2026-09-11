@@ -190,6 +190,14 @@
     @apply bg-paper text-ink;
     text-rendering: optimizeLegibility;
     }
+
+  /* Blocks that arrive from the side start beyond their resting place, which
+   * would widen the document for the length of the animation. `clip` cuts
+   * that off without making a scroll container, so the fixed nav, the rail
+   * and every view-based measurement are untouched. */
+  html {
+    overflow-x: clip;
+    }
   ::selection {
     @apply bg-oxblood text-paper;
     }
@@ -211,8 +219,9 @@
  *
  * The bar reads the ground under it: over the dark sections it switches to
  * the night palette so the two fixed elements (this and the rail) agree.
- * The compact panel enters with @starting-style: 180ms ease-out from a few
- * pixels up, and leaves instantly. */
+ * Only the palette lives here. The bar's entrance on load and the compact
+ * panel's on open are staggered by Motion in the component, so the two never
+ * animate the same property from opposite sides. */
 .site-nav {
   --nav-bg: rgb(250 248 245 / 0.85);
   --nav-border: var(--color-rule);
@@ -250,6 +259,23 @@
   --nav-panel-fg: var(--color-night-fg);
   --nav-panel-rule: rgb(245 241 234 / 0.1);
   --nav-logo: brightness(1.35) saturate(0.9);
+}
+
+/* The bar's start state, played to rest one piece at a time on load by the
+ * scroll flow. Scoped to .js and neutralised under reduced motion on the same
+ * terms as [data-reveal] further down: with scripting off the bar is simply
+ * there. The travel is a fraction of the page's 32px because the bar is 68px
+ * tall - anything more and the row drops in from outside its own edge. */
+.js [data-nav-enter] {
+  opacity: 0;
+  translate: 0 -8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-nav-enter] {
+    opacity: 1;
+    translate: none;
+  }
 }
 
 .nav-logo {
@@ -313,16 +339,6 @@
 .nav-panel {
   background: var(--nav-panel-bg);
   border-color: var(--nav-border);
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 180ms cubic-bezier(0.23, 1, 0.32, 1),
-    transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
-
-  @starting-style {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
 }
 
 .nav-panel-link {
@@ -335,20 +351,27 @@
   color: var(--nav-active);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .nav-panel {
-    transition: none;
-  }
-}
 
 /* -------------------------------------------------------------------------
- * Scroll reveals
+ * Scroll flow
  *
- * Elements carrying data-reveal start hidden and are released by an
- * IntersectionObserver (see components/reveal.tsx). The observer sets the
- * transition inline so it can vary the timing per element: the hero uses a
- * long 600ms stagger to establish reading order, everything below is capped
- * at 90ms/450ms so mid-page content never feels gated behind an animation.
+ * Every block on the page arrives the same way: elements carrying
+ * data-reveal, and items carrying data-stagger inside a Stagger group, start
+ * here - transparent and pushed off their resting place - and are played to
+ * rest by Motion when they come into view (lib/scroll-flow.ts).
+ *
+ * Which way a block comes from is `data-flow` on the element, or on a
+ * Stagger wrapper, where the custom properties below inherit down to every
+ * item in the group. A split section marks its two halves `left` and
+ * `right`, so they arrive from their own sides; everything else rises.
+ *
+ * The distances are here and nowhere else. Motion is given only a
+ * destination and reads whatever it finds as the starting point, so there is
+ * no second copy of these numbers to fall out of step with.
+ *
+ * Movement is on the independent `translate` property, never `transform`, so
+ * it composes with the Tailwind hover transforms on cards and links instead
+ * of overwriting them.
  *
  * The hidden state lives here rather than inline so that content is visible
  * when CSS loads but JS does not, and is neutralised entirely under
@@ -357,14 +380,39 @@
 /* Scoped to .js, set synchronously by a head script before first paint. With
  * scripting off the content is simply visible - a static export must not hide
  * its own copy behind an animation that can never run. */
-.js [data-reveal] {
+.js [data-reveal],
+.js [data-stagger] {
   opacity: 0;
-  transform: translateY(14px);
+  translate: var(--flow-x, 0px) var(--flow-y, 32px);
 }
 
-.js [data-reveal][data-revealed="true"] {
-  opacity: 1;
-  transform: none;
+.js [data-flow="left"] {
+  --flow-x: -52px;
+  --flow-y: 0px;
+}
+
+.js [data-flow="right"] {
+  --flow-x: 52px;
+  --flow-y: 0px;
+}
+
+/* Cells in a hairline grid only fade: sliding one tears the rule it shares
+ * with its neighbour, and those joins are the whole look of the section. */
+.js [data-flow="fade"] {
+  --flow-x: 0px;
+  --flow-y: 0px;
+}
+
+/* A phone screen is narrow enough that the full lateral travel reads as the
+ * layout lurching rather than a block arriving, so it is scaled back. */
+@media (max-width: 640px) {
+  .js [data-flow="left"] {
+    --flow-x: -26px;
+  }
+
+  .js [data-flow="right"] {
+    --flow-x: 26px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -372,10 +420,10 @@
     scroll-behavior: auto;
   }
 
-  .js [data-reveal] {
+  .js [data-reveal],
+  .js [data-stagger] {
     opacity: 1;
-    transform: none;
-    transition: none !important;
+    translate: none;
   }
 }
 
@@ -444,6 +492,83 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 }
 
+/* The page frame: two vertical hairlines at the edges of the 1280px measure,
+ * so every section reads as held between them.
+ *
+ * Fixed and full height rather than `border-x` on Container. Container is used
+ * seventeen times, twice inside one section, and four of those sit on the dark
+ * grounds - a light rule would be wrong on those, and keeping seventeen copies
+ * in step is work with no upside. One element cannot drift.
+ *
+ * The colour is ink-faint at low alpha rather than --color-rule, which is the
+ * one thing that lets a single line serve both grounds: it darkens the paper
+ * and lightens the dark blocks, instead of glowing on one of them.
+ *
+ * `max()` collapses the inset to zero below the measure, so on a narrow
+ * viewport the rules sit on the screen edges rather than off-screen. */
+/* Distance from the viewport edge to the page frame: the edge of the 1280
+ * measure, which is a gutter's width OUTSIDE the content edge - so the frame
+ * stands off the text rather than running along it. It deliberately does not
+ * coincide with the section grids' own verticals: those bound a cell, this
+ * bounds the page, and nesting them with the gutter between is what gives the
+ * columns room to breathe. The floor keeps the rules off the screen edge below
+ * the measure, where `50% - 640px` goes to zero and beyond.
+ *
+ * Anything that should reach the frame rather than stop at the content edge
+ * uses this - see HatchBand in components/primitives.tsx. The `50%` resolves
+ * against whatever element reads it, so only use it on a full-width one. */
+:root {
+  --frame-inset: max(clamp(12px, 2vw, 28px), calc(50% - 640px));
+}
+
+.page-frame {
+  position: fixed;
+  inset: 0;
+  /* Above content, below the nav (100) and the rail (90). The product desktop
+     nests elements up to z-40, and while they sit well inside the measure and
+     could not reach these lines today, a frame that content can paint over is
+     a frame waiting to break. */
+  z-index: 50;
+  pointer-events: none;
+}
+
+.page-frame::before,
+.page-frame::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  /* Heavier than --color-rule on purpose: this reads through the whole page
+     rather than bounding one cell, and at 1px the section hairline is too
+     faint to register as a frame. */
+  background: rgb(138 129 114 / 0.55);
+}
+
+.page-frame::before {
+  left: var(--frame-inset);
+}
+
+.page-frame::after {
+  right: var(--frame-inset);
+}
+
+/* Ruled hatching, used as a structural band rather than as content.
+ *
+ * Kept visually distinct from .placeholder-hatch below on purpose: that one
+ * means "a real asset belongs here and has not arrived", and if a decorative
+ * band wore the same texture nobody could tell an intentional rhythm from an
+ * unfinished slot. So this is thin rules on the page ground at 125deg, and
+ * that is tonal blocks at 45deg - different angle, different weight, no
+ * chance of reading one as the other. */
+.rule-hatch {
+  background: repeating-linear-gradient(
+    125deg,
+    var(--color-rule) 0 1px,
+    transparent 1px 11px
+  );
+}
+
 /* Diagonal hatching that marks a slot awaiting a real asset - client logos,
  * certification badges, resource photography. Deliberately obvious. */
 .placeholder-hatch {
@@ -467,10 +592,11 @@
 }
 
 /* World map (components/ui/world-map.tsx). Arcs, pins and labels animate
- * with Motion; only the pulse ring is here, and it is hidden under reduced
- * motion. */
+ * with Motion; the pulse ring and the dots that travel the arcs are SMIL,
+ * and both are hidden under reduced motion. */
 @media (prefers-reduced-motion: reduce) {
-  .map-pulse {
+  .map-pulse,
+  .map-traveller {
     display: none;
   }
 }
@@ -496,19 +622,6 @@
 }
 
 
-/* Group entrances driven by Motion (components/stagger.tsx). Items start
- * hidden only when scripting is on; Motion animates them in. */
-.js [data-stagger] {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .js [data-stagger] {
-    opacity: 1;
-    transform: none;
-  }
-}
 
 /* Product desktop (components/product-desktop.tsx).
  *
@@ -629,8 +742,8 @@
 
 /* Selected client work (components/client-work.tsx) and Why Cogniviti
  * Labs (components/why-motion.tsx). The choreography is Motion's; what is
- * left here is the static stroke of the Why thread and the two pulse rings,
- * which are hidden under reduced motion. */
+ * left here is the colour of the Why thread and the two pulse rings, which
+ * are hidden under reduced motion. */
 .work-pulse {
   animation: work-pulse 2.2s cubic-bezier(0.23, 1, 0.32, 1) 0.6s infinite;
 }
@@ -651,11 +764,8 @@
 }
 
 .why-thread {
-  fill: none;
-  stroke: var(--color-oxblood);
-  stroke-width: 1.5px;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
+  background: var(--color-oxblood);
+  border-radius: 1px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -687,12 +797,15 @@
   --rail-closed: 44px;
   --rail-open: 184px;
   opacity: 0;
-  transform: translate(-8px, -50%);
+  /* Slides in from the right edge it is anchored to. */
+  transform: translate(8px, -50%);
   pointer-events: none;
   /* The clip lives on the nav, not the box, because the nav is what
      listens for the pointer: clip-path clips hit testing on the element it
-     is set on, so the hidden part of the capsule takes no hover. */
-  clip-path: inset(0 calc(var(--rail-open) - var(--rail-closed)) 0 0 round 14px);
+     is set on, so the hidden part of the capsule takes no hover.
+     Inset from the LEFT: the rail is anchored right, so the strip that stays
+     visible when closed is the right-hand end, against the screen edge. */
+  clip-path: inset(0 0 0 calc(var(--rail-open) - var(--rail-closed)) round 14px);
   transition:
     opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
     transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
@@ -751,7 +864,8 @@
   height: 2px;
   border-radius: 1px;
   background: var(--rail-ink);
-  transform-origin: left center;
+  /* Grows inward, away from the screen edge, on hover. */
+  transform-origin: right center;
   transition:
     transform 200ms cubic-bezier(0.23, 1, 0.32, 1),
     background-color 200ms ease;
@@ -759,7 +873,8 @@
 
 .rail-active-tick {
   position: absolute;
-  left: 6px;
+  /* Pinned to the same edge the ticks hug. */
+  right: 6px;
   top: 10px;
   width: 22px;
   height: 2px;

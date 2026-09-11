@@ -2,10 +2,17 @@ import type { MetadataRoute } from "next"
 
 import { siteUrl } from "@/content/site"
 
-// Required for output: "export" on metadata routes.
 export const dynamic = "force-static"
 
-// Rendered to out/sitemap.xml at build time. Add a line per public route.
+/*
+ * Kept at the app root alongside robots.ts. This one does work from inside a
+ * route group, but the two belong together and splitting them is how the
+ * robots.ts trap gets sprung (see the note there).
+ *
+ * Still a hardcoded list. Once the blog and client stories are live this
+ * should query Payload for slugs and their publishedAt, and drop
+ * `force-static` so new posts appear without a rebuild.
+ */
 const routes = ["/"]
 
 export default function sitemap(): MetadataRoute.Sitemap {
