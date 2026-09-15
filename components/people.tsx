@@ -1,6 +1,6 @@
 import Image, { type StaticImageData } from "next/image"
 
-import { Container, Kicker } from "@/components/primitives"
+import { Container, Corners, Kicker } from "@/components/primitives"
 import { Stagger } from "@/components/stagger"
 import { people } from "@/content/site"
 
@@ -130,7 +130,7 @@ export function People() {
               as="ul"
               from="fade"
               step={0.08}
-              className={`m-0 mt-10 grid list-none grid-cols-2 gap-x-[clamp(20px,3vw,40px)] gap-y-[clamp(36px,4vw,56px)] ${
+              className={`people-grid m-0 mt-10 grid list-none grid-cols-2 gap-x-[clamp(20px,3vw,40px)] gap-y-[clamp(36px,4vw,56px)] ${
                 // Whole class names - Tailwind scans source text, so an
                 // interpolated column count is never generated.
                 index === 0 ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-4"
@@ -151,70 +151,117 @@ function PersonCard({ member }: { member: Member }) {
   const portrait = portraits[member.photo]
   const tenure = "tenure" in member ? member.tenure : undefined
 
+  const sizes = "(min-width: 1024px) 300px, (min-width: 640px) 33vw, 50vw"
+
+  // One gesture, one curve. The wipe, the rule and the brackets all run on
+  // these numbers so they read as a single thing travelling across the card
+  // rather than three effects that happen to fire together.
+  const SWEEP =
+    "duration-[420ms] ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none"
+
   return (
     <li data-stagger className="group flex flex-col">
-      <div className="relative aspect-square w-full overflow-hidden bg-paper-tint">
-        <Image
-          src={portrait}
-          alt={member.name}
-          fill
-          sizes="(min-width: 1024px) 300px, (min-width: 640px) 33vw, 50vw"
-          className="object-cover [filter:grayscale(1)_contrast(1.14)_brightness(1.03)_sepia(0.14)] transition-[filter,transform] duration-[450ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.02] group-hover:[filter:grayscale(0)_contrast(1)_brightness(1)_sepia(0)] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-        />
-      </div>
+      <div className="people-card flex flex-1 flex-col">
+        <div className="relative aspect-square w-full overflow-hidden bg-paper-tint">
+          {/* Rest layer: the treated photograph, always present. */}
+          <Image
+            src={portrait}
+            alt={member.name}
+            fill
+            sizes={sizes}
+            className={`object-cover [filter:grayscale(1)_contrast(1.14)_brightness(1.03)_sepia(0.14)] transition-transform ${SWEEP} group-hover:scale-[1.02] motion-reduce:group-hover:scale-100`}
+          />
 
-      {/* The rule carries the hover, the way the oxblood tick does elsewhere:
-          a short mark that runs the width of the card. A transform, so it
-          costs nothing to animate. */}
-      <div className="relative mt-4 h-px w-full bg-rule">
-        <span
-          aria-hidden="true"
-          className="absolute inset-0 origin-left scale-x-0 bg-oxblood transition-transform duration-[350ms] ease-[cubic-bezier(.23,1,.32,1)] group-hover:scale-x-100 motion-reduce:transition-none"
-        />
-      </div>
+          {/* Colour layer, wiped in from the left. Same file as the layer
+              beneath - Next emits the same srcset, so the browser fetches it
+              once - and no alt text, because this is the same person the rest
+              layer has already named and a screen reader should not hear them
+              twice.
 
-      <div className="mt-4 flex flex-1 flex-col">
-        <div className="text-[15.5px] leading-[1.25] font-semibold tracking-[-0.01em]">
-          {member.name}
-        </div>
-
-        {/* Role and tenure are separate fields; the middle dot is drawn here
-            so it is punctuation rather than part of the copy. */}
-        <div className="mt-[6px] font-mono text-[10.5px] leading-[1.4] tracking-[0.14em] text-ink-faint uppercase">
-          {member.role}
-          {tenure ? (
-            <>
-              <span className="px-[6px] text-ink-ghost">·</span>
-              {tenure}
-            </>
-          ) : null}
-        </div>
-
-        <div className="mt-[10px] text-[12.5px] leading-[1.45] text-oxblood">
-          Ex-{member.previously.join(" · ")}
-        </div>
-
-        <p className="mt-[10px] text-[13px] leading-[1.55] text-pretty text-ink-muted">
-          {member.body}
-        </p>
-
-        <a
-          href={member.linkedin}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`${member.name} on LinkedIn`}
-          className="mt-auto inline-flex w-fit items-center gap-[7px] pt-4 text-[12.5px] font-medium text-ink-soft transition-colors hover:text-oxblood"
-        >
-          <svg
-            viewBox="0 0 24 24"
+              The clip-path is on this wrapper while the scale is on the image
+              inside it, so the wipe edge stays put while the picture grows
+              behind it. Putting both on one element makes the boundary drift
+              as it scales. */}
+          <div
             aria-hidden="true"
-            focusable="false"
-            className="size-[13px] shrink-0 fill-current"
+            className={`absolute inset-0 transition-[clip-path] [clip-path:inset(0_100%_0_0)] ${SWEEP} group-hover:[clip-path:inset(0_0_0_0)]`}
           >
-            <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
-          </svg>
-          {people.connectLabel}
-        </a>
+            <Image
+              src={portrait}
+              alt=""
+              fill
+              sizes={sizes}
+              className={`object-cover transition-transform ${SWEEP} group-hover:scale-[1.02] motion-reduce:group-hover:scale-100`}
+            />
+          </div>
+
+          {/* Brackets, inset so they sit on the photograph rather than on its
+              edge. Oxblood rather than the default ink-ghost: these land on
+              thirteen different photographs, and a pale bracket that reads
+              over a studio backdrop disappears over a dark suit. The inset
+              comes from this wrapper, not a class on Corners, so it does not
+              depend on how the class merger resolves two `inset-*` rules. */}
+          <span
+            aria-hidden="true"
+            className={`pointer-events-none absolute inset-[10px] opacity-0 transition-opacity ${SWEEP} group-hover:opacity-100`}
+          >
+            <Corners tone="oxblood" size={12} />
+          </span>
+        </div>
+
+        {/* The rule runs out beneath the wipe on the same curve, so the colour
+            arriving and the line drawing are one movement. A transform, so it
+            costs nothing to animate. */}
+        <div className="relative mt-4 h-px w-full bg-rule">
+          <span
+            aria-hidden="true"
+            className={`absolute inset-0 origin-left scale-x-0 bg-oxblood transition-transform ${SWEEP} group-hover:scale-x-100`}
+          />
+        </div>
+
+        <div className="mt-4 flex flex-1 flex-col">
+          <div className="text-[15.5px] leading-[1.25] font-semibold tracking-[-0.01em]">
+            {member.name}
+          </div>
+
+          {/* Role and tenure are separate fields; the middle dot is drawn here
+            so it is punctuation rather than part of the copy. */}
+          <div className="mt-[6px] font-mono text-[10.5px] leading-[1.4] tracking-[0.14em] text-ink-faint uppercase">
+            {member.role}
+            {tenure ? (
+              <>
+                <span className="px-[6px] text-ink-ghost">·</span>
+                {tenure}
+              </>
+            ) : null}
+          </div>
+
+          <div className="mt-[10px] text-[12.5px] leading-[1.45] text-oxblood">
+            Ex-{member.previously.join(" · ")}
+          </div>
+
+          <p className="mt-[10px] text-[13px] leading-[1.55] text-pretty text-ink-muted">
+            {member.body}
+          </p>
+
+          <a
+            href={member.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${member.name} on LinkedIn`}
+            className="mt-auto inline-flex w-fit items-center gap-[7px] pt-4 text-[12.5px] font-medium text-ink-soft transition-colors hover:text-oxblood"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
+              className="size-[13px] shrink-0 fill-current"
+            >
+              <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
+            </svg>
+            {people.connectLabel}
+          </a>
+        </div>
       </div>
     </li>
   )

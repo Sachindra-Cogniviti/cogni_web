@@ -12,12 +12,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: var(--font-sans);
-    --font-mono: var(--font-mono);
-    --font-serif: var(--font-serif);
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
 
-    /* ---------------------------------------------------------------
+  /* ---------------------------------------------------------------
      * Cogniviti Labs v1 palette.
      *
      * Kept as literal hex, deliberately: these are lifted straight from
@@ -28,151 +28,151 @@
      * The scale runs light -> dark. "paper" is the page ground, "ink" is
      * type, "rule" is borders, "night" is the dark contrast sections.
      * --------------------------------------------------------------- */
-    --color-paper: #faf8f5; /* page ground */
-    --color-paper-alt: #f3efe7; /* alternate section band */
-    --color-paper-soft: #f6f3ed; /* row hover fill */
-    --color-paper-tint: #f1ede4; /* placeholder hatching */
+  --color-paper: #faf8f5; /* page ground */
+  --color-paper-alt: #f3efe7; /* alternate section band */
+  --color-paper-soft: #f6f3ed; /* row hover fill */
+  --color-paper-tint: #f1ede4; /* placeholder hatching */
 
-    --color-ink: #17140f; /* headings, primary type */
-    --color-ink-soft: #4c463d; /* body copy */
-    --color-ink-muted: #7a7266; /* small print */
-    --color-ink-faint: #8a8172; /* mono labels */
-    --color-ink-ghost: #a69c8a; /* placeholder captions */
+  --color-ink: #17140f; /* headings, primary type */
+  --color-ink-soft: #4c463d; /* body copy */
+  --color-ink-muted: #7a7266; /* small print */
+  --color-ink-faint: #8a8172; /* mono labels */
+  --color-ink-ghost: #a69c8a; /* placeholder captions */
 
-    --color-rule: #e8e3d9; /* default hairline */
-    --color-rule-strong: #d8d2c4; /* section-opening rule */
-    --color-rule-faint: #f0ebe1; /* list dividers */
-    --color-edge: #c9c1b2; /* outline-button border */
+  --color-rule: #e8e3d9; /* default hairline */
+  --color-rule-strong: #d8d2c4; /* section-opening rule */
+  --color-rule-faint: #f0ebe1; /* list dividers */
+  --color-edge: #c9c1b2; /* outline-button border */
 
-    --color-oxblood: #8e2030; /* brand accent */
-    --color-oxblood-lift: #c86a72; /* accent on dark ground */
+  --color-oxblood: #8e2030; /* brand accent */
+  --color-oxblood-lift: #c86a72; /* accent on dark ground */
 
-    --color-night: #161310; /* products, contact, footer */
-    --color-night-deep: #0e0b09; /* product explorer */
-    --color-night-panel: #1c1814; /* spec readout panel */
-    --color-night-fg: #f5f1ea; /* type on dark */
-    --color-night-muted: #b3a996; /* body copy on dark */
-    --color-night-value: #e8dfce; /* data values on dark */
+  --color-night: #161310; /* products, contact, footer */
+  --color-night-deep: #0e0b09; /* product explorer */
+  --color-night-panel: #1c1814; /* spec readout panel */
+  --color-night-fg: #f5f1ea; /* type on dark */
+  --color-night-muted: #b3a996; /* body copy on dark */
+  --color-night-value: #e8dfce; /* data values on dark */
 
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
   html {
     @apply font-sans;
-    }
+  }
 
   /* Anchor navigation. scroll-padding clears the 68px fixed nav plus a
    * little breathing room, so a jumped-to section does not sit under it.
@@ -182,14 +182,14 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 88px;
-    }
+  }
   html.js {
     scroll-behavior: auto;
-    }
+  }
   body {
     @apply bg-paper text-ink;
     text-rendering: optimizeLegibility;
-    }
+  }
 
   /* Blocks that arrive from the side start beyond their resting place, which
    * would widen the document for the length of the animation. `clip` cuts
@@ -197,10 +197,10 @@
    * and every view-based measurement are untouched. */
   html {
     overflow-x: clip;
-    }
+  }
   ::selection {
     @apply bg-oxblood text-paper;
-    }
+  }
 
   /* One focus ring for the page: oxblood, offset, keyboard only. Dark
    * grounds lift it so it holds contrast. Controls with their own ring
@@ -209,10 +209,11 @@
     outline: 2px solid var(--color-oxblood);
     outline-offset: 2px;
     border-radius: 2px;
-    }
-  :where(.bg-night, .bg-night-deep, .desktop) :where(a, button, [tabindex]):focus-visible {
+  }
+  :where(.bg-night, .bg-night-deep, .desktop)
+    :where(a, button, [tabindex]):focus-visible {
     outline-color: var(--color-oxblood-lift);
-    }
+  }
 }
 
 /* Site nav (components/site-nav.tsx).
@@ -350,7 +351,6 @@
 .nav-panel-link:hover {
   color: var(--nav-active);
 }
-
 
 /* -------------------------------------------------------------------------
  * Scroll flow
@@ -621,8 +621,6 @@
   }
 }
 
-
-
 /* Product desktop (components/product-desktop.tsx).
  *
  * Wallpaper and the static styling of the window, Dock and tooltips. The
@@ -630,9 +628,21 @@
  * Motion's, in the component, so nothing here transitions transform. */
 .desktop {
   background:
-    radial-gradient(70% 60% at 50% 30%, rgb(142 32 48 / 0.55), rgb(142 32 48 / 0) 70%),
-    radial-gradient(45% 40% at 18% 85%, rgb(74 11 24 / 0.6), rgb(74 11 24 / 0) 65%),
-    radial-gradient(40% 35% at 85% 80%, rgb(200 106 114 / 0.18), rgb(200 106 114 / 0) 60%),
+    radial-gradient(
+      70% 60% at 50% 30%,
+      rgb(142 32 48 / 0.55),
+      rgb(142 32 48 / 0) 70%
+    ),
+    radial-gradient(
+      45% 40% at 18% 85%,
+      rgb(74 11 24 / 0.6),
+      rgb(74 11 24 / 0) 65%
+    ),
+    radial-gradient(
+      40% 35% at 85% 80%,
+      rgb(200 106 114 / 0.18),
+      rgb(200 106 114 / 0) 60%
+    ),
     var(--color-night-deep);
 }
 
@@ -805,7 +815,9 @@
      is set on, so the hidden part of the capsule takes no hover.
      Inset from the LEFT: the rail is anchored right, so the strip that stays
      visible when closed is the right-hand end, against the screen edge. */
-  clip-path: inset(0 0 0 calc(var(--rail-open) - var(--rail-closed)) round 14px);
+  clip-path: inset(
+    0 0 0 calc(var(--rail-open) - var(--rail-closed)) round 14px
+  );
   transition:
     opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
     transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
@@ -917,6 +929,42 @@
   .rail-tick,
   .rail-label,
   .rail-item {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * People grid
+ *
+ * Hovering one portrait steps the other twelve back, so the card coming up in
+ * colour reads against a quieter field instead of competing with a wall of
+ * equally-weighted faces.
+ *
+ * Two things about this rule are load-bearing.
+ *
+ * The opacity sits on .people-card, never on the <li>. Stagger reveals these
+ * items by writing an inline opacity on the list item itself (settle() and
+ * flowIn() in lib/scroll-flow.ts), and an inline style beats a stylesheet - a
+ * rule targeting the <li> would work until the row revealed and then silently
+ * stop. The inner element multiplies against that inline value instead.
+ *
+ * And it is behind a hover query. On a touch screen :hover latches after a tap
+ * and does not clear until something else is tapped, which would leave twelve
+ * cards dimmed with no way to undo it.
+ * ------------------------------------------------------------------------- */
+
+.people-card {
+  transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .people-grid:has(> li:hover) > li:not(:hover) .people-card {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .people-card {
     transition: none;
   }
 }

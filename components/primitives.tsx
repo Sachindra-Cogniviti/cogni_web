@@ -119,18 +119,26 @@ export function HatchBand({
 export function Corners({
   edges = "all",
   size = 10,
+  tone: toneName = "ghost",
   className,
 }: {
   edges?: "all" | "top" | "bottom"
   /** Arm length in px. */
   size?: number
+  /**
+   * `ghost` is the default and belongs on a hairline cell. `oxblood` is for
+   * brackets that land on a photograph, where ink-ghost is legible over a
+   * pale background and gone over a dark one - the accent holds against both,
+   * and ties the brackets to the rule they appear alongside.
+   */
+  tone?: "ghost" | "oxblood"
   className?: string
 }) {
   const arm = { width: size, height: size }
   // ink-ghost (#a69c8a) rather than rule-strong (#d8d2c4): against the default
   // rule (#e8e3d9), rule-strong is too near to register at a 10px arm and the
   // brackets just disappear into the border.
-  const tone = "border-ink-ghost"
+  const tone = toneName === "oxblood" ? "border-oxblood" : "border-ink-ghost"
   return (
     <span
       aria-hidden="true"
@@ -138,14 +146,26 @@ export function Corners({
     >
       {edges !== "bottom" && (
         <>
-          <i className={`absolute top-0 left-0 border-t border-l ${tone}`} style={arm} />
-          <i className={`absolute top-0 right-0 border-t border-r ${tone}`} style={arm} />
+          <i
+            className={`absolute top-0 left-0 border-t border-l ${tone}`}
+            style={arm}
+          />
+          <i
+            className={`absolute top-0 right-0 border-t border-r ${tone}`}
+            style={arm}
+          />
         </>
       )}
       {edges !== "top" && (
         <>
-          <i className={`absolute bottom-0 left-0 border-b border-l ${tone}`} style={arm} />
-          <i className={`absolute right-0 bottom-0 border-r border-b ${tone}`} style={arm} />
+          <i
+            className={`absolute bottom-0 left-0 border-b border-l ${tone}`}
+            style={arm}
+          />
+          <i
+            className={`absolute right-0 bottom-0 border-r border-b ${tone}`}
+            style={arm}
+          />
         </>
       )}
     </span>
