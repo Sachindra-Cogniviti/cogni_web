@@ -66,11 +66,26 @@ type Member = (typeof people.groups)[number]["members"][number]
  * larger. That is the whole hierarchy - same card, same fields, same order,
  * one wider column - rather than a different treatment for each group.
  *
- * The portraits are greyscale until hovered. Thirteen photographs with
- * thirteen unrelated backgrounds - brick, foliage, office glass, studio white
- * - read as a jumble at this size and pull the eye away from the names; one
- * tonal range makes them a group. Colour on hover keeps the real photograph
- * available rather than replacing it.
+ * The portraits are treated until hovered: desaturated, contrast lifted, and
+ * warmed slightly so they sit on the paper ground rather than floating as
+ * neutral grey. Thirteen photographs with thirteen unrelated backgrounds -
+ * brick, foliage, office glass, studio white - read as a jumble at this size
+ * and pull the eye away from the names; one tonal range makes them a group.
+ * Colour on hover keeps the real photograph available rather than replacing
+ * it.
+ *
+ * Written as an explicit four-function filter in both states rather than
+ * Tailwind's `grayscale` / `grayscale-0` pair. CSS only interpolates between
+ * filter lists that hold the same functions in the same order, so listing all
+ * four at their identity values on hover is what makes this a transition
+ * instead of a snap.
+ *
+ * A true ink-to-paper duotone via an SVG feComponentTransfer was the other
+ * candidate and is very close to this by eye - both endpoints of the brand
+ * ramp are near-neutral, so the duotone mostly just adds contrast, which this
+ * does in one line and can animate. An oxblood ramp was tried and rejected
+ * outright: it is the obvious on-brand choice and it makes every face look
+ * unwell, with the features failing to read at card size.
  */
 export function People() {
   return (
@@ -144,7 +159,7 @@ function PersonCard({ member }: { member: Member }) {
           alt={member.name}
           fill
           sizes="(min-width: 1024px) 300px, (min-width: 640px) 33vw, 50vw"
-          className="object-cover grayscale transition-[filter,transform] duration-[450ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.02] group-hover:grayscale-0 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          className="object-cover [filter:grayscale(1)_contrast(1.14)_brightness(1.03)_sepia(0.14)] transition-[filter,transform] duration-[450ms] ease-[cubic-bezier(.22,1,.36,1)] group-hover:scale-[1.02] group-hover:[filter:grayscale(0)_contrast(1)_brightness(1)_sepia(0)] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
       </div>
 
