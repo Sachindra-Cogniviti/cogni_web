@@ -66,12 +66,12 @@ export function Certifications() {
   return (
     <section
       aria-label="Certifications"
-      className="relative py-[72px]"
+      className="relative py-[clamp(48px,7vw,72px)]"
     >
       <Container>
         <div className="grid gap-x-[clamp(32px,5vw,80px)] gap-y-9 lg:grid-cols-[minmax(220px,300px)_1fr]">
-          <Parallax y={18}>
-            <div>
+          <Parallax y={18} className="min-w-0">
+            <div className="max-lg:text-center">
               <div
                 data-reveal="0"
                 data-flow="left"
@@ -82,18 +82,26 @@ export function Certifications() {
               <p
                 data-reveal="60"
                 data-flow="left"
-                className="mt-[10px] max-w-[34ch] text-[14.5px] leading-[1.55] text-ink-soft"
+                className="mt-[10px] max-w-[34ch] text-[14.5px] leading-[1.55] text-ink-soft max-lg:mx-auto"
               >
                 {certifications.body}
               </p>
             </div>
           </Parallax>
 
-          <Parallax y={-8}>
+          {/* Three cells in a row from sm up. Below that they were a stack
+              of three tall cards; now they are the same row, scrolling
+              sideways under the gutter and snapping card to card, so all
+              three are one gesture away rather than three screens. The
+              rules move from the list to the cards, which are what scroll. */}
+          {/* min-w-0 is load-bearing: the row of three cards is wider than
+              a phone, and without it the grid sizes its one column to the
+              row rather than to the screen. */}
+          <Parallax y={-8} className="min-w-0">
             <Stagger
               as="ul"
               from="fade"
-              className="m-0 grid list-none grid-cols-1 border-t border-l border-t-rule-strong border-l-rule sm:grid-cols-3"
+              className="scroll-row m-0 list-none max-sm:-mx-[20px] max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:overflow-x-auto max-sm:px-[20px] max-sm:[scroll-padding-inline:20px] sm:grid sm:grid-cols-3 sm:border-t sm:border-l sm:border-t-rule-strong sm:border-l-rule"
             >
               {certifications.items.map((item) => {
                 const badge = badges[item.id]
@@ -102,7 +110,8 @@ export function Certifications() {
                   <li
                     key={item.id}
                     data-stagger
-                    className="group relative flex flex-col border-r border-b border-rule px-6 pt-7 pb-8 transition-colors duration-[250ms] hover:bg-paper-soft"
+                    data-tap
+                    className="group relative flex flex-col border-r border-b border-rule px-6 pt-7 pb-8 transition-colors duration-[250ms] hover:bg-paper-soft data-active:bg-paper-soft max-sm:w-[78vw] max-sm:max-w-[320px] max-sm:shrink-0 max-sm:snap-start max-sm:border-t max-sm:border-l max-sm:border-t-rule-strong max-sm:[&+li]:border-l-0"
                   >
                     {/* One rule, not two. The short oxblood tick that marks
                         the cell is itself what grows to the full width on
@@ -110,7 +119,7 @@ export function Certifications() {
                         second line scaling over a static first - identical to
                         look at, and cheaper to animate, but it is two elements
                         and the tick never actually moves. Here it does. */}
-                    <div className="absolute top-[-1px] left-0 h-[2px] w-9 bg-oxblood transition-[width] duration-300 ease-[cubic-bezier(.23,1,.32,1)] group-hover:w-full motion-reduce:transition-none" />
+                    <div className="absolute top-[-1px] left-0 h-[2px] w-9 bg-oxblood transition-[width] duration-300 ease-[cubic-bezier(.23,1,.32,1)] group-hover:w-full group-data-active:w-full motion-reduce:transition-none" />
 
                     {/* Bottom pair only. The top corners are where the oxblood
                         tick lives, and a bracket half-covered by it reads as a

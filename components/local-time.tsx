@@ -46,7 +46,7 @@ export function LocalTime({
     [timeZone, hour12, withDay]
   )
 
-  const time = React.useSyncExternalStore(subscribe, getSnapshot, () => "—")
+  const time = React.useSyncExternalStore(subscribe, getSnapshot, () => "··")
 
   return <span>{time}</span>
 }

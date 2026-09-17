@@ -1,9 +1,11 @@
 import {
   Container,
   outlineButton,
+  Roll,
   sectionPadding,
   solidButton,
 } from "@/components/primitives"
+import { ScrambleText } from "@/components/scramble-text"
 import { FlowRule, Parallax, Spin } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
 import { training } from "@/content/site"
@@ -36,7 +38,7 @@ export function CoupaTraining() {
               className="inline-flex items-center gap-[10px] rounded-[2px] border border-oxblood px-4 py-2 font-mono text-[10.5px] font-medium tracking-[0.18em] text-oxblood uppercase"
             >
               <Spin className="block size-[7px] bg-oxblood" />
-              {training.badge}
+              <ScrambleText text={training.badge} />
             </div>
 
             <h2
@@ -75,7 +77,7 @@ export function CoupaTraining() {
                     action.variant === "solid" ? "py-[14px]" : "py-[13px]"
                   }`}
                 >
-                  {action.label}
+                  <Roll>{action.label}</Roll>
                 </a>
               ))}
             </div>

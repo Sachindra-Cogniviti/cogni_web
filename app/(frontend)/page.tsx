@@ -18,7 +18,25 @@ import { SiteNav } from "@/components/site-nav"
 import { Together } from "@/components/together"
 import { TrustedBy } from "@/components/trusted-by"
 import { TwoSides } from "@/components/two-sides"
+import { Updates } from "@/components/updates"
 import { WhyCogniviti } from "@/components/why-cogniviti"
+import type { ResourceItem } from "@/components/resources"
+import type { WorkStory } from "@/components/client-work"
+import {
+  categoriesOf,
+  deliveryPath,
+  getPosts,
+  getStories,
+  imageSource,
+  mediaOf,
+} from "@/lib/cms"
+
+/**
+ * Two sections carry Payload content - the selected client work and the
+ * resources row - so the page is revalidated every minute like the pages
+ * that list that content in full. Everything else on it is static copy.
+ */
+export const revalidate = 60
 
 /**
  * Homepage.
@@ -48,7 +66,38 @@ import { WhyCogniviti } from "@/components/why-cogniviti"
  * desktop so every link to the products still lands. Restore it by
  * uncommenting the import and the element below and moving the id back.
  */
-export default function Page() {
+export default async function Page() {
+  const [stories, posts] = await Promise.all([getStories(3), getPosts(3)])
+
+  // The three latest stories, each with its delivery path as the stops.
+  // Undefined when there are none, so the section falls back to the
+  // summaries in content.
+  const work: WorkStory[] | undefined = stories.length
+    ? stories.map((story, index) => ({
+        num: String(index + 1).padStart(2, "0"),
+        title: story.title,
+        body: story.excerpt,
+        tags: deliveryPath(story),
+        href: `/work/${story.slug}/`,
+      }))
+    : undefined
+
+  const reading: ResourceItem[] | undefined = posts.length
+    ? posts.map((post) => {
+        const category = categoriesOf(post.categories)[0]?.title ?? "Insight"
+        const cover = mediaOf(post.coverImage)
+        const image = cover ? imageSource(cover, "inline") : null
+        return {
+          eyebrow: category,
+          title: post.title,
+          href: `/blog/${post.slug}/`,
+          image: image
+            ? { ...image, alt: cover?.alt ?? "" }
+            : `editorial photo · ${category}`,
+        }
+      })
+    : undefined
+
   return (
     <>
       <SiteNav />
@@ -61,6 +110,10 @@ export default function Page() {
         <Hero />
         <TrustedBy />
         <Certifications />
+        {/* The announcement band. It sits here because the two blocks
+            above are static proof - who trusts us, what we are held to -
+            and this is the first thing on the page that is current. */}
+        <Updates />
         <TwoSides />
         {/* <ProductPortfolio /> */}
         <ProductDesktop />
@@ -73,10 +126,10 @@ export default function Page() {
         <OurStory />
         <Credentials />
         <People />
-        <ClientWork />
+        <ClientWork stories={work} />
         <WhyCogniviti />
         <Together />
-        <Resources />
+        <Resources items={reading} />
         <Careers />
         <Contact />
       </main>

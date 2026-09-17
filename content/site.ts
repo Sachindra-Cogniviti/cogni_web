@@ -11,7 +11,7 @@ export const siteUrl = "https://cognivitilabs.com"
 export const site = {
   name: "Cogniviti Labs",
   title:
-    "Cogniviti Labs — Engineering the systems behind modern procurement and finance",
+    "Cogniviti Labs: Engineering the systems behind modern procurement and finance",
   description:
     "Cogniviti Labs implements and supports enterprise procurement and EPM platforms, and builds proprietary products for master data, integrations, spend intelligence, cash-flow management, platform adoption and agentic operations.",
   locale: "en",
@@ -29,15 +29,18 @@ export const site = {
 
 export const nav = {
   links: [
-    { label: "Services", href: "#services" },
-    { label: "Products", href: "#products" },
-    { label: "Platforms", href: "#platforms" },
-    { label: "Training", href: "#training" },
-    { label: "Resources", href: "#resources" },
-    { label: "Company", href: "#company" },
-    { label: "Careers", href: "#careers" },
+    { label: "Services", href: "/#services" },
+    { label: "Products", href: "/products" },
+    { label: "Platforms", href: "/#platforms" },
+    { label: "Experience", href: "/experience" },
+    { label: "Training", href: "/#training" },
+    { label: "Company", href: "/#company" },
+    { label: "Careers", href: "/careers" },
   ],
-  cta: { label: "Talk to Our Team", href: "#contact" },
+  cta: { label: "Talk to Our Team", href: "/contact" },
+  /** The compact bar's toggle, read out by assistive technology. */
+  menuLabel: "Open menu",
+  closeLabel: "Close menu",
 } as const
 
 /**
@@ -74,7 +77,7 @@ export const hero = {
     accent: "systems",
     after: " behind modern procurement and finance.",
   },
-  body: "Cogniviti Labs implements and supports enterprise procurement and EPM platforms—and builds proprietary products for master data, integrations, spend intelligence, cash-flow management, platform adoption and agentic operations.",
+  body: "Cogniviti Labs implements and supports enterprise procurement and EPM platforms, and builds proprietary products for master data, integrations, spend intelligence, cash-flow management, platform adoption and agentic operations.",
   actions: [
     { label: "Explore Our Products", href: "#products", variant: "solid" },
     {
@@ -84,7 +87,7 @@ export const hero = {
     },
   ],
   footnote:
-    "Operating across Singapore, India, Indonesia, the United Kingdom and South Africa — with partner-supported delivery in Thailand and other markets.",
+    "Operating across Singapore, India, Indonesia, the United Kingdom and South Africa, with partner-supported delivery in Thailand and other markets.",
   // The galaxy in the hero's right-hand whitespace (components/hero-galaxy.tsx).
   // Five capability nodes orbit a core: `r` is orbit radius, `a` the angle in
   // radians, `product` marks Cogniviti products against platforms we serve.
@@ -245,6 +248,100 @@ export const certifications = {
 } as const
 
 /* ---------------------------------------------------------------------------
+ * Updates
+ *
+ * The news carousel after the certifications: one announcement at a time,
+ * each with a picture, paginated underneath (components/updates.tsx).
+ *
+ * DRAFT, and the one block on the site where that matters most. Every item
+ * below is derived from something the site already says - AOS being in
+ * development, the Experience Centre, the Coupa training partnership, the
+ * offices in globalPresence - because a news feed is read as a record of
+ * things that actually happened on the dates given. Nothing here should
+ * announce a partner, a customer, a launch or a figure that has not been
+ * confirmed, and the dates need setting to the real ones before launch.
+ *
+ * `kind` is the label over the headline, so keep it to one or two words.
+ * `date` is display text, not a timestamp: it is never parsed, so "Q4 2026"
+ * is as valid as a day.
+ *
+ * `image` is null until there is a real one, and a null renders the hatched
+ * placeholder rather than an empty box - so the section is complete today and
+ * each picture arrives by filling in one object. Files go in public/updates/.
+ * Landscape, 16:10, at least 1120x700 so it is sharp on a 2x screen.
+ *
+ * This moves to Payload once the design is signed off - same shape as the
+ * roles collection, see payload/collections/roles.ts - because announcements
+ * are the one thing on this page with a natural expiry.
+ * ------------------------------------------------------------------------- */
+
+export type Update = {
+  kind: string
+  date: string
+  title: string
+  body: string
+  /** 16:10 landscape, or null for the placeholder. */
+  image: { src: string; alt: string } | null
+  cta: { label: string; href: string }
+}
+
+export const updates: {
+  kicker: string
+  heading: string
+  /** Seconds one item holds before the next arrives. */
+  dwell: number
+  pauseLabel: string
+  playLabel: string
+  /** Shown in place of a picture that does not exist yet. */
+  imagePending: string
+  items: readonly Update[]
+} = {
+  kicker: "Latest updates",
+  heading: "What is moving right now",
+  dwell: 7,
+  pauseLabel: "Pause",
+  playLabel: "Play",
+  imagePending: "Image to come",
+  items: [
+    {
+      kind: "Product",
+      date: "In development",
+      title: "Agentic Operating System",
+      body: "The governance layer that lets enterprises scale AI agents with the trust, transparency and auditability that mission-critical operations demand.",
+      image: null,
+      cta: {
+        label: "What we are building",
+        href: "/products/agentic-operating-system",
+      },
+    },
+    {
+      kind: "Platform",
+      date: "Now live",
+      title: "The Experience Centre is open",
+      body: "Run the products yourself against representative data, at desktop, tablet or phone width, before you speak to anybody.",
+      image: null,
+      cta: { label: "Open the Experience Centre", href: "/experience" },
+    },
+    {
+      kind: "Partnership",
+      date: "Ongoing",
+      title: "Official Coupa Training Partner",
+      body: "Accredited by Coupa to implement and support the platform, and to deliver its training programme across the region.",
+      image: null,
+      cta: { label: "Explore Coupa Training", href: "/#training" },
+    },
+    {
+      kind: "Delivery",
+      date: "Ongoing",
+      title: "Cross-border delivery across five markets",
+      body: "Teams operating from Singapore, India, Indonesia, the United Kingdom and South Africa, with partner coverage into Thailand.",
+      image: null,
+      cta: { label: "Where to find us", href: "/contact" },
+    },
+  ],
+}
+
+/* ---------------------------------------------------------------------------
  * Two sides of Cogniviti Labs (the flip card)
  * ------------------------------------------------------------------------- */
 
@@ -255,13 +352,13 @@ export const twoSides = {
   flipLabel: "Flip the card",
   faces: [
     {
-      index: "01 — Platform Services",
+      index: "01 · Platform Services",
       title: "Enterprise Platform Services",
       body: "Specialist teams to design, implement, integrate, improve and support procurement and EPM platforms across complex enterprise environments.",
       cta: { label: "Explore Our Services", href: "#services" },
     },
     {
-      index: "02 — Products",
+      index: "02 · Products",
       title: "Enterprise Products",
       body: "Software designed to address recurring challenges across data, integrations, analytics, cash flow, adoption and intelligent business operations.",
       cta: { label: "Explore Our Products", href: "#products" },
@@ -279,6 +376,8 @@ export const twoSides = {
 
 export type Product = {
   name: string
+  /** URL segment under /products. Also the key into productPages. */
+  slug: string
   glyph: string
   kicker: string
   tag: string
@@ -290,6 +389,7 @@ export type Product = {
 export const products: readonly Product[] = [
   {
     name: "Master Data Management",
+    slug: "master-data-management",
     glyph: "MD",
     kicker: "Data foundation",
     tag: "Better data before it reaches your enterprise systems",
@@ -304,6 +404,7 @@ export const products: readonly Product[] = [
   },
   {
     name: "CogniFlow",
+    slug: "cogniflow",
     glyph: "CF",
     kicker: "Project cash flow",
     tag: "See project cash flow before it becomes a problem",
@@ -318,6 +419,7 @@ export const products: readonly Product[] = [
   },
   {
     name: "Cogniviti Bridge",
+    slug: "cogniviti-bridge",
     glyph: "BR",
     kicker: "Integration lifecycle",
     tag: "Move integrations from design to production with control",
@@ -332,6 +434,7 @@ export const products: readonly Product[] = [
   },
   {
     name: "Spend Analytics",
+    slug: "spend-analytics",
     glyph: "SA",
     kicker: "Spend intelligence",
     tag: "A clearer view of enterprise spend",
@@ -346,6 +449,7 @@ export const products: readonly Product[] = [
   },
   {
     name: "Adoption Copilot",
+    slug: "adoption-copilot",
     glyph: "AC",
     kicker: "Platform adoption",
     tag: "Make enterprise-platform adoption measurable",
@@ -360,6 +464,7 @@ export const products: readonly Product[] = [
   },
   {
     name: "Agentic Operating System",
+    slug: "agentic-operating-system",
     glyph: "OS",
     kicker: "Agentic operations",
     tag: "Enterprise agents designed to operate together",
@@ -379,10 +484,10 @@ export const productPortfolio = {
   heading: "Products built from problems we know first-hand",
   body: "Our products are designed around enterprise requirements for control, integration, auditability and operational use.",
   links: [
-    { label: "View All Products", href: "#contact", emphasis: "primary" },
+    { label: "View All Products", href: "/products", emphasis: "primary" },
     {
       label: "Request a Demonstration",
-      href: "#contact",
+      href: "/experience",
       emphasis: "secondary",
     },
   ],
@@ -410,8 +515,8 @@ export const productDesktop = {
     window: "Window",
     help: "Help",
     helpItems: [
-      { label: "Talk to our team", href: "#contact" },
-      { label: "Request a demonstration", href: "#contact" },
+      { label: "Talk to our team", href: "/contact?subject=products" },
+      { label: "Request a demonstration", href: "/experience" },
     ],
   },
   spotlight: {
@@ -427,7 +532,7 @@ export const productDesktop = {
   closedHint: "Choose a product from the Dock to open it",
   dock: {
     label: "Dock",
-    contact: { label: "Talk to our team", href: "#contact" },
+    contact: { label: "Talk to our team", href: "/contact?subject=products" },
   },
   controls: {
     close: "Close window",
@@ -443,7 +548,7 @@ export const productDesktop = {
 export const services = {
   kicker: "Platform services",
   heading: "Platform expertise, carried through to production",
-  body: "We work across the complete delivery lifecycle—from operating-model and process decisions to configuration, integration, deployment, adoption and ongoing support.",
+  body: "We work across the complete delivery lifecycle, from operating-model and process decisions to configuration, integration, deployment, adoption and ongoing support.",
   stages: [
     {
       num: "01",
@@ -507,7 +612,7 @@ export const services = {
           detail: {
             tag: "Source-to-Pay",
             summary:
-              "We support organizations across the full lifecycle of Coupa initiatives, from assessment through implementation and optimization — enabling clear spend visibility, efficient Source-to-Pay workflows and consistent supplier management.",
+              "We support organizations across the full lifecycle of Coupa initiatives, from assessment through implementation and optimization, enabling clear spend visibility, efficient Source-to-Pay workflows and consistent supplier management.",
             body: "We configure Coupa to align with your procurement processes, approval structures and compliance requirements. Integrations with ERP and related systems are handled carefully to maintain data accuracy and operational continuity. Post go-live, we support adoption and incremental improvements to help you realize sustained value.",
             capabilities: [
               "Spend visibility & analytics",
@@ -526,7 +631,7 @@ export const services = {
           detail: {
             tag: "SMART Suite",
             summary:
-              "We implement and evolve GEP platforms across sourcing, procurement, supplier management, spend analysis and supply chain — with a structured approach to assessment, configuration, integration and data readiness.",
+              "We implement and evolve GEP platforms across sourcing, procurement, supplier management, spend analysis and supply chain, with a structured approach to assessment, configuration, integration and data readiness.",
             body: "Our work spans the GEP SMART suite, ensuring solutions are aligned with business operations and governance needs. We follow a structured approach covering assessment, configuration, integration and data readiness for stable, scalable deployments, with continued optimization post go-live.",
             capabilities: [
               "Sourcing & contracts",
@@ -545,7 +650,7 @@ export const services = {
           detail: {
             tag: "Unified Procurement",
             summary:
-              "We implement and optimize Ivalua to strengthen control, visibility and consistency across Source-to-Pay — spanning sourcing, procurement, supplier, contract, invoicing and spend management on a configurable platform.",
+              "We implement and optimize Ivalua to strengthen control, visibility and consistency across Source-to-Pay, spanning sourcing, procurement, supplier, contract, invoicing and spend management on a configurable platform.",
             body: "We take a structured approach covering requirements assessment, configuration, integration and data migration to enable stable deployments. The focus is on improving process efficiency, transparency and user adoption using Ivalua's configurable capabilities, with ongoing support post go-live.",
             capabilities: [
               "Strategic sourcing",
@@ -564,7 +669,7 @@ export const services = {
           detail: {
             tag: "EPM Unified",
             summary:
-              "We implement and optimize OneStream to simplify consolidation, reporting and planning in a single governed platform — built for complex, multi-entity and multi-currency finance environments.",
+              "We implement and optimize OneStream to simplify consolidation, reporting and planning in a single governed platform, built for complex, multi-entity and multi-currency finance environments.",
             body: "We work with complex, multi-entity and multi-currency environments to align the solution with finance processes, controls and regulatory requirements. A structured approach covering assessment, configuration, integration and data readiness enables reliable close and reporting cycles, with ongoing optimization.",
             capabilities: [
               "Consolidation & close",
@@ -602,7 +707,7 @@ export const services = {
           detail: {
             tag: "ERP Integration",
             summary:
-              "We connect Source-to-Pay and EPM platforms to SAP so procurement and finance work from one set of records — covering master data, the transactional flows between them and the reconciliation that keeps both sides in agreement.",
+              "We connect Source-to-Pay and EPM platforms to SAP so procurement and finance work from one set of records, covering master data, the transactional flows between them and the reconciliation that keeps both sides in agreement.",
             body: "Our work covers interface design, master-data alignment and the day-to-day flows between S/4HANA or ECC and the platform being deployed: requisitions, purchase orders, goods receipt, invoices and payment status. Interfaces are tested against realistic volumes and reconciliation is designed in from the start, so a discrepancy surfaces in the process rather than at period close.",
             capabilities: [
               "S/4HANA & ECC",
@@ -678,7 +783,7 @@ export const services = {
           detail: {
             tag: "Integration Architecture",
             summary:
-              "Where no packaged connector exists, we build the interface — APIs, file exchanges and middleware flows designed around real volumes, real failure modes and the people who will support them afterwards.",
+              "Where no packaged connector exists, we build the interface: APIs, file exchanges and middleware flows designed around real volumes, real failure modes and the people who will support them afterwards.",
             body: "We design to the interface each system actually offers rather than forcing one pattern across the estate: REST and SOAP services, scheduled file transfers, or middleware where an organization already runs one. Error handling, retries, logging and monitoring are part of the build rather than a later addition, so a failed run is visible and recoverable without pulling in a developer.",
             capabilities: [
               "REST & SOAP interfaces",
@@ -693,7 +798,7 @@ export const services = {
       ],
     },
   ],
-  cta: { label: "Explore Platform Services", href: "#contact" },
+  cta: { label: "Explore Platform Services", href: "/contact?subject=platform-implementation" },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -708,10 +813,10 @@ export const training = {
     "Our trainers combine platform knowledge with practical delivery experience across procurement processes, integrations, data, testing, rollout and adoption.",
   ],
   actions: [
-    { label: "Explore Coupa Training", href: "#contact", variant: "solid" },
+    { label: "Explore Coupa Training", href: "/contact?subject=training", variant: "solid" },
     {
       label: "Discuss Your Training Requirements",
-      href: "#contact",
+      href: "/contact?subject=training",
       variant: "outline",
     },
   ],
@@ -740,19 +845,19 @@ export const training = {
 export const story = {
   kicker: "Our story",
   heading: "From implementing platforms to governing AI at scale",
-  body: "We didn't set out to build an AI operating system. We arrived here by following a problem — one our clients kept running into as AI moved from promise to production.",
+  body: "We didn't set out to build an AI operating system. We arrived here by following a problem, one our clients kept running into as AI moved from promise to production.",
   stages: [
     {
       num: "01",
       label: "Where we began",
       title: "Mastering enterprise platform implementation.",
-      body: "We launched as a team of senior experts dedicated to implementing top-tier finance and procurement platforms — Coupa, Ivalua, GEP and OneStream. We didn't just configure software: we integrated ERPs, cleaned data, and ensured high adoption.",
+      body: "We launched as a team of senior experts dedicated to implementing top-tier finance and procurement platforms: Coupa, Ivalua, GEP and OneStream. We didn't just configure software: we integrated ERPs, cleaned data, and ensured high adoption.",
     },
     {
       num: "02",
       label: "The shift",
       title: "Platforms transitioned to AI-native ecosystems.",
-      body: "With the rise of native AI agents and agent studios, our work shifted from basic configuration to intelligent composition — building agents that reason and act across the entire source-to-pay lifecycle.",
+      body: "With the rise of native AI agents and agent studios, our work shifted from basic configuration to intelligent composition, building agents that reason and act across the entire source-to-pay lifecycle.",
     },
     {
       num: "03",
@@ -768,16 +873,6 @@ export const story = {
       body: "Enterprise AI rarely fails due to a shortage of agents; it fails due to a deficit of control. As companies scale from a few isolated agents to hundreds, they face a critical need for centralized orchestration, continuous monitoring, and rigorous risk safeguards.",
     },
   ],
-  /**
-   * The end of the spine, and the only place on the site that says AOS is
-   * still being built. Keep "we are developing" - it is the difference between
-   * a roadmap and a claim.
-   */
-  close: {
-    label: "What we are building",
-    body: "To bridge this gap, we are developing the Agentic Operating System (AOS) — the essential governance layer that empowers enterprises to scale AI agents with the absolute trust, transparency, and auditability that mission-critical operations demand.",
-    cta: { label: "Explore Agentic Operating System", href: "#products" },
-  },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -828,20 +923,10 @@ export const credentials = {
 export const globalPresence = {
   kicker: "Global presence",
   heading: "Regional presence. Cross-border delivery.",
-  body: "Cogniviti Labs supports enterprise programs through teams operating across Singapore, India, Indonesia, the United Kingdom and South Africa. Our partner network extends delivery into Thailand and other markets, with local coordination alongside consistent program governance.",
+  body: "Cogniviti Labs supports enterprise programs through teams operating across Singapore, India, Indonesia and South Africa. Our partner network extends delivery into Thailand and other markets, with local coordination alongside consistent program governance.",
   region: { lat: { min: -56, max: 78 }, lng: { min: -170, max: 180 } },
   hub: "sg",
   locations: [
-    {
-      id: "uk",
-      name: "United Kingdom",
-      offset: "GMT+1",
-      tz: "Europe/London",
-      lat: 51.5,
-      lng: -0.12,
-      anchor: "top",
-      bow: 1.3,
-    },
     {
       id: "za",
       name: "South Africa",
@@ -916,8 +1001,10 @@ export const globalPresence = {
 export const people = {
   kicker: "Founders and team",
   heading: "The people behind it",
-  body: "A boutique team of senior practitioners — with the hands-on experience to implement, the engineering depth to build, and the judgment to govern AI at enterprise scale.",
+  body: "A boutique team of senior practitioners, with the hands-on experience to implement, the engineering depth to build, and the judgment to govern AI at enterprise scale.",
   connectLabel: "Connect",
+  /** The hint beside the row on large screens, where scrolling drives it. */
+  scrollHint: "Scroll to meet everyone",
   groups: [
     {
       label: "Our founders",
@@ -1049,11 +1136,20 @@ export const people = {
 export const clientWork = {
   kicker: "Selected client work",
   heading: "Work that reaches production",
-  cta: { label: "View All Client Stories", href: "#contact" },
+  cta: { label: "View All Client Stories", href: "/work" },
   readLabel: "Read the Client Story",
+  /** Seconds a story stays open before the index turns to the next. */
+  dwell: 6,
+  pauseLabel: "Pause",
+  playLabel: "Play",
   /** The delivery path lays each story's tags out as stops ending here. */
   pathLabel: "Delivery path",
   pathEnd: "Production",
+  /**
+   * FALLBACK ONLY. The section shows the three most recent client stories
+   * from Payload (app/(frontend)/page.tsx); these summaries appear only
+   * while nothing is published there.
+   */
   stories: [
     {
       num: "01",
@@ -1065,21 +1161,21 @@ export const clientWork = {
         "Multi-entity rollout",
       ],
       body: "Designed and delivered enterprise procurement processes, platform configuration, ERP integration, data migration, testing and business rollout across multiple operating entities.",
-      href: "#contact",
+      href: "/work",
     },
     {
       num: "02",
       title: "Enterprise integration and data readiness",
       tags: ["Master data", "Governed workflows", "Third-party systems"],
       body: "Prepared master data and connected procurement processes with ERP and third-party systems through governed integration workflows.",
-      href: "#contact",
+      href: "/work",
     },
     {
       num: "03",
       title: "Post-go-live support and optimization",
       tags: ["Stabilization", "Issue resolution", "Managed support"],
       body: "Stabilized production operations, resolved process and integration issues, and established ongoing platform support and improvement.",
-      href: "#contact",
+      href: "/work",
     },
   ],
 } as const
@@ -1133,9 +1229,9 @@ export const why = {
 
 export const together = {
   kicker: "Products and services, working together",
-  heading: "Use our products independently⁠—or as part of a wider program",
+  heading: "Use our products independently, or as part of a wider program",
   body: "Every Cogniviti product can address a defined business requirement on its own. Where appropriate, we also combine our products with platform implementation, integration and managed services. This gives clients the flexibility to solve an immediate problem or establish a broader transformation capability.",
-  cta: { label: "Discuss Your Requirements", href: "#contact" },
+  cta: { label: "Discuss Your Requirements", href: "/contact" },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -1149,28 +1245,33 @@ export const resources = {
   kicker: "Resources",
   heading: "Practical insight for enterprise teams",
   body: "Guidance based on the realities of platform delivery, integration, data management and business adoption.",
-  cta: { label: "Explore Resources", href: "#contact" },
+  cta: { label: "Explore Resources", href: "/blog" },
   readLabel: "Read",
+  /**
+   * FALLBACK ONLY. The row shows the three most recent blog posts from
+   * Payload (app/(frontend)/page.tsx); these cards appear only while nothing
+   * is published there.
+   */
   items: [
     {
       eyebrow: "Featured client story",
       title:
         "Preparing master data for an enterprise procurement implementation",
-      image: "editorial photo — data infrastructure",
-      href: "#contact",
+      image: "editorial photo · data infrastructure",
+      href: "/blog",
     },
     {
       eyebrow: "Featured guide",
       title:
         "Designing controlled integrations across development, test and production",
-      image: "editorial photo — systems architecture",
-      href: "#contact",
+      image: "editorial photo · systems architecture",
+      href: "/blog",
     },
     {
       eyebrow: "Featured insight",
       title: "Measuring adoption after an enterprise-platform rollout",
-      image: "editorial photo — modern workplace",
-      href: "#contact",
+      image: "editorial photo · modern workplace",
+      href: "/blog",
     },
   ],
 } as const
@@ -1182,8 +1283,8 @@ export const resources = {
 export const careers = {
   kicker: "Careers",
   heading: "Build enterprise technology that businesses depend on",
-  body: "Work across product engineering, procurement, finance, integrations, data and applied AI—solving problems that continue beyond the initial implementation.",
-  cta: { label: "Explore Careers", href: "#contact" },
+  body: "Work across product engineering, procurement, finance, integrations, data and applied AI, solving problems that continue beyond the initial implementation.",
+  cta: { label: "Explore Careers", href: "/careers" },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -1193,11 +1294,19 @@ export const careers = {
 export const contact = {
   disciplines: ["Procurement", "Finance", "Data", "Integration"],
   heading:
-    "Planning an enterprise platform program⁠—or evaluating one of our products?",
+    "Planning an enterprise platform program, or evaluating one of our products?",
   body: "Speak with our team about your business processes, technology landscape and operational requirements.",
   actions: [
-    { label: "Discuss a Services Requirement", variant: "solid" },
-    { label: "Request a Product Demonstration", variant: "outline" },
+    {
+      label: "Discuss a Services Requirement",
+      href: "/contact?subject=platform-implementation",
+      variant: "solid",
+    },
+    {
+      label: "Request a Product Demonstration",
+      href: "/contact?subject=products",
+      variant: "outline",
+    },
   ],
 } as const
 
@@ -1207,51 +1316,69 @@ export const contact = {
 
 export const footer = {
   tagline: "Engineering the systems behind modern procurement and finance.",
-  offices: "Singapore | India",
+  /** The markets, on the row above the legal rule. */
+  offices: "Singapore | India | Indonesia | South Africa",
+  /**
+   * Social links, on the right of that row. An entry with no href is not
+   * rendered, so a network can be listed before its page exists and appears
+   * the moment the link is filled in.
+   */
+  social: [
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/company/cognivitilabs/posts/?feedView=all",
+    },
+    { label: "X", href: "" },
+  ],
+  /** The wordmark set across the foot of the page (components/site-footer.tsx). */
+  wordmark: "COGNIVITI LABS",
   columns: [
     {
       label: "Services",
       links: [
-        { label: "Advisory and Process Design", href: "#services" },
-        { label: "Platform Implementation", href: "#services" },
-        { label: "Integration and Data", href: "#services" },
-        { label: "Adoption and Enablement", href: "#services" },
-        { label: "Managed Services", href: "#services" },
+        { label: "Advisory and Process Design", href: "/#services" },
+        { label: "Platform Implementation", href: "/#services" },
+        { label: "Integration and Data", href: "/#services" },
+        { label: "Adoption and Enablement", href: "/#services" },
+        { label: "Managed Services", href: "/#services" },
       ],
     },
     {
       label: "Products",
       links: [
-        { label: "Master Data Management", href: "#products" },
-        { label: "CogniFlow", href: "#products" },
-        { label: "Cogniviti Bridge", href: "#products" },
-        { label: "Spend Analytics", href: "#products" },
-        { label: "Adoption Copilot", href: "#products" },
-        { label: "Agentic Operating System", href: "#products" },
+        {
+          label: "Master Data Management",
+          href: "/products/master-data-management",
+        },
+        { label: "CogniFlow", href: "/products/cogniflow" },
+        { label: "Cogniviti Bridge", href: "/products/cogniviti-bridge" },
+        { label: "Spend Analytics", href: "/products/spend-analytics" },
+        { label: "Adoption Copilot", href: "/products/adoption-copilot" },
+        { label: "Experience Centre", href: "/experience" },
       ],
     },
     {
       label: "Platforms",
       links: [
-        { label: "Coupa", href: "#platforms" },
-        { label: "GEP", href: "#platforms" },
-        { label: "Ivalua", href: "#platforms" },
-        { label: "OneStream", href: "#platforms" },
+        { label: "Coupa", href: "/#platforms" },
+        { label: "GEP", href: "/#platforms" },
+        { label: "Ivalua", href: "/#platforms" },
+        { label: "OneStream", href: "/#platforms" },
       ],
     },
     {
       label: "Company",
       links: [
-        { label: "Our Story", href: "#company" },
-        { label: "Client Stories", href: "#work" },
-        { label: "Resources", href: "#resources" },
-        { label: "Careers", href: "#careers" },
-        { label: "Contact", href: "#contact" },
+        { label: "Our Story", href: "/#company" },
+        { label: "Client Stories", href: "/work" },
+        { label: "Resources", href: "/blog" },
+        { label: "Careers", href: "/careers" },
+        { label: "Contact", href: "/contact" },
       ],
     },
   ],
   legal: [
-    { label: "Privacy Policy", href: "#top" },
-    { label: "Terms and Conditions", href: "#top" },
+    { label: "Privacy Policy", href: "/#top" },
+    { label: "Terms and Conditions", href: "/#top" },
   ],
 } as const

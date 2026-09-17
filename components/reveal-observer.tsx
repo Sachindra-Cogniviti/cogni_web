@@ -2,16 +2,17 @@
 
 import * as React from "react"
 
-import { flowIn, settle, watch } from "@/lib/scroll-flow"
+import { flowIn, flowOut, settle, watch } from "@/lib/scroll-flow"
 
 /**
  * Scroll flow for the whole page.
  *
  * Mounted once in the layout. It finds every `[data-reveal]` element in the
- * document and plays it in when it arrives (see lib/scroll-flow.ts) rather
- * than wrapping each one in a component, which keeps all the page sections
- * as server components and, more importantly, adds no wrapper elements that
- * would perturb the grid and flex layouts they sit in.
+ * document and plays it in when it arrives and back out when it leaves (see
+ * lib/scroll-flow.ts) rather than wrapping each one in a component, which
+ * keeps all the page sections as server components and, more importantly,
+ * adds no wrapper elements that would perturb the grid and flex layouts they
+ * sit in.
  *
  * The `data-reveal` value is the element's place in its block's sequence,
  * carried as a delay in milliseconds because that is what the markup already
@@ -62,7 +63,13 @@ export function RevealObserver() {
       // The markup carries the old per-element delay; 60ms is one step.
       const index = Math.round(Number(element.dataset.reveal ?? 0) / 60)
       try {
-        stops.push(watch(element, () => flowIn(element, { index })))
+        stops.push(
+          watch(
+            element,
+            () => flowIn(element, { index }),
+            () => flowOut(element)
+          )
+        )
       } catch {
         settle(element)
       }

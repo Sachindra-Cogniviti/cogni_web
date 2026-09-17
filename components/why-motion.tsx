@@ -9,7 +9,7 @@ import {
   type Variants,
 } from "motion/react"
 
-import { SEEN_ABOVE } from "@/components/scroll-motion"
+import { VIEW_MARGIN } from "@/components/scroll-motion"
 import { why } from "@/content/site"
 
 /**
@@ -30,7 +30,7 @@ import { why } from "@/content/site"
  * PillarRule is the line that draws in from the left over each pillar.
  */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
-const VIEW = { once: true, amount: 0.4, margin: SEEN_ABOVE } as const
+const VIEW = { amount: 0.4, margin: VIEW_MARGIN } as const
 
 const grid: Variants = {
   hidden: {},
@@ -130,7 +130,7 @@ export function PillarRule({ index }: { index: number }) {
       aria-hidden="true"
       initial={{ scaleX: 0 }}
       whileInView={{ scaleX: 1 }}
-      viewport={{ once: true, amount: 0.6, margin: SEEN_ABOVE }}
+      viewport={{ amount: 0.6, margin: VIEW_MARGIN }}
       transition={{ duration: 0.6, ease: EASE, delay: index * 0.07 + 0.12 }}
       className="absolute top-0 left-0 h-[2px] w-full origin-left bg-ink"
     />

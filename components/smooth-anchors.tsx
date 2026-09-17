@@ -38,7 +38,8 @@ export function SmoothAnchors() {
 
     const settle = (target: HTMLElement) => {
       if (target === document.body) return
-      if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1")
+      if (!target.hasAttribute("tabindex"))
+        target.setAttribute("tabindex", "-1")
       target.focus({ preventScroll: true })
     }
 
@@ -54,12 +55,18 @@ export function SmoothAnchors() {
         return
 
       const anchor = (event.target as Element | null)?.closest?.(
-        "a[href^='#']"
+        "a[href^='#'], a[href^='/#']"
       ) as HTMLAnchorElement | null
       if (!anchor) return
 
-      const hash = anchor.getAttribute("href") ?? ""
+      // Nav and footer links are written "/#services" so they work from a
+      // sub-page, where they have to be a real navigation. On the homepage
+      // they are the same in-page hop as a bare "#services", so they are
+      // handled here too rather than reloading the page the reader is on.
+      const href = anchor.getAttribute("href") ?? ""
+      const hash = href.startsWith("/#") ? href.slice(1) : href
       if (hash.length < 2) return
+      if (href.startsWith("/#") && window.location.pathname !== "/") return
       const id = decodeURIComponent(hash.slice(1))
       const target = id === "top" ? document.body : document.getElementById(id)
       if (!target) return
@@ -69,20 +76,26 @@ export function SmoothAnchors() {
 
       const start = window.scrollY
       const max = document.documentElement.scrollHeight - window.innerHeight
-      const raw = target.getBoundingClientRect().top + start - (id === "top" ? 0 : NAV_OFFSET)
+      const raw =
+        target.getBoundingClientRect().top +
+        start -
+        (id === "top" ? 0 : NAV_OFFSET)
       const end = Math.min(max, Math.max(0, raw))
       const distance = end - start
 
       if (hash !== window.location.hash) history.pushState(null, "", hash)
 
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
       if (reduced || Math.abs(distance) < 2) {
         window.scrollTo(0, end)
         settle(target)
         return
       }
 
-      const duration = Math.min(650, Math.max(350, Math.abs(distance) * 0.35)) / 1000
+      const duration =
+        Math.min(650, Math.max(350, Math.abs(distance) * 0.35)) / 1000
 
       window.addEventListener("wheel", stop, { passive: true })
       window.addEventListener("touchstart", stop, { passive: true })

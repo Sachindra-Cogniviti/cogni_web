@@ -4,7 +4,7 @@ import * as React from "react"
 import { animate, useInView, useReducedMotion } from "motion/react"
 
 /**
- * A stat numeral that counts up once, the first time it scrolls into view.
+ * A stat numeral that counts up each time it scrolls into view.
  *
  * The final value is what the HTML carries, so the number is right with
  * scripting off and in the crawler. With scripting on, the count runs from
@@ -12,10 +12,14 @@ import { animate, useInView, useReducedMotion } from "motion/react"
  * and is done before the eye settles on the block. Tabular figures keep the
  * width still while the digits change. Under reduced motion the value is
  * simply shown. Non-numeric values render as they are.
+ *
+ * When the block leaves the viewport the count is stopped and the final
+ * value put back, so the numeral is never left mid-count, and the next
+ * arrival starts from zero again.
  */
 export function StatValue({ value, index = 0 }: { value: string; index?: number }) {
   const ref = React.useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true, amount: 0.5 })
+  const inView = useInView(ref, { amount: 0.5 })
   const reduced = useReducedMotion()
   const target = Number(value)
 
@@ -31,8 +35,11 @@ export function StatValue({ value, index = 0 }: { value: string; index?: number 
         node.textContent = String(Math.round(v))
       },
     })
-    return () => controls.stop()
-  }, [inView, target, reduced, index])
+    return () => {
+      controls.stop()
+      node.textContent = value
+    }
+  }, [inView, target, reduced, index, value])
 
   return (
     <span ref={ref} className="tabular-nums">

@@ -4,6 +4,8 @@ import * as React from "react"
 import Image, { type StaticImageData } from "next/image"
 import { AnimatePresence, motion } from "motion/react"
 
+import { FlipTrack, Roll, WideRule } from "@/components/primitives"
+import { ScrambleText } from "@/components/scramble-text"
 import { Stagger } from "@/components/stagger"
 import { services } from "@/content/site"
 
@@ -56,8 +58,8 @@ const detailOf = (item: Item): Detail | undefined =>
   "detail" in item ? item.detail : undefined
 
 /**
- * The experience lists: a row of logo tiles per group, and — where an item
- * carries detail copy — a panel that opens underneath it.
+ * The experience lists: a row of logo tiles per group, and - where an item
+ * carries detail copy - a panel that opens underneath it.
  *
  * The panel sits below the whole tile grid rather than being spliced into the
  * row after the tile that was clicked. Splicing is the more obvious idea and
@@ -65,7 +67,7 @@ const detailOf = (item: Item): Detail | undefined =>
  * share a row is a function of viewport width, and the insertion point would
  * have to be recomputed from the current column count. Below the grid it is
  * correct at every width for free, and at the widths where the tiles form a
- * single row — the ones this was designed for — it is also exactly where
+ * single row - the ones this was designed for - it is also exactly where
  * splicing would have put it.
  *
  * One panel is open at a time. Selecting another platform swaps the contents
@@ -108,104 +110,105 @@ function ExperienceGroup({ group, index }: { group: Group; index: number }) {
   }, [open])
 
   return (
-    <div
-      data-reveal={160 + index * 40}
-      data-flow="left"
-      className={`grid gap-x-[clamp(24px,4vw,64px)] gap-y-4 pt-6 lg:grid-cols-[minmax(180px,240px)_1fr] ${
-        index === 0
-          ? "border-t border-rule-strong"
-          : "mt-8 border-t border-rule"
-      }`}
-    >
-      <div className="lg:pt-[2px]">
-        <div className="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
-          {group.label}
-        </div>
-        {hint ? (
-          // Fades out once the reader has worked out what the tiles do, rather
-          // than sitting there telling them something they have just done.
-          <div
-            aria-hidden="true"
-            className={`mt-2 hidden font-mono text-[10.5px] tracking-[0.14em] text-ink-faint/70 uppercase transition-opacity duration-300 lg:block ${
-              open ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            {hint}
+    // The rule above each row runs the full screen width, on a static wrapper
+    // so it does not slide in with the row's reveal.
+    <div className={index === 0 ? "relative" : "relative mt-8"}>
+      <WideRule tone={index === 0 ? "strong" : "rule"} />
+      <div
+        data-reveal={160 + index * 40}
+        data-flow="left"
+        className="grid gap-x-[clamp(24px,4vw,64px)] gap-y-4 pt-6 lg:grid-cols-[minmax(180px,240px)_1fr]"
+      >
+        <div className="lg:pt-[2px]">
+          <div className="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
+            <ScrambleText text={group.label} />
           </div>
-        ) : null}
-      </div>
+          {hint ? (
+            // Fades out once the reader has worked out what the tiles do, rather
+            // than sitting there telling them something they have just done.
+            <div
+              aria-hidden="true"
+              className={`mt-2 hidden font-mono text-[10.5px] tracking-[0.14em] text-ink-faint/70 uppercase transition-opacity duration-300 lg:block ${
+                open ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              {hint}
+            </div>
+          ) : null}
+        </div>
 
-      <div>
-        {hasLogos ? (
-          <Stagger
-            as="ul"
-            from="fade"
-            step={0.1}
-            className={`m-0 grid list-none grid-cols-2 gap-px border border-rule bg-rule ${
-              // Column count matches the item count so no tile is left
-              // stranded alone on a second row. Written as whole class
-              // names because Tailwind scans source text - an
-              // interpolated `sm:grid-cols-${n}` is never generated.
-              group.items.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4"
-            }`}
-          >
-            {group.items.map((item) => (
-              <LogoTile
-                key={item.name}
-                item={item}
-                isOpen={item.name === open}
-                panelId={panelId}
-                tabId={`${slug}-tab-${item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                onToggle={() =>
-                  setOpen((current) =>
-                    current === item.name ? null : item.name
-                  )
-                }
-              />
-            ))}
-          </Stagger>
-        ) : (
-          <Stagger
-            from="left"
-            step={0.09}
-            className="flex flex-wrap gap-[10px]"
-          >
-            {group.items.map((item) => (
-              <span
-                key={item.name}
-                data-stagger
-                className="rounded-[2px] border border-rule-strong px-[18px] py-[9px] text-[14.5px] font-medium"
-              >
-                {item.name}
-              </span>
-            ))}
-          </Stagger>
-        )}
+        <div>
+          {hasLogos ? (
+            <Stagger
+              as="ul"
+              from="fade"
+              step={0.1}
+              className={`m-0 grid list-none grid-cols-2 gap-px border border-rule bg-rule ${
+                // Column count matches the item count so no tile is left
+                // stranded alone on a second row. Written as whole class
+                // names because Tailwind scans source text - an
+                // interpolated `sm:grid-cols-${n}` is never generated.
+                group.items.length === 5 ? "sm:grid-cols-5" : "sm:grid-cols-4"
+              }`}
+            >
+              {group.items.map((item) => (
+                <LogoTile
+                  key={item.name}
+                  item={item}
+                  isOpen={item.name === open}
+                  panelId={panelId}
+                  tabId={`${slug}-tab-${item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  onToggle={() =>
+                    setOpen((current) =>
+                      current === item.name ? null : item.name
+                    )
+                  }
+                />
+              ))}
+            </Stagger>
+          ) : (
+            <Stagger
+              from="left"
+              step={0.09}
+              className="flex flex-wrap gap-[10px]"
+            >
+              {group.items.map((item) => (
+                <span
+                  key={item.name}
+                  data-stagger
+                  className="rounded-[2px] border border-rule-strong px-[18px] py-[9px] text-[14.5px] font-medium"
+                >
+                  {item.name}
+                </span>
+              ))}
+            </Stagger>
+          )}
 
-        {/* The panel animates its own height, and the grid above keeps its
+          {/* The panel animates its own height, and the grid above keeps its
             bottom border, so the panel needs only three sides to close the
             box. `overflow-hidden` is what makes height: auto safe to animate
             - without it the contents spill while the box is still short. */}
-        <AnimatePresence initial={false}>
-          {active && activeDetail ? (
-            <motion.div
-              key="panel"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.38, ease: EASE }}
-              className="overflow-hidden"
-            >
-              <DetailPanel
-                id={panelId}
-                labelledBy={`${slug}-tab-${active.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                name={active.name}
-                detail={activeDetail}
-                onClose={() => setOpen(null)}
-              />
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+          <AnimatePresence initial={false}>
+            {active && activeDetail ? (
+              <motion.div
+                key="panel"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.38, ease: EASE }}
+                className="overflow-hidden"
+              >
+                <DetailPanel
+                  id={panelId}
+                  labelledBy={`${slug}-tab-${active.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  name={active.name}
+                  detail={activeDetail}
+                  onClose={() => setOpen(null)}
+                />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   )
@@ -239,7 +242,7 @@ function LogoTile({
       <Image
         src={logos[item.logo]}
         alt={item.name}
-        sizes="240px"
+        sizes="(min-width: 640px) 240px, 45vw"
         className="w-auto max-w-full"
         style={{ height: item.height }}
       />
@@ -277,7 +280,7 @@ function LogoTile({
         // rather than a different hue: these cells hold vendor logos in their
         // own brand colours, and anything with its own colour behind them
         // starts arguing with the marks.
-        className={`group relative flex h-[88px] w-full cursor-pointer items-center justify-center px-5 transition-colors duration-[250ms] ${
+        className={`group logo-flip relative flex h-[88px] w-full cursor-pointer items-center justify-center px-5 transition-colors duration-[250ms] ${
           isOpen ? "bg-paper-tint" : "bg-paper hover:bg-paper-soft"
         }`}
       >
@@ -304,7 +307,12 @@ function LogoTile({
           />
         </span>
 
-        {mark}
+        {/* The mark turns over on hover the way the client logos do. A text
+            chip has no set height, so it falls back to the track's default
+            depth. */}
+        <FlipTrack depth={"height" in item ? item.height / 2 : 12}>
+          {mark}
+        </FlipTrack>
       </button>
     </li>
   )
@@ -355,9 +363,9 @@ function DetailPanel({
         <button
           type="button"
           onClick={onClose}
-          className="-mt-1 -mr-2 shrink-0 cursor-pointer p-2 font-mono text-[11px] tracking-[0.14em] text-ink-faint uppercase transition-colors hover:text-oxblood"
+          className="-mt-1 -mr-2 shrink-0 cursor-pointer p-2 font-mono text-[11px] tracking-[0.14em] text-ink-faint uppercase transition-colors duration-[var(--roll-duration)] ease-[var(--roll-ease)] hover:text-oxblood"
         >
-          Close
+          <Roll>Close</Roll>
         </button>
       </div>
 

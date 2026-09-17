@@ -1,9 +1,9 @@
 "use client"
 
 import Image, { type StaticImageData } from "next/image"
-import { motion, type Variants } from "motion/react"
+import { motion } from "motion/react"
 
-import { Container, Corners } from "@/components/primitives"
+import { Container, Corners, FlipTrack } from "@/components/primitives"
 import { ScrambleText } from "@/components/scramble-text"
 import { FlowRule, Parallax } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
@@ -31,11 +31,21 @@ import wearnes from "@/public/logos/wearnes.png"
  * and a 6:1 wordmark at the same height never look the same size.
  *
  * Motion: the cells resolve one after another as the wall rises through the
- * viewport, and on a fine pointer the mark lifts two pixels on a short
- * spring under the hover tint. The cell itself stays put so the hairline
- * grid never opens. The copy runs a little ahead of the wall as the section
- * crosses the viewport, and the rule under the section is drawn by the
- * scroll.
+ * viewport. On a fine pointer the mark turns over the way a link label rolls
+ * (`.roll` in globals.css), but in depth: the logo and a copy of it are two
+ * faces of a box half the logo's height deep, and hover turns the box a
+ * quarter over its top edge, so the mark leaves upward and its twin rises
+ * from underneath on the same timing as the labels (FlipTrack in
+ * primitives). The cell itself stays put so the hairline grid never opens.
+ * The copy runs a little ahead of the page as the section crosses the
+ * viewport; the wall does not move with the scroll at all. It used to lag
+ * eight pixels behind, and a one-pixel rule under a fractional translate is
+ * rasterised across two pixels at half strength, so the grid's borders faded
+ * in and out as the reader scrolled. Hairlines and parallax do not mix.
+ *
+ * The rule under the section is static, not scroll-drawn: this section sits
+ * within the first viewport on a tall screen, where a drawn rule would start
+ * life part-way across and finish only once the reader moved.
  */
 const files: Record<(typeof trustedBy.logos)[number]["id"], StaticImageData> = {
   bangchak,
@@ -48,18 +58,18 @@ const files: Record<(typeof trustedBy.logos)[number]["id"], StaticImageData> = {
   wearnes,
 }
 
-const mark: Variants = {
-  rest: { y: 0, scale: 1 },
-  hover: { y: -2, scale: 1.04 },
-}
-
 export function TrustedBy() {
   return (
-    <section aria-label="Trusted by" className="relative py-[72px]">
+    <section
+      aria-label="Trusted by"
+      className="relative py-[clamp(48px,7vw,72px)]"
+    >
       <Container>
         <div className="grid gap-x-[clamp(32px,5vw,80px)] gap-y-9 lg:grid-cols-[minmax(220px,300px)_1fr]">
-          <Parallax y={18}>
-            <div>
+          {/* Beside the wall from lg up; above it and centred below, where
+              a left-set label over a full-width grid reads as off-axis. */}
+          <Parallax y={18} className="min-w-0">
+            <div className="max-lg:text-center">
               <div
                 data-reveal="0"
                 data-flow="left"
@@ -70,14 +80,14 @@ export function TrustedBy() {
               <p
                 data-reveal="60"
                 data-flow="left"
-                className="mt-[10px] max-w-[34ch] text-[14.5px] leading-[1.55] text-ink-soft"
+                className="mt-[10px] max-w-[34ch] text-[14.5px] leading-[1.55] text-ink-soft max-lg:mx-auto"
               >
                 {trustedBy.body}
               </p>
             </div>
           </Parallax>
 
-          <Parallax y={-8}>
+          <div>
             <Stagger
               as="ul"
               from="fade"
@@ -87,44 +97,45 @@ export function TrustedBy() {
               step={0.11}
               className="m-0 grid list-none grid-cols-2 gap-px border border-rule bg-rule sm:grid-cols-4"
             >
-              {trustedBy.logos.map((logo) => (
-                <li key={logo.id} data-stagger className="relative bg-paper">
-                  {/* All four corners here, unlike the certification cards:
-                      nothing occupies the top rule of a logo cell. */}
-                  <Corners />
-                  <motion.a
-                    href={logo.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${logo.name} (opens in a new tab)`}
-                    initial="rest"
-                    whileHover="hover"
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ type: "spring", duration: 0.35, bounce: 0.2 }}
-                    className="logo-link flex h-[104px] items-center justify-center px-5 outline-none focus-visible:ring-2 focus-visible:ring-oxblood focus-visible:ring-inset"
-                  >
-                    <motion.span
-                      variants={mark}
-                      className="flex items-center justify-center"
+              {trustedBy.logos.map((logo) => {
+                const mark = (
+                  <Image
+                    src={files[logo.id]}
+                    alt={logo.name}
+                    data-tone={"tone" in logo ? logo.tone : undefined}
+                    // Two columns on a phone, four from sm up; a cell is
+                    // at most ~185px wide at the largest layout. Telling
+                    // next/image the real width is what keeps a phone from
+                    // fetching a 640px rendition for a 160px cell.
+                    sizes="(min-width: 640px) 240px, 45vw"
+                    className="logo-mark w-auto max-w-full"
+                    style={{ height: logo.height }}
+                  />
+                )
+                return (
+                  <li key={logo.id} data-stagger className="relative bg-paper">
+                    {/* All four corners here, unlike the certification cards:
+                        nothing occupies the top rule of a logo cell. */}
+                    <Corners />
+                    <motion.a
+                      href={logo.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${logo.name} (opens in a new tab)`}
+                      whileTap={{ scale: 0.97 }}
+                      transition={{ type: "spring", duration: 0.35, bounce: 0.2 }}
+                      className="logo-link logo-flip flex h-[104px] items-center justify-center px-5 outline-none focus-visible:ring-2 focus-visible:ring-oxblood focus-visible:ring-inset"
                     >
-                      <Image
-                        src={files[logo.id]}
-                        alt={logo.name}
-                        data-tone={"tone" in logo ? logo.tone : undefined}
-                        // A cell is at most ~185px wide at the largest layout.
-                        sizes="240px"
-                        className="logo-mark w-auto max-w-full"
-                        style={{ height: logo.height }}
-                      />
-                    </motion.span>
-                  </motion.a>
-                </li>
-              ))}
+                      <FlipTrack depth={logo.height / 2}>{mark}</FlipTrack>
+                    </motion.a>
+                  </li>
+                )
+              })}
             </Stagger>
-          </Parallax>
+          </div>
         </div>
       </Container>
-      <FlowRule />
+      <FlowRule drawn={false} />
     </section>
   )
 }

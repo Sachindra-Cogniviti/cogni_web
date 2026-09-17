@@ -1,4 +1,4 @@
-import { Container, Kicker, solidButton } from "@/components/primitives"
+import { Container, Kicker, Roll, solidButton } from "@/components/primitives"
 import { FlowRule, ScrollWords } from "@/components/scroll-motion"
 import { together } from "@/content/site"
 
@@ -32,7 +32,7 @@ export function Together() {
         </p>
         <div data-reveal="180" className="mt-8">
           <a href={together.cta.href} className={`${solidButton} px-[30px]`}>
-            {together.cta.label}
+            <Roll>{together.cta.label}</Roll>
           </a>
         </div>
       </Container>

@@ -43,8 +43,16 @@ const RULE = 0xe8e3d9
 export function HeroGalaxy({
   className,
   startDelay = 0,
+  compact = false,
 }: {
   className?: string
+  /**
+   * The phone-sized rendering: the same scene in a box a third of the
+   * width, so fewer particles (they would only pile up), a pixel ratio
+   * capped lower, and the label pills set smaller so five of them fit
+   * around a 340px disc.
+   */
+  compact?: boolean
   /**
    * Milliseconds to wait before loading three.js and building the scene.
    *
@@ -75,7 +83,7 @@ export function HeroGalaxy({
     const boot = () => {
       void import("three").then((THREE) => {
         if (disposed) return
-        dispose = mount(THREE, host, hero.galaxy.nodes)
+        dispose = mount(THREE, host, hero.galaxy.nodes, compact)
       })
     }
 
@@ -87,7 +95,7 @@ export function HeroGalaxy({
       disposed = true
       dispose?.()
     }
-  }, [startDelay])
+  }, [startDelay, compact])
 
   return (
     <div
@@ -120,7 +128,8 @@ function makeLabel(
   host: HTMLElement,
   text: string,
   product: boolean,
-  kind: "node" | "item"
+  kind: "node" | "item",
+  compact = false
 ) {
   const el = document.createElement("div")
   el.className = cn(
@@ -131,7 +140,9 @@ function makeLabel(
   // caps, which is what lets five of them fan out without touching.
   const size =
     kind === "node"
-      ? "px-3 py-[6px] text-[10.5px] uppercase"
+      ? compact
+        ? "px-2 py-[3px] text-[8px] tracking-[0.1em] uppercase"
+        : "px-3 py-[6px] text-[10.5px] uppercase"
       : "px-2.5 py-[4px] font-sans text-[11px] font-medium tracking-[0.01em]"
   const dot = product
     ? "bg-oxblood shadow-[0_0_8px_rgb(200_106_114/0.8)]"
@@ -146,7 +157,8 @@ function makeLabel(
 function mount(
   THREE: ThreeModule,
   host: HTMLDivElement,
-  defs: readonly GalaxyNode[]
+  defs: readonly GalaxyNode[],
+  compact: boolean
 ) {
   // Hex values below are the design tokens verbatim; keep them that way.
   THREE.ColorManagement.enabled = false
@@ -160,7 +172,7 @@ function mount(
     alpha: true,
     powerPreference: "low-power",
   })
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, compact ? 1.5 : 2))
   renderer.setClearColor(0x000000, 0)
   const canvas = renderer.domElement
   canvas.style.cssText =
@@ -248,7 +260,7 @@ function mount(
   core.scale.setScalar(0.001)
 
   /* ---- particle disc ---- */
-  const N = 6000
+  const N = compact ? 2400 : 6000
   const pos = new Float32Array(N * 3)
   const col = new Float32Array(N * 3)
   const sz = new Float32Array(N)
@@ -405,7 +417,7 @@ function mount(
     pulse.scale.setScalar(0.35)
     disc.add(pulse)
 
-    const label = makeLabel(labels, def.label, def.product, "node")
+    const label = makeLabel(labels, def.label, def.product, "node", compact)
     label.addEventListener("pointerenter", () => setLabelHover(i))
     label.addEventListener("pointerleave", () => setLabelHover(-1))
     label.addEventListener("click", () => setPinned(pinned === i ? -1 : i))

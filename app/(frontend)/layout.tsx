@@ -5,9 +5,11 @@ import "./globals.css"
 import { fontMono, fontSans, fontSerif } from "@/app/fonts"
 import { RevealObserver } from "@/components/reveal-observer"
 import { SmoothAnchors } from "@/components/smooth-anchors"
+import { TapReveal } from "@/components/tap-reveal"
 import { ThemeProvider } from "@/components/theme-provider"
 import { site } from "@/content/site"
 import { isLiveSite, publicSiteUrl } from "@/lib/deployment"
+import { DEFAULT_OG_IMAGE } from "@/lib/metadata"
 import { cn } from "@/lib/utils"
 
 const origin = publicSiteUrl()
@@ -36,11 +38,13 @@ export const metadata: Metadata = {
     description: site.description,
     url: origin,
     locale: "en_GB",
+    images: [DEFAULT_OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: site.title,
     description: site.description,
+    images: [DEFAULT_OG_IMAGE],
   },
 }
 
@@ -52,8 +56,19 @@ export const metadata: Metadata = {
  * copy behind an animation that can never run. Setting the class from an
  * inline head script rather than an effect means it lands before the browser
  * paints, so there is no flash of revealed content.
+ *
+ * Development only: a page reached with the browser's back or forward
+ * button is left unmarked. The dev server does not hydrate a document the
+ * browser reloads for a history navigation (a fresh load and the
+ * production build both hydrate it - verified with both), so the entrance
+ * states would never play and the page would sit blank until a refresh.
+ * Unmarked, it is simply static, as it is with scripting off. Production
+ * hydrates such loads and gets its entrances, so it is left alone.
  */
-const markScripted = `document.documentElement.classList.add('js')`
+const markScripted =
+  process.env.NODE_ENV === "production"
+    ? `document.documentElement.classList.add('js')`
+    : `if (performance.getEntriesByType('navigation')[0]?.type !== 'back_forward') document.documentElement.classList.add('js')`
 
 /**
  * The page with scripting off.
@@ -122,6 +137,7 @@ export default function RootLayout({
           <MotionConfig reducedMotion="user">
             <RevealObserver />
             <SmoothAnchors />
+            <TapReveal />
             {/* The two vertical rules that frame the page measure. Fixed and
                 full height rather than a border on every Container: a frame
                 should not break at each section boundary, and one element

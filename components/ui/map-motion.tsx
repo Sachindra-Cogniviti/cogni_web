@@ -2,20 +2,20 @@
 
 import { motion } from "motion/react"
 
-import { SEEN_ABOVE } from "@/components/scroll-motion"
+import { VIEW_MARGIN } from "@/components/scroll-motion"
 
 /**
  * The moving parts of the world map, split out so the map itself can stay
  * a server component (its dot grid is computed at build time and must not
  * be shipped to the browser).
  *
- * Arcs draw themselves from the hub outward once the map is in view, 220ms
- * apart, on the page's ease-out; a dashed partner arc fades instead, since
+ * Arcs draw themselves from the hub outward each time the map comes into
+ * view, 220ms apart, on the page's ease-out; a dashed partner arc fades instead, since
  * a path-length draw would override its dashes. Pins pop in on a small
  * spring as their arc lands, and the HTML labels rise in after them.
  */
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1]
-const VIEW = { once: true, amount: 0.3, margin: SEEN_ABOVE } as const
+const VIEW = { amount: 0.3, margin: VIEW_MARGIN } as const
 
 export function MapArc({
   d,

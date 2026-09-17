@@ -262,6 +262,62 @@
   --nav-logo: brightness(1.35) saturate(0.9);
 }
 
+/* The hero's entrance (components/hero.tsx and components/BlurText.jsx).
+ *
+ * CSS keyframes rather than Motion, and the reason is the largest
+ * contentful paint: Motion cannot run until React has hydrated, and on a
+ * slow phone that is a second or more after the hero's markup is painted,
+ * during which the largest text on the page sat invisible. A CSS animation
+ * starts the moment the browser paints, with or without JavaScript, so the
+ * cascade now begins at first paint and hydration changes nothing the reader
+ * can see. The timings themselves are unchanged and still come from the
+ * constants in hero.tsx, passed in as inline delays and custom properties.
+ *
+ * `backwards`, not `both`: the from state has to hold through each
+ * element's delay, but once the animation ends the properties must return
+ * to the stylesheet's own values, or the solid button's hover lift, which is
+ * a `translate` too, would be pinned by the animation's final frame. */
+@keyframes hero-arrive {
+  from {
+    opacity: 0;
+    translate: var(--from-x, 0px) var(--from-y, 0px);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.hero-arrive {
+  animation: hero-arrive var(--arrive-duration, 0.6s)
+    cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes blur-text-in {
+  from {
+    opacity: var(--bt-opacity, 0);
+    translate: 0 var(--bt-y, -0.35em);
+    filter: blur(var(--bt-blur, 6px));
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    filter: blur(0);
+  }
+}
+
+.blur-text > span {
+  animation: blur-text-in var(--bt-duration, 0.5s)
+    var(--bt-ease, cubic-bezier(0.22, 1, 0.36, 1)) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-arrive,
+  .blur-text > span {
+    animation: none;
+  }
+}
+
 /* The bar's start state, played to rest one piece at a time on load by the
  * scroll flow. Scoped to .js and neutralised under reduced motion on the same
  * terms as [data-reveal] further down: with scripting off the bar is simply
@@ -286,7 +342,7 @@
 
 .nav-link {
   color: var(--nav-link);
-  transition: color 200ms ease;
+  transition: color var(--roll-duration) var(--roll-ease);
 }
 
 .nav-link:hover {
@@ -306,8 +362,8 @@
   background: var(--nav-cta-bg);
   color: var(--nav-cta-fg);
   transition:
-    background-color 200ms ease,
-    color 200ms ease,
+    background-color var(--roll-duration) var(--roll-ease),
+    color var(--roll-duration) var(--roll-ease),
     transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -328,13 +384,88 @@
     transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.nav-toggle:hover {
+/* Hover only where there is a pointer to hover with: on a touch screen
+ * :hover latches after the tap and the closed toggle would stay lit. The
+ * open toggle is lit on purpose, on every kind of screen. */
+@media (hover: hover) {
+  .nav-toggle:hover {
+    border-color: var(--nav-active);
+    color: var(--nav-active);
+  }
+}
+
+.nav-toggle[aria-expanded="true"] {
   border-color: var(--nav-active);
   color: var(--nav-active);
 }
 
 .nav-toggle:active {
   transform: scale(0.97);
+}
+
+/* The hamburger: three lines that fold into a cross when the sheet is
+ * open. The outer lines travel to the centre and turn; the middle one
+ * fades. 220ms on the page's ease-out, so it keeps up with the sheet. */
+.nav-burger {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 12px;
+}
+
+.nav-burger > span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: var(--nav-outline-fg);
+  border-radius: 1px;
+  transition:
+    translate 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    rotate 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 160ms ease;
+}
+
+.nav-burger > span:nth-child(1) {
+  top: 0;
+}
+
+.nav-burger > span:nth-child(2) {
+  top: 50%;
+  translate: 0 -50%;
+}
+
+.nav-burger > span:nth-child(3) {
+  bottom: 0;
+}
+
+.nav-burger[data-open] > span:nth-child(1) {
+  translate: 0 5.25px;
+  rotate: 45deg;
+}
+
+.nav-burger[data-open] > span:nth-child(2) {
+  opacity: 0;
+  translate: -4px -50%;
+}
+
+.nav-burger[data-open] > span:nth-child(3) {
+  translate: 0 -5.25px;
+  rotate: -45deg;
+}
+
+@media (hover: hover) {
+  .nav-toggle:hover .nav-burger > span {
+    background: var(--nav-active);
+  }
+}
+
+.nav-toggle[aria-expanded="true"] .nav-burger > span {
+  background: var(--nav-active);
+}
+
+.nav-scrim {
+  background: rgb(22 19 16 / 0.42);
 }
 
 .nav-panel {
@@ -348,8 +479,155 @@
   transition: color 200ms ease;
 }
 
-.nav-panel-link:hover {
+.nav-panel-arrow {
+  color: var(--nav-link);
+  opacity: 0.55;
+  transition:
+    color 200ms ease,
+    translate 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.nav-panel-link:hover,
+.nav-panel-link[aria-current] {
   color: var(--nav-active);
+}
+
+.nav-panel-link:hover .nav-panel-arrow,
+.nav-panel-link[aria-current] .nav-panel-arrow {
+  color: var(--nav-active);
+  opacity: 1;
+  translate: 2px 0;
+}
+
+.nav-panel-foot {
+  color: var(--nav-link);
+}
+
+.nav-panel-quiet {
+  color: var(--nav-link);
+  transition: color 200ms ease;
+}
+
+.nav-panel-quiet:hover {
+  color: var(--nav-active);
+}
+
+/* -------------------------------------------------------------------------
+ * The label roll
+ *
+ * Every pressable label on the page answers the pointer the same way: the word
+ * travels up out of its line and an identical copy arrives from below. Markup
+ * is `Roll` in components/primitives.tsx.
+ *
+ * The window is one line tall, measured in `lh` so the clip follows the type
+ * rather than a pixel guess, and the stack inside it is two lines - so the
+ * travel is exactly -50% of the track and stays right whatever the line-height
+ * inherits. Moving the stack, rather than animating the two copies against
+ * each other, means there is nothing to keep in step, and every roll on the
+ * page is the same distance in the same time however large its type.
+ *
+ * `vertical-align: bottom` because an inline-block with hidden overflow takes
+ * its bottom margin edge as its baseline, which would otherwise drop the label
+ * a line below whatever sits beside it.
+ *
+ * The trigger is the nearest enclosing a/button rather than a class on it, so
+ * a control opts in by containing a Roll and nothing has to be kept in step at
+ * the call site. It is self-limiting: `.roll` exists only where it was put.
+ * It also gives the one case where the label and its trigger are not the same
+ * element - the resources card, where the whole card is the link and the
+ * "Read more" line inside it is the label - for free.
+ */
+:root {
+  --roll-duration: 360ms;
+  --roll-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.roll {
+  display: inline-block;
+  height: 1lh;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.roll-track {
+  display: block;
+  transition: translate var(--roll-duration) var(--roll-ease);
+}
+
+.roll-track > span {
+  display: block;
+}
+
+/* Behind a hover query: on a touch screen :hover latches after a tap, which
+ * would leave a label parked mid-roll with no way to clear it. */
+@media (hover: hover) and (pointer: fine) {
+  a:hover .roll-track,
+  button:hover .roll-track {
+    translate: 0 -50%;
+  }
+}
+
+a:focus-visible .roll-track,
+button:focus-visible .roll-track {
+  translate: 0 -50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll-track {
+    transition: none;
+  }
+}
+
+/* Every button and pressable link on the page (`pressable` in
+ * components/primitives.tsx). Two timings in one declaration: colours travel
+ * with the label roll so hover is a single gesture, while the press answers
+ * the finger at 160ms - the roll's 360ms ease-out would read as the button
+ * sticking under the thumb. Written here rather than as utilities because
+ * every `transition-*` utility sets `transition-property`, so two of them on
+ * one element means one silently wins. */
+.control-motion {
+  transition:
+    background-color var(--roll-duration) var(--roll-ease),
+    border-color var(--roll-duration) var(--roll-ease),
+    color var(--roll-duration) var(--roll-ease),
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .control-motion {
+    transition: none;
+  }
+}
+
+/* The dwell line under the current row of the updates rail
+ * (components/updates.tsx). A CSS animation rather than a Motion value so
+ * that pausing it is one property - `animation-play-state` - set from the
+ * same flag that stops the rotation, which is the only way the two can be
+ * guaranteed to stop on the same frame.
+ *
+ * scaleX on an already-full-width element, so it is a compositor-only
+ * animation; animating `width` here would lay out the rail sixty times a
+ * second. `linear` because it is a clock, and a clock that eases is lying. */
+@keyframes updates-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.updates-progress {
+  animation-name: updates-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* No rotation under reduced motion, so no clock either. */
+@media (prefers-reduced-motion: reduce) {
+  .updates-progress {
+    animation: none;
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -604,8 +882,8 @@
 /* Client logo wall (components/trusted-by.tsx).
  *
  * Logos keep their own colours. A white logo is rendered dark so it shows on
- * the paper. Hover only tints the cell, where a fine pointer exists. Cells
- * fade up in a short sequence once the wrapper has been revealed. */
+ * the paper. Cells fade up in a short sequence once the wrapper has been
+ * revealed. Hover, where a fine pointer exists, tints the cell. */
 .logo-mark[data-tone="light"] {
   filter: brightness(0);
   opacity: 0.8;
@@ -615,9 +893,639 @@
   transition: background-color 200ms ease;
 }
 
+/* Logo flip (FlipTrack in components/primitives.tsx): the label roll
+ * (`.roll` above) taken into depth, used by the client logo wall and the
+ * platform experience tiles. The track holds the mark and a copy as two faces
+ * of a box - the mark in front, the copy folded underneath at -90deg - and
+ * hovering the `.logo-flip` owner (the cell's link or button) turns the
+ * track a quarter forward, so the mark leaves over its top edge as the copy
+ * rises into its place. The faces sit `--logo-flip-depth` (half the mark's
+ * height, set per cell) out from the axis, and the track is pushed the same
+ * distance back, so at rest the front face lies exactly in the cell's plane
+ * and the perspective does not enlarge it. Same duration and ease as the
+ * roll, so a logo and a label under the same pointer move as one system. */
+.logo-flip {
+  perspective: 900px;
+}
+
+.logo-flip-track {
+  display: grid;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(-1 * var(--logo-flip-depth, 20px)));
+  transition: transform var(--roll-duration) var(--roll-ease);
+}
+
+.logo-flip-track > span {
+  display: flex;
+  grid-area: 1 / 1;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  transform: translateZ(var(--logo-flip-depth, 20px));
+}
+
+.logo-flip-track > span + span {
+  transform: rotateX(-90deg) translateZ(var(--logo-flip-depth, 20px));
+}
+
 @media (hover: hover) and (pointer: fine) {
   .logo-link:hover {
     background-color: var(--color-paper-soft);
+  }
+
+  .logo-flip:hover .logo-flip-track {
+    transform: translateZ(calc(-1 * var(--logo-flip-depth, 20px)))
+      rotateX(90deg);
+  }
+}
+
+.logo-flip:focus-visible .logo-flip-track {
+  transform: translateZ(calc(-1 * var(--logo-flip-depth, 20px)))
+    rotateX(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-flip-track {
+    transition: none;
+  }
+}
+
+/* The wordmark across the foot of the page (components/site-footer.tsx).
+ *
+ * The company name stretched to the full width of the page in the brand
+ * streak, faded out towards the bottom edge so it reads as the ground the
+ * footer stands on rather than as a heading. The text and its gradient fill
+ * are SVG, in the component; this is only the fade, a mask on the whole
+ * drawing, with its -webkit- form because Safari still needs it. */
+.wordmark {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.9) 0%,
+    rgb(0 0 0 / 0.55) 55%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.9) 0%,
+    rgb(0 0 0 / 0.55) 55%,
+    transparent 100%
+  );
+}
+
+/* Article typography (components/rich-text.tsx), for the rich-text bodies
+ * of blog posts and client stories. The editor emits plain elements -
+ * headings, paragraphs, lists, quotes, links, tables, figures, code - and
+ * this is what they read in: the site's own type at a reading measure, with
+ * the oxblood reserved for links, list marks and the rule on a quotation.
+ * Nothing is styled that the editor cannot produce (payload.config.ts lists
+ * what it can). */
+.article {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--color-ink-soft);
+  text-wrap: pretty;
+}
+
+.article > :first-child {
+  margin-top: 0;
+}
+
+.article p {
+  margin: 1.35em 0;
+}
+
+.article h2,
+.article h3,
+.article h4 {
+  color: var(--color-ink);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* The opening letter, set large in the serif italic and the accent, the
+ * way a chapter opens. `.article-drop` puts it on the article's first
+ * paragraph; `.drop-cap` puts it on any one paragraph directly, which is
+ * how a story opens on its challenge rather than on its detail. The float
+ * is three lines deep; the padding keeps the second line from tucking
+ * under the letter's overhang. Payload's converter wraps its output in a
+ * div of its own, so the first paragraph is one level down. */
+.article-drop > .payload-richtext > p:first-of-type::first-letter,
+.drop-cap::first-letter {
+  float: left;
+  margin: 0.06em 0.14em 0 0;
+  padding-top: 0.04em;
+  font-family: var(--font-serif);
+  font-size: 4.6em;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 0.74;
+  letter-spacing: -0.02em;
+  color: var(--color-oxblood);
+}
+
+/* Headings are anchors for the table of contents; the margin clears the
+ * fixed bar when one is jumped to, matching scroll-padding-top above. */
+.article h2,
+.article h3,
+.article h4 {
+  scroll-margin-top: 96px;
+}
+
+.article h2 {
+  margin: 2.2em 0 0.7em;
+  font-size: clamp(24px, 2.4vw, 30px);
+  line-height: 1.15;
+}
+
+.article h3 {
+  margin: 1.9em 0 0.6em;
+  font-size: clamp(19px, 1.7vw, 22px);
+  line-height: 1.25;
+}
+
+.article h4 {
+  margin: 1.6em 0 0.5em;
+  font-size: 17px;
+}
+
+.article ul,
+.article ol {
+  margin: 1.35em 0;
+  padding-left: 1.4em;
+}
+
+.article ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.article ul > li {
+  position: relative;
+  padding-left: 1.4em;
+  margin: 0.55em 0;
+}
+
+.article ul > li::before {
+  content: "";
+  position: absolute;
+  top: 0.8em;
+  left: 0;
+  width: 12px;
+  height: 1px;
+  background: var(--color-oxblood);
+}
+
+.article ol > li {
+  margin: 0.55em 0;
+  padding-left: 0.3em;
+}
+
+.article ol > li::marker {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  color: var(--color-oxblood);
+}
+
+/* A list inside a list item: the editor nests by indenting, and the
+ * converter wraps the inner list in an item of its own (.nestedListItem),
+ * which carries no mark and no inset - the inner items carry theirs. */
+.article li > ul,
+.article li > ol {
+  margin: 0.4em 0 0.4em;
+}
+
+.article li.nestedListItem {
+  margin: 0;
+  padding-left: 0;
+}
+
+.article ul > li.nestedListItem::before {
+  content: none;
+}
+
+.article ol > li.nestedListItem::marker {
+  content: "";
+}
+
+.article li > ul {
+  padding-left: 0.2em;
+}
+
+.article ul > li > ul > li::before {
+  width: 6px;
+  background: var(--color-ink-ghost);
+}
+
+/* Checklist items: a drawn box, ticked in oxblood, instead of the disabled
+ * checkbox the converter writes by default. */
+.article ul > li.check {
+  padding-left: 1.7em;
+}
+
+.article ul > li.check::before {
+  content: none;
+}
+
+.article li.check .check-box {
+  position: absolute;
+  top: 0.42em;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--color-edge);
+  border-radius: 2px;
+  background: var(--color-paper);
+}
+
+.article li.check[data-checked="true"] .check-box {
+  border-color: var(--color-oxblood);
+  background: var(--color-oxblood);
+}
+
+.article li.check[data-checked="true"] .check-box::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--color-paper);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
+.article li.check[data-checked="true"] .check-text {
+  color: var(--color-ink-muted);
+}
+
+.article blockquote {
+  margin: 2em 0;
+  padding: 0.2em 0 0.2em 1.4em;
+  border-left: 2px solid var(--color-oxblood);
+  font-family: var(--font-serif);
+  font-size: clamp(21px, 2vw, 26px);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  color: var(--color-ink);
+}
+
+.article a {
+  color: var(--color-oxblood);
+  text-decoration: underline;
+  text-decoration-color: rgb(142 32 48 / 0.35);
+  text-underline-offset: 3px;
+  transition: color var(--roll-duration) var(--roll-ease);
+}
+
+.article a:hover {
+  color: var(--color-ink);
+}
+
+.article strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.article hr {
+  margin: 2.5em 0;
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.article img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 2em 0;
+  border: 1px solid var(--color-rule);
+}
+
+.article code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  background: var(--color-paper-tint);
+}
+
+/* Strikethrough and underline arrive as spans with the decoration inline. */
+.article span[style*="line-through"] {
+  color: var(--color-ink-muted);
+}
+
+.article span[style*="underline"] {
+  text-decoration-color: rgb(142 32 48 / 0.5);
+  text-underline-offset: 3px;
+}
+
+.article sub,
+.article sup {
+  font-size: 0.7em;
+  line-height: 0;
+}
+
+/* A figure: the image in a hairline frame, the caption in the mono voice.
+ * Wider than the text measure on large screens so a photograph is not
+ * reduced to the column, the way a magazine lets a picture out. */
+.article .article-figure {
+  margin: 2.4em 0;
+}
+
+@media (min-width: 1280px) {
+  .article .article-figure {
+    width: calc(100% + 120px);
+  }
+}
+
+.article .article-figure-frame {
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-tint);
+}
+
+.article .article-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  border: 0;
+}
+
+.article figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.4em 1.5em;
+  margin-top: 0.7em;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.article figcaption .credit {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+/* A table: hairlines only, the header in the mono label voice. The wrapper
+ * scrolls sideways on a narrow screen rather than breaking the page. */
+.article .article-table {
+  margin: 2.2em 0;
+  overflow-x: auto;
+  border: 1px solid var(--color-rule);
+  -webkit-overflow-scrolling: touch;
+}
+
+.article table {
+  width: 100%;
+  min-width: 480px;
+  border-collapse: collapse;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.article th,
+.article td {
+  padding: 0.8em 1em;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-rule);
+  border-right: 1px solid var(--color-rule-faint);
+}
+
+.article th:last-child,
+.article td:last-child {
+  border-right: 0;
+}
+
+.article tr:last-child td {
+  border-bottom: 0;
+}
+
+.article th {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+  background: var(--color-paper-alt);
+}
+
+.article td p,
+.article th p {
+  margin: 0;
+}
+
+.article td p + p {
+  margin-top: 0.5em;
+}
+
+/* A code block: the night ground, the language on a bar above. */
+.article .article-code {
+  margin: 2.2em 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--color-night);
+  color: var(--color-night-value);
+}
+
+.article .article-code-bar {
+  display: flex;
+  align-items: center;
+  padding: 0.55em 1.1em;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-night-muted);
+}
+
+.article pre {
+  margin: 0;
+  padding: 1.1em 1.2em 1.2em;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+.article pre code {
+  padding: 0;
+  font-size: inherit;
+  background: none;
+  color: inherit;
+}
+
+/* A related post or story, dropped into the flow as a card. */
+.article .article-related {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  margin: 2.2em 0;
+  padding: 1.4em 1.5em 1.5em;
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  text-decoration: none;
+  transition:
+    border-color var(--roll-duration) var(--roll-ease),
+    background-color var(--roll-duration) var(--roll-ease);
+}
+
+.article .article-related:hover {
+  border-color: var(--color-oxblood);
+  background: var(--color-paper-soft);
+  color: var(--color-ink);
+}
+
+.article .article-related-kicker {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-oxblood);
+}
+
+.article .article-related-title {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.article .article-related-body {
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--color-ink-soft);
+}
+
+/* The reading pill (components/article-nav.tsx): the ring that fills as
+ * the article is read. Stroke-dashoffset is driven from the component. */
+.reading-ring circle {
+  fill: none;
+  stroke-width: 2;
+}
+
+.reading-ring .track {
+  stroke: rgb(255 255 255 / 0.18);
+}
+
+.reading-ring .fill {
+  stroke: var(--color-night-fg);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 120ms linear;
+}
+
+/* Careers photo strip (components/careers-life.tsx).
+ *
+ * A pile of prints. From md up each cell is placed absolutely in a band of
+ * fixed height from the custom properties the component sets - left, bottom,
+ * width, lean, and its place in the stack, lowest print in front. The band
+ * does not clip: the low prints hang below it, and it is the footer, stacked
+ * above this section, that covers their bottoms. The band is its own
+ * stacking context so the prints' z-indices, and the hovered print's, stay
+ * among themselves and never rise over the footer. Under md the band is a
+ * two-column flow with the same leans, because six placed prints do not fit
+ * a phone.
+ *
+ * The print under a fine pointer comes up: it straightens, lifts, grows a
+ * little and its shadow deepens, and the cell takes the top of the stack so
+ * it clears its neighbours. Everything moves on the roll's curve over 420ms,
+ * a touch slower than a label because a photograph is heavier than a word.
+ * The lift is on the inner frame rather than the cell: the scroll flow
+ * leaves an inline `translate` on the cell, which would beat any hover
+ * utility set there. */
+.snap-band {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 5%;
+  padding: 0 clamp(20px, 4vw, 48px) 24px;
+}
+
+.snap-cell {
+  position: relative;
+  width: 47.5%;
+}
+
+.snap-cell:nth-child(even) {
+  translate: 0 20px;
+}
+
+@media (min-width: 768px) {
+  .snap-band {
+    display: block;
+    height: clamp(300px, 34vw, 460px);
+    padding: 0;
+    isolation: isolate;
+  }
+
+  .snap-cell {
+    position: absolute;
+    left: var(--l);
+    bottom: var(--b);
+    width: var(--w);
+    z-index: var(--z, 1);
+  }
+
+  .snap-cell:nth-child(even) {
+    translate: none;
+  }
+}
+
+.snap {
+  rotate: var(--tilt, 0deg);
+  box-shadow:
+    0 12px 32px rgb(22 19 16 / 0.14),
+    0 1px 2px rgb(22 19 16 / 0.1);
+  transition:
+    rotate 420ms var(--roll-ease),
+    translate 420ms var(--roll-ease),
+    scale 420ms var(--roll-ease),
+    box-shadow 420ms var(--roll-ease);
+}
+
+/* The lift: on hover with a mouse, on a tap without one (data-active is
+ * set by components/tap-reveal.tsx). */
+.snap-cell[data-active] {
+  z-index: 10;
+}
+
+.snap-cell[data-active] .snap {
+  rotate: 0deg;
+  translate: 0 -20px;
+  scale: 1.05;
+  box-shadow:
+    0 32px 64px rgb(22 19 16 / 0.24),
+    0 2px 4px rgb(22 19 16 / 0.1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .snap-cell:hover {
+    z-index: 10;
+  }
+
+  .snap-cell:hover .snap {
+    rotate: 0deg;
+    translate: 0 -20px;
+    scale: 1.05;
+    box-shadow:
+      0 32px 64px rgb(22 19 16 / 0.24),
+      0 2px 4px rgb(22 19 16 / 0.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snap {
+    transition: none;
   }
 }
 
@@ -799,15 +1707,44 @@
 .section-rail {
   --rail-ink: var(--color-ink-ghost);
   --rail-active: var(--color-oxblood);
-  --rail-panel: rgb(250 248 245 / 0.96);
+  --rail-panel: rgb(250 248 245 / 0.76);
   --rail-border: var(--color-rule);
+  /* Glass, as four separate jobs.
+   *
+   * `rim` is the drawn edge. On the light ground it is INK, not white: a
+   * white rim on near-white paper is invisible, which is why the capsule read
+   * as having no border at all. On the night ground it goes light, because
+   * there the edge catches the light rather than casting one.
+   *
+   * `sheen` is the specular highlight raked across the top-left corner, and
+   * the bright inner line just inside the rim. White on both grounds - a
+   * highlight is a highlight.
+   *
+   * `inner` is the soft dark line inside the bottom edge. It is what gives
+   * the material thickness instead of letting it read as a tinted rectangle.
+   *
+   * `shadow` lifts the whole thing off the page. */
+  --rail-sheen: rgb(255 255 255 / 0.8);
+  --rail-rim: rgb(23 20 15 / 0.22);
+  --rail-inner: rgb(23 20 15 / 0.07);
+  --rail-shadow:
+    0 14px 38px rgb(23 20 15 / 0.16), 0 3px 10px rgb(23 20 15 / 0.09);
   --rail-label: var(--color-ink-muted);
   --rail-label-strong: var(--color-ink);
   --rail-hover: var(--color-paper-soft);
   --rail-closed: 44px;
   --rail-open: 184px;
+  /* One curve, used by both the box and the clip-path below. They must round
+     identically or the clipped edge shaves a corner off the box. Only the two
+     inward corners take it; the pair against the screen edge stay square so
+     the capsule reads as attached to it rather than floating near it. */
+  --rail-radius: 18px;
   opacity: 0;
-  /* Slides in from the right edge it is anchored to. */
+  /* Centres the capsule on `top: 50%` AND slides it in from the right edge it
+     is anchored to - one transform doing both, which is why the component
+     must not also carry Tailwind's -translate-y-1/2: that compiles to the
+     independent `translate` property, composes with this one, and puts the
+     rail half its own height above the middle of the screen. */
   transform: translate(8px, -50%);
   pointer-events: none;
   /* The clip lives on the nav, not the box, because the nav is what
@@ -816,7 +1753,8 @@
      Inset from the LEFT: the rail is anchored right, so the strip that stays
      visible when closed is the right-hand end, against the screen edge. */
   clip-path: inset(
-    0 0 0 calc(var(--rail-open) - var(--rail-closed)) round 14px
+    0 0 0 calc(var(--rail-open) - var(--rail-closed)) round var(--rail-radius) 0
+      0 var(--rail-radius)
   );
   transition:
     opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
@@ -825,7 +1763,7 @@
 }
 
 .section-rail[data-open] {
-  clip-path: inset(0 0 0 0 round 14px);
+  clip-path: inset(0 0 0 0 round var(--rail-radius) 0 0 var(--rail-radius));
   transition:
     opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
     transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
@@ -840,20 +1778,74 @@
 .section-rail[data-dark] {
   --rail-ink: #5f5749;
   --rail-active: var(--color-oxblood-lift);
-  --rail-panel: rgb(28 24 20 / 0.96);
+  --rail-panel: rgb(28 24 20 / 0.72);
   --rail-border: rgb(245 241 234 / 0.12);
+  --rail-sheen: rgb(255 255 255 / 0.22);
+  --rail-rim: rgb(245 241 234 / 0.3);
+  --rail-inner: rgb(0 0 0 / 0.35);
+  --rail-shadow: 0 16px 42px rgb(0 0 0 / 0.55), 0 3px 10px rgb(0 0 0 / 0.35);
   --rail-label: var(--color-night-muted);
   --rail-label-strong: var(--color-night-fg);
   --rail-hover: rgb(245 241 234 / 0.07);
 }
 
+/* The material itself.
+ *
+ * Two background layers rather than a pseudo-element: the sheen is a gradient
+ * painted over the tint in one declaration, so there is no positioned overlay
+ * to stack above the ticks and no z-index to get wrong. The inset highlight in
+ * the shadow draws the bright top edge, which is what separates glass from a
+ * translucent rectangle.
+ *
+ * `saturate` matters as much as `blur`. Blur alone gives frosted plastic;
+ * pushing saturation is what makes the colour behind the capsule bleed
+ * through it and read as something the page is showing through. */
 .rail-box {
   width: var(--rail-open);
-  background: var(--rail-panel);
-  border-color: var(--rail-border);
+  border-radius: var(--rail-radius) 0 0 var(--rail-radius);
+  background:
+    linear-gradient(152deg, var(--rail-sheen) 0%, transparent 52%),
+    var(--rail-panel);
+  border-color: var(--rail-rim);
+  /* Outer lift, then the bright inner line just inside the rim, then the
+     dark one along the bottom. The two inset lines are what read as
+     thickness - without them a blurred tint is just a frosted rectangle. */
+  box-shadow:
+    var(--rail-shadow),
+    inset 0 1px 0 var(--rail-sheen),
+    inset 0 -1px 0 var(--rail-inner);
+  /* Unprefixed only, deliberately. Writing the -webkit- alias alongside it
+     makes Lightning CSS (Tailwind v4's transformer) collapse the pair and
+     emit the PREFIXED one only - and current Chrome has dropped that alias
+     entirely, so CSS.supports('-webkit-backdrop-filter', ...) is false and the
+     blur silently does not apply anywhere. Left alone, the transformer emits
+     the standard property and adds a prefix itself where a target needs one. */
+  /* Saturation stays just above 1. At 2 the filter DOUBLED the colour of
+     whatever passed behind the rail, so the crimson flip card came through
+     the glass louder than the labels sitting on it. A glass panel has to keep
+     its own contents legible over anything the page slides underneath it,
+     which means muting the backdrop rather than amplifying it: a heavy blur,
+     a tint that carries most of the ground, and only a little saturation to
+     stop the blur going grey. */
+  backdrop-filter: blur(28px) saturate(1.25);
   transition:
     background-color 200ms ease,
-    border-color 200ms ease;
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+/* Without a backdrop filter the tint is all there is, and at 55% the labels
+   sit on whatever the page happens to be showing. Fall back to a solid
+   panel: legible beats pretty. */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .section-rail {
+    --rail-panel: rgb(250 248 245 / 0.97);
+  }
+  .section-rail[data-dark] {
+    --rail-panel: rgb(28 24 20 / 0.97);
+  }
 }
 
 .section-rail[data-visible] {
@@ -958,9 +1950,30 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .people-grid:has(> li:hover) > li:not(:hover) .people-card {
+  .people-row:has(> li:hover) > li:not(:hover) .people-card {
     opacity: 0.5;
   }
+}
+
+/* The same step-back on a touch screen, for the tapped portrait. */
+@media (hover: none) {
+  .people-row:has(> li[data-active]) > li:not([data-active]) .people-card {
+    opacity: 0.5;
+  }
+}
+
+/* Rows that scroll sideways by touch - the people under reduced motion,
+ * the certifications on a phone - hide the browser's scrollbar: the snap
+ * says there is more, and the page's own rule is the progress line where
+ * there is one. */
+.people-scroller,
+.scroll-row {
+  scrollbar-width: none;
+}
+
+.people-scroller::-webkit-scrollbar,
+.scroll-row::-webkit-scrollbar {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,4 +1,4 @@
-import { animate, inView } from "motion"
+import { animate, inView, type AnimationPlaybackControls } from "motion"
 
 /**
  * The page's scroll flow: the one mechanism every block on the page arrives
@@ -12,10 +12,12 @@ import { animate, inView } from "motion"
  * A timed animation always takes its full length however fast the reader
  * moves, which is why every interface that feels choreographed uses one.
  *
- * So an element is watched, and when it comes into view it plays. Once. The
- * page's continuous life comes from a separate layer that is still tied to
- * the scroll - the parallax, the drawn rules, the Why threads, the hero's
- * exit (components/scroll-motion.tsx) - and those never stop responding.
+ * So an element is watched, and when it comes into view it plays. When it
+ * leaves it is faded back to its start state, so it plays again the next
+ * time it arrives - scrolling back up the page replays the page. The page's
+ * continuous life comes from a separate layer that is still tied to the
+ * scroll - the parallax, the drawn rules, the hero's exit
+ * (components/scroll-motion.tsx) - and those never stop responding.
  *
  * Three things make the arrival legible where the old one was not:
  *
@@ -80,38 +82,89 @@ export type FlowOptions = {
 }
 
 /**
+ * Whatever is currently moving each element, so an arrival can cut short a
+ * departure and the other way round. Two animations on the same property at
+ * once would fight, and the loser would be whichever the scheduler ran first.
+ */
+const inflight = new WeakMap<Element, AnimationPlaybackControls>()
+
+function replace(element: Element, controls: AnimationPlaybackControls) {
+  inflight.get(element)?.stop()
+  inflight.set(element, controls)
+  return controls
+}
+
+/**
  * Plays one element's arrival. The element is already offset and transparent
- * from the stylesheet; this animates it to rest.
+ * from the stylesheet, or part-way back to that after a departure; this
+ * animates it to rest from wherever it is.
  */
 export function flowIn(
   element: Element,
   { index = 0, step = STEP }: FlowOptions = {}
 ) {
-  return animate(
+  return replace(
     element,
-    { opacity: 1, translate: "0px 0px" },
-    { duration: DURATION, ease: EASE, delay: delayFor(index, step) }
+    animate(
+      element,
+      { opacity: 1, translate: "0px 0px" },
+      { duration: DURATION, ease: EASE, delay: delayFor(index, step) }
+    )
   )
 }
 
 /**
- * Watches an element and calls back the first time it comes into view.
+ * Plays one element's departure: a short fade, after which the inline
+ * styles the arrival wrote are cleared, so the stylesheet's start offset is
+ * what the next arrival animates out of. The fade is much shorter than the
+ * arrival because by the time it runs the element is all but off screen.
  *
- * The watch area reaches far above the viewport so that anything the reader
- * has already scrolled past counts as seen and plays at once. Without it a
- * jump - an anchor link, a restored scroll position - would leave whole
- * blocks stranded at their hidden starting state above the fold. Entering
- * from below is unaffected: the bottom margin holds the trigger back until
- * the element is properly on screen rather than one pixel over the edge.
+ * The clear is skipped if something else has taken the element over in the
+ * meantime - an arrival that began during the fade must not have its
+ * starting values pulled out from under it.
  */
-export function watch(element: Element, play: () => void) {
+export function flowOut(element: Element) {
+  const controls = replace(
+    element,
+    animate(element, { opacity: 0 }, { duration: 0.2, ease: "easeOut" })
+  )
+  controls.finished.then(() => {
+    if (inflight.get(element) !== controls) return
+    const style = (element as HTMLElement).style
+    style.opacity = ""
+    style.translate = ""
+    inflight.delete(element)
+  })
+  return controls
+}
+
+/**
+ * The viewport margin every replaying reveal on the page watches with. The
+ * bottom inset holds the trigger back until an element is properly on
+ * screen rather than one pixel over the edge; the top is the viewport's own
+ * edge, so a block that has scrolled off the top has left and will play
+ * again on the way back.
+ *
+ * An earlier version extended the top a long way up so that anything the
+ * reader had scrolled past counted as seen, because a block that never
+ * crossed the viewport after an anchor jump was stranded at its hidden
+ * start state. With a replay there is nothing to strand: a hidden block
+ * above the fold plays the moment it is scrolled back to.
+ */
+export const VIEW_MARGIN = "0px 0px -8% 0px"
+
+/**
+ * Watches an element. `play` runs each time it comes into view and
+ * `leave`, if given, each time it goes out again.
+ */
+export function watch(element: Element, play: () => void, leave?: () => void) {
   return inView(
     element,
     () => {
       play()
-      // Returning nothing keeps it from firing again on the way out.
+      return leave
     },
-    { amount: 0.15, margin: "100000px 0px -8% 0px" }
+    { amount: 0.15, margin: VIEW_MARGIN }
   )
 }
 

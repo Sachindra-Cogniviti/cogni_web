@@ -2,10 +2,14 @@
 
 import * as React from "react"
 
-import { Container, pressable } from "@/components/primitives"
+import { Container, pressable, Roll } from "@/components/primitives"
+import { ScrambleText } from "@/components/scramble-text"
 import { Spotlight } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
-import { contact, site } from "@/content/site"
+import { contact } from "@/content/site"
+
+/** The discipline strip's stagger, and what each word's decode is timed from. */
+const STRIP_STEP = 0.11
 
 /**
  * Closing contact section.
@@ -15,9 +19,10 @@ import { contact, site } from "@/content/site"
  * arriving the same way, one word at a time. A soft oxblood glow follows
  * the pointer across the dark ground on a spring.
  *
- * Both actions are mailto links. There is no form because there is no server -
- * this is a static export on shared hosting, so a form would need a standalone
- * PHP endpoint that does not exist yet.
+ * Both actions open the enquiry form on /contact with the subject already
+ * chosen - a services requirement or a product demonstration - so the
+ * reader lands on the form rather than in a mail client. The address itself
+ * is still on the footer for anyone who prefers to write.
  */
 export function Contact() {
   return (
@@ -28,7 +33,7 @@ export function Contact() {
       <Spotlight color="rgb(200 106 114 / 0.14)" size={620} />
       <Container className="relative max-w-[1000px] text-center">
         <Stagger
-          step={0.11}
+          step={STRIP_STEP}
           className="flex flex-wrap justify-center gap-[14px] font-mono text-[11px] font-medium tracking-[0.22em] text-oxblood-lift uppercase"
         >
           {contact.disciplines.map((item, index) => (
@@ -38,7 +43,11 @@ export function Contact() {
                   ·
                 </span>
               )}
-              <span data-stagger>{item}</span>
+              <span data-stagger>
+                {/* Decodes as it arrives. The separators are stagger children
+                    too, so word n is child 2n. */}
+                <ScrambleText text={item} delay={index * 2 * STRIP_STEP} />
+              </span>
             </React.Fragment>
           ))}
         </Stagger>
@@ -64,14 +73,14 @@ export function Contact() {
           {contact.actions.map((action) => (
             <a
               key={action.label}
-              href={`mailto:${site.email}`}
+              href={action.href}
               className={
                 action.variant === "solid"
-                  ? `inline-block rounded-[2px] bg-night-fg px-[30px] py-[15px] text-[15px] font-medium text-ink transition-[background-color,transform] duration-200 hover:bg-oxblood-lift ${pressable}`
-                  : `inline-block rounded-[2px] border border-night-fg/35 px-[30px] py-[14px] text-[15px] font-medium text-night-fg transition-[color,border-color,transform] duration-200 hover:border-oxblood-lift hover:text-oxblood-lift ${pressable}`
+                  ? `inline-block rounded-[2px] bg-night-fg px-[30px] py-[15px] text-[15px] font-medium text-ink hover:bg-oxblood-lift ${pressable}`
+                  : `inline-block rounded-[2px] border border-night-fg/35 px-[30px] py-[14px] text-[15px] font-medium text-night-fg hover:border-oxblood-lift hover:text-oxblood-lift ${pressable}`
               }
             >
-              {action.label}
+              <Roll>{action.label}</Roll>
             </a>
           ))}
         </div>

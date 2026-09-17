@@ -29,7 +29,8 @@ import { cn } from "@/lib/utils"
  *     negative lags it (media), and the two together read as depth.
  *   - FlowRule: a hairline that draws in from the left as it nears the
  *     viewport's lower third. It replaces a section's static bottom border,
- *     so the rule leading into the next section is drawn by the scroll.
+ *     so the rule leading into the next section is drawn by the scroll. It
+ *     runs the full page width, edge to edge, past the content column.
  *   - ScrollWords: a heading that brightens a word at a time as the reader
  *     scrolls through it, so the copy is read at the pace of the scroll.
  *   - Spin: a slow continuous rotation for a small mark.
@@ -40,14 +41,13 @@ const EASE_OUT = cubicBezier(0.22, 1, 0.36, 1)
 const FINE_POINTER = "(hover: hover) and (pointer: fine)"
 
 /**
- * Root margin for every once-only reveal on the page. It extends the
- * detection area a long way above the viewport, so anything the reader has
- * already scrolled past counts as seen and shows at once. Without it, a
- * jump (an anchor link, a restored scroll position, reduced motion) can
- * leave whole blocks above the fold sitting at their hidden start state,
- * because they never crossed the viewport. Entering from below is unchanged.
+ * Root margin for every Motion `whileInView` reveal on the page - the same
+ * one the scroll flow watches with, re-exported so a component need not
+ * reach into lib for it. Every reveal replays: it plays in on arrival and
+ * Motion returns it to `initial` when it leaves, so scrolling back up the
+ * page plays the page again.
  */
-export const SEEN_ABOVE = "100000px 0px 0px 0px"
+export { VIEW_MARGIN } from "@/lib/scroll-flow"
 
 export function Parallax({
   as: Tag = "div",
@@ -84,7 +84,19 @@ export function Parallax({
   )
 }
 
-export function FlowRule({ className }: { className?: string }) {
+export function FlowRule({
+  drawn = true,
+  className,
+}: {
+  /**
+   * Whether the scroll draws the rule in. Off for a rule that can sit inside
+   * the first viewport - the hero's, the logo wall's - where it would
+   * otherwise start life part-way across and only finish once the reader
+   * moved. Off, the rule is simply there.
+   */
+  drawn?: boolean
+  className?: string
+}) {
   const ref = React.useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
   const { scrollYProgress } = useScroll({
@@ -98,9 +110,9 @@ export function FlowRule({ className }: { className?: string }) {
     <motion.div
       ref={ref}
       aria-hidden="true"
-      style={reduced ? undefined : { scaleX }}
+      style={reduced || !drawn ? undefined : { scaleX }}
       className={cn(
-        "absolute inset-x-0 bottom-0 h-px origin-left bg-rule",
+        "pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left bg-rule",
         className
       )}
     />

@@ -2,17 +2,25 @@
 
 import * as React from "react"
 
-import { flowIn, settle, STEP, watch, type FlowDirection } from "@/lib/scroll-flow"
+import {
+  flowIn,
+  flowOut,
+  settle,
+  STEP,
+  watch,
+  type FlowDirection,
+} from "@/lib/scroll-flow"
 
 /**
  * Group entrance for a grid or list.
  *
  * Children marked `data-stagger` start hidden and offset (CSS, scoped to
  * `.js` so they are visible with scripting off) and arrive one clear beat
- * after another once the group comes into view, so the eye follows the row
- * instead of seeing it appear at once. It is decorative and never gates
- * interaction: links inside are real anchors from the first paint. Under
- * reduced motion the items are simply shown.
+ * after another each time the group comes into view, so the eye follows the
+ * row instead of seeing it appear at once, and fade back out together when
+ * it leaves so the cascade plays again on the way back. It is decorative and
+ * never gates interaction: links inside are real anchors from the first
+ * paint. Under reduced motion the items are simply shown.
  *
  * `as` picks the wrapper element so lists stay lists. `from` is the side the
  * items enter from, set on the wrapper and inherited by every item through a
@@ -27,7 +35,7 @@ export function Stagger({
   from = "up",
   step = STEP,
 }: {
-  as?: "div" | "ul" | "ol"
+  as?: "div" | "ul" | "ol" | "dl"
   children: React.ReactNode
   className?: string
   /** Which side the items arrive from. */
@@ -40,7 +48,9 @@ export function Stagger({
   React.useEffect(() => {
     const host = ref.current
     if (!host) return
-    const items = Array.from(host.querySelectorAll<HTMLElement>("[data-stagger]"))
+    const items = Array.from(
+      host.querySelectorAll<HTMLElement>("[data-stagger]")
+    )
     if (items.length === 0) return
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -50,9 +60,11 @@ export function Stagger({
 
     // One watcher for the group, not one per item: the row should read as a
     // single cascade that starts when the row arrives.
-    const stop = watch(host, () => {
-      items.forEach((item, index) => flowIn(item, { index, step }))
-    })
+    const stop = watch(
+      host,
+      () => items.forEach((item, index) => flowIn(item, { index, step })),
+      () => items.forEach((item) => flowOut(item))
+    )
 
     return () => stop()
   }, [step])

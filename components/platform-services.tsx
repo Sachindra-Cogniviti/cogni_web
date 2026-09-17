@@ -23,7 +23,7 @@ import { services } from "@/content/site"
  *
  * The experience lists are their own file. They hold open/closed state for the
  * detail panels, so they are a client component, and keeping them separate
- * leaves this section — the heading, the stage grid, the CTA — on the server.
+ * leaves this section - the heading, the stage grid, the CTA - on the server.
  * It also keeps the platform logo imports out of the client bundle boundary of
  * anything else. The #platforms anchor the nav points at lives there with
  * them.
@@ -65,13 +65,14 @@ export function PlatformServices() {
             <div
               key={stage.num}
               data-stagger
-              className="group relative border-r border-b border-rule px-6 pt-7 pb-8 transition-colors duration-[250ms] hover:bg-paper-soft"
+              data-tap
+              className="group relative border-r border-b border-rule px-6 pt-7 pb-8 transition-colors duration-[250ms] hover:bg-paper-soft data-active:bg-paper-soft"
             >
               {/* Short oxblood tick riding the top rule, marking each cell. On
                   hover a second line grows from it across the whole cell: a
                   transform, not a width, so it costs nothing to animate. */}
               <div className="absolute top-[-1px] left-0 h-[2px] w-9 bg-oxblood" />
-              <div className="absolute top-[-1px] left-0 h-[2px] w-full origin-left scale-x-0 bg-oxblood transition-transform duration-300 ease-[cubic-bezier(.23,1,.32,1)] group-hover:scale-x-100 motion-reduce:transition-none" />
+              <div className="absolute top-[-1px] left-0 h-[2px] w-full origin-left scale-x-0 bg-oxblood transition-transform duration-300 ease-[cubic-bezier(.23,1,.32,1)] group-hover:scale-x-100 group-data-active:scale-x-100 motion-reduce:transition-none" />
               <div className="font-mono text-[11px] text-oxblood">
                 {stage.num}
               </div>

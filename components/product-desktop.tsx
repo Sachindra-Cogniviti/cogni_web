@@ -17,7 +17,12 @@ import {
 } from "motion/react"
 
 import { LocalTime } from "@/components/local-time"
-import { Container, Kicker, sectionPadding } from "@/components/primitives"
+import {
+  Container,
+  Kicker,
+  Roll,
+  sectionPadding,
+} from "@/components/primitives"
 import { Spotlight as PointerGlow } from "@/components/scroll-motion"
 import { productDesktop, products } from "@/content/site"
 
@@ -44,6 +49,16 @@ import { productDesktop, products } from "@/content/site"
  * the edges, so pushing past a bound moves the window a quarter of the way
  * and it settles back on release instead of hitting a wall. Zoom and close
  * ease the offset home over 220ms.
+ *
+ * Below the small breakpoint the same machine is a phone: a tall rounded
+ * bezel, a status bar with the time and a notch in place of the menu bar,
+ * the window filling the screen under a nav bar with no window controls,
+ * the screen as tall as the detail so nothing scrolls inside it, and the
+ * Dock as a phone's dock with the home indicator under it, wearing one
+ * letter per app because two do not read at 38px. The same state and the same controls, so a product
+ * chosen from the dock opens in the window either way; only the chrome
+ * changes, and all of it in classes, so nothing depends on measuring the
+ * screen before first paint.
  *
  * The screen itself arrives on the scroll rather than on a timer: tilted
  * back from its base edge and a little smaller while it is low in the
@@ -291,7 +306,14 @@ export function ProductDesktop() {
   }
 
   const active = products[selected]
-  const iconSize = "size-[clamp(40px,4.4vw,54px)]"
+  const iconSize = "size-[clamp(40px,4.4vw,54px)] max-sm:size-[38px]"
+  // One letter on the phone, both elsewhere.
+  const glyph = (value: string) => (
+    <>
+      <span className="max-sm:hidden">{value}</span>
+      <span className="sm:hidden">{value.charAt(0)}</span>
+    </>
+  )
 
   return (
     <section
@@ -299,6 +321,10 @@ export function ProductDesktop() {
       // `products` is the anchor every products link targets. It belongs to
       // the portfolio table, which is hidden for now (see app/page.tsx).
       id="products"
+      // The homepage nav knows this block is dark from its id in the rail;
+      // /products, which renders the same block, has no rail, so the block
+      // says so itself. Harmless on the homepage: the nav checks both lists.
+      data-nav-dark
       className={`relative overflow-clip bg-night-deep ${sectionPadding}`}
     >
       <PointerGlow color="rgb(200 106 114 / 0.13)" size={640} />
@@ -323,26 +349,36 @@ export function ProductDesktop() {
 
         {/* The screen. Perspective sits on the parent so the tilt reads as
             depth; the origin is the bottom edge, so it stands up like a lid. */}
-        <div className="mt-[48px] [perspective:1400px]">
+        <div className="mt-[48px] [perspective:1400px] max-sm:mx-auto max-sm:max-w-[340px]">
         <motion.div
           ref={screenRef}
           style={reduced ? undefined : { rotateX: screenTilt, scale: screenScale, opacity: screenOpacity }}
-          className="desktop flex origin-bottom flex-col overflow-hidden rounded-[16px] border border-night-fg/12 shadow-[0_0_0_1px_rgb(0_0_0/0.5),0_40px_100px_rgb(0_0_0/0.6)]"
+          className="desktop flex origin-bottom flex-col overflow-hidden rounded-[16px] border border-night-fg/12 shadow-[0_0_0_1px_rgb(0_0_0/0.5),0_40px_100px_rgb(0_0_0/0.6)] max-sm:rounded-[44px] max-sm:border-[7px] max-sm:border-[#1a1613] max-sm:shadow-[0_0_0_1px_rgb(245_241_234/0.14),0_30px_80px_rgb(0_0_0/0.6)]"
         >
           {/* Menu bar */}
           <div
             ref={menuBarRef}
             onKeyDown={onMenuBarKey}
-            className="relative z-30 flex h-[34px] shrink-0 items-center gap-[6px] bg-night-deep/60 px-3 text-[13px] text-night-fg/85 backdrop-blur-[12px]"
+            className="relative z-30 flex h-[34px] shrink-0 items-center gap-[6px] bg-night-deep/60 px-3 text-[13px] text-night-fg/85 backdrop-blur-[12px] max-sm:h-[48px] max-sm:px-6"
           >
-            <span className="mx-[6px] size-[14px] shrink-0 rounded-[4px] bg-[linear-gradient(135deg,#8E2030,#C93B52)]" />
+            <span className="mx-[6px] size-[14px] shrink-0 rounded-[4px] bg-[linear-gradient(135deg,#8E2030,#C93B52)] max-sm:hidden" />
+
+            {/* The phone's status bar: the time on the left, the notch in
+                the middle, signal and battery on the right. */}
+            <span className="hidden font-sans text-[14px] font-semibold tracking-[-0.01em] text-night-fg max-sm:inline">
+              <LocalTime />
+            </span>
+            <span
+              aria-hidden="true"
+              className="absolute top-[10px] left-1/2 hidden h-[24px] w-[92px] -translate-x-1/2 rounded-full bg-black max-sm:block"
+            />
 
             <MenuButton
               id="app"
               open={menu === "app"}
               onToggle={toggleMenu}
               onHover={() => menu && setMenu("app")}
-              className="min-w-0 truncate font-semibold text-night-fg"
+              className="min-w-0 truncate font-semibold text-night-fg max-sm:hidden"
             >
               {windowOpen ? active.name : productDesktop.brand}
             </MenuButton>
@@ -436,8 +472,22 @@ export function ProductDesktop() {
               <span className="hidden sm:inline">
                 <LocalTime withDay />
               </span>
-              <span className="sm:hidden">
-                <LocalTime />
+              <span
+                aria-hidden="true"
+                className="flex items-center gap-[6px] sm:hidden"
+              >
+                <span className="flex items-end gap-[2px]">
+                  {[4, 6, 8, 10].map((height) => (
+                    <span
+                      key={height}
+                      className="w-[3px] rounded-[1px] bg-night-fg/85"
+                      style={{ height }}
+                    />
+                  ))}
+                </span>
+                <span className="flex h-[11px] w-[22px] items-center rounded-[3px] border border-night-fg/50 p-[2px]">
+                  <span className="h-full w-[72%] rounded-[1px] bg-night-fg/85" />
+                </span>
               </span>
             </span>
           </div>
@@ -445,7 +495,7 @@ export function ProductDesktop() {
           {/* Desktop */}
           <div
             ref={desktopRef}
-            className="relative flex min-h-[560px] flex-1 flex-col items-center justify-center px-[clamp(12px,3vw,32px)] pt-[clamp(20px,3vw,36px)] pb-[112px]"
+            className="relative flex min-h-[560px] flex-1 flex-col items-center justify-center px-[clamp(12px,3vw,32px)] pt-[clamp(20px,3vw,36px)] pb-[112px] max-sm:min-h-0 max-sm:justify-start max-sm:px-3 max-sm:pt-2 max-sm:pb-[116px]"
           >
             <motion.p
               aria-hidden={windowOpen}
@@ -477,7 +527,7 @@ export function ProductDesktop() {
                 variants={windowVariants}
                 initial={false}
                 animate={windowOpen ? "open" : "closed"}
-                className="app-window overflow-hidden rounded-[12px] border border-night-fg/14 bg-night-panel/85 text-night-fg shadow-[0_0_0_1px_rgb(0_0_0/0.45),0_30px_70px_rgb(0_0_0/0.55)]"
+                className="app-window overflow-hidden rounded-[12px] border border-night-fg/14 bg-night-panel/85 text-night-fg shadow-[0_0_0_1px_rgb(0_0_0/0.45),0_30px_70px_rgb(0_0_0/0.55)] max-sm:rounded-[22px]"
               >
                 {/* Title bar. Drag handle. */}
                 <div
@@ -486,11 +536,12 @@ export function ProductDesktop() {
                     if ((event.target as Element).closest("button")) return
                     zoom(!zoomed)
                   }}
-                  className={`flex h-[40px] touch-pan-y items-center gap-3 border-b border-night-fg/10 bg-night-fg/[0.03] px-4 select-none ${
+                  className={`flex h-[40px] touch-pan-y items-center gap-3 border-b border-night-fg/10 bg-night-fg/[0.03] px-4 select-none max-sm:h-[44px] max-sm:shrink-0 ${
                     zoomed ? "" : "cursor-grab active:cursor-grabbing"
                   }`}
                 >
-                  <div className="flex gap-2">
+                  {/* No window controls on the phone: a phone's app has none. */}
+                  <div className="flex gap-2 max-sm:hidden">
                     <button
                       type="button"
                       onClick={closeWindow}
@@ -512,9 +563,9 @@ export function ProductDesktop() {
                     />
                   </div>
                   <span className="flex-1 truncate text-center text-[12.5px] font-medium text-night-fg/70">
-                    {active.name} — {productDesktop.windowTitleSuffix}
+                    {active.name} · {productDesktop.windowTitleSuffix}
                   </span>
-                  <span className="w-[54px]" />
+                  <span className="w-[54px] max-sm:hidden" />
                 </div>
 
                 {/* App content. Keyed on the app, so a switch is an exit and
@@ -527,12 +578,12 @@ export function ProductDesktop() {
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -4, filter: "blur(4px)", transition: { duration: 0.16, ease: EASE } }}
                   transition={{ duration: 0.22, ease: EASE }}
-                  className="grid gap-x-8 gap-y-6 p-[clamp(20px,3vw,32px)] md:grid-cols-[minmax(0,7fr)_minmax(240px,5fr)]"
+                  className="grid gap-x-8 gap-y-6 p-[clamp(20px,3vw,32px)] max-sm:p-5 md:grid-cols-[minmax(0,7fr)_minmax(240px,5fr)]"
                 >
                   <div className="flex min-h-[260px] flex-col">
                     <div className="flex items-center gap-4">
                       <span className="flex size-[56px] shrink-0 items-center justify-center rounded-[14px] bg-[linear-gradient(135deg,#8E2030,#C93B52)] font-mono text-[20px] font-semibold text-paper shadow-[0_8px_26px_rgb(142_32_48/0.5)]">
-                        {active.glyph}
+                        {glyph(active.glyph)}
                       </span>
                       <div className="min-w-0">
                         <div className="text-[20px] font-semibold tracking-[-0.01em]">{active.name}</div>
@@ -549,12 +600,18 @@ export function ProductDesktop() {
                       {active.desc}
                     </p>
 
+                    {/* Opens the product's own page, and takes its label from
+                        that product. It keeps the window's button shape - a
+                        6px radius and tighter padding than the page's buttons
+                        - because it is app chrome inside a simulated desktop,
+                        not a page CTA. The label rolls; the menu bar and Dock
+                        are left alone, since real desktop chrome does not. */}
                     <div className="mt-auto pt-6">
                       <a
-                        href="#contact"
-                        className="inline-block rounded-[6px] bg-night-fg px-4 py-[9px] text-[13.5px] font-semibold text-ink transition-[background-color,transform] duration-150 ease-out hover:bg-paper active:scale-[0.97]"
+                        href={`/products/${active.slug}`}
+                        className="control-motion inline-block rounded-[6px] bg-night-fg px-4 py-[9px] text-[13.5px] font-semibold text-ink hover:bg-paper active:scale-[0.97]"
                       >
-                        {active.cta}&nbsp;&nbsp;→
+                        <Roll>{active.cta}&nbsp;&nbsp;→</Roll>
                       </a>
                     </div>
                   </div>
@@ -596,7 +653,7 @@ export function ProductDesktop() {
             </AnimatePresence>
 
             {/* Dock */}
-            <div className="absolute inset-x-0 bottom-[18px] z-20 flex justify-center px-3">
+            <div className="absolute inset-x-0 bottom-[18px] z-20 flex justify-center px-3 max-sm:bottom-[24px]">
               <div
                 ref={dockRef}
                 role="toolbar"
@@ -604,7 +661,7 @@ export function ProductDesktop() {
                 onKeyDown={onDockKey}
                 onPointerMove={magnify}
                 onPointerLeave={relax}
-                className="flex items-end gap-[8px] rounded-[20px] border border-night-fg/12 bg-night-deep/70 px-[10px] pt-[10px] pb-[8px] shadow-[0_18px_50px_rgb(0_0_0/0.5)] backdrop-blur-[12px]"
+                className="flex items-end gap-[8px] rounded-[20px] border border-night-fg/12 bg-night-deep/70 px-[10px] pt-[10px] pb-[8px] shadow-[0_18px_50px_rgb(0_0_0/0.5)] backdrop-blur-[12px] max-sm:gap-[5px] max-sm:rounded-[24px] max-sm:px-[9px] max-sm:pt-[9px] max-sm:pb-[7px]"
               >
                 {products.map((product, index) => {
                   const isActive = index === selected
@@ -628,7 +685,7 @@ export function ProductDesktop() {
                             : "border-night-fg/12 bg-night-fg/[0.07]"
                         }`}
                       >
-                        {product.glyph}
+                        {glyph(product.glyph)}
                       </DockIcon>
                       <span
                         className={`mt-[5px] size-[4px] rounded-full transition-opacity duration-200 ${
@@ -670,6 +727,12 @@ export function ProductDesktop() {
                 </a>
               </div>
             </div>
+
+            {/* The home indicator, under the dock. */}
+            <span
+              aria-hidden="true"
+              className="absolute bottom-[8px] left-1/2 z-20 hidden h-[5px] w-[110px] -translate-x-1/2 rounded-full bg-night-fg/35 max-sm:block"
+            />
           </div>
         </motion.div>
         </div>

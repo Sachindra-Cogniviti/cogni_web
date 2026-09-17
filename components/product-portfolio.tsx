@@ -2,7 +2,12 @@
 
 import * as React from "react"
 
-import { Container, Kicker, sectionPadding } from "@/components/primitives"
+import {
+  Container,
+  Kicker,
+  Roll,
+  sectionPadding,
+} from "@/components/primitives"
 import { productPortfolio, products } from "@/content/site"
 
 /**
@@ -165,10 +170,10 @@ export function ProductPortfolio() {
 
             <div className="mt-auto">
               <a
-                href="#contact"
-                className="border-b border-oxblood-lift/40 pb-[3px] text-[14.5px] font-medium text-oxblood-lift transition-colors hover:text-night-fg"
+                href={`/products/${active.slug}`}
+                className="control-motion border-b border-oxblood-lift/40 pb-[3px] text-[14.5px] font-medium text-oxblood-lift hover:text-night-fg"
               >
-                {active.cta}&nbsp;&nbsp;→
+                <Roll>{active.cta}&nbsp;&nbsp;→</Roll>
               </a>
             </div>
           </div>

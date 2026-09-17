@@ -41,7 +41,9 @@ export function SectionRail() {
     const measure = () => {
       frame = null
       const hero = document.getElementById("top")
-      const threshold = hero ? hero.getBoundingClientRect().bottom + window.scrollY - 160 : 600
+      const threshold = hero
+        ? hero.getBoundingClientRect().bottom + window.scrollY - 160
+        : 600
       setPastHero(window.scrollY > threshold)
     }
     const schedule = () => {
@@ -70,11 +72,12 @@ export function SectionRail() {
       onPointerLeave={() => setOpen(false)}
       onFocus={() => setOpen(true)}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false)
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null))
+          setOpen(false)
       }}
-      className="section-rail fixed top-1/2 right-[clamp(10px,1.2vw,22px)] z-90 hidden -translate-y-1/2 lg:block"
+      className="section-rail fixed top-1/2 right-0 z-90 hidden lg:block"
     >
-      <div className="rail-box rounded-[14px] border p-[8px]">
+      <div className="rail-box border border-r-0 p-[8px]">
         <ul className="m-0 flex list-none flex-col gap-[2px]">
           {rail.sections.map((section, i) => {
             const isActive = section.id === active
@@ -84,9 +87,9 @@ export function SectionRail() {
                   href={`#${section.id}`}
                   aria-current={isActive ? "true" : undefined}
                   onClick={() => setOpen(false)}
-                  // Reversed because the rail sits on the right edge: the
-                  // ticks have to hug the screen edge and the labels open
-                  // inward, or the capsule would grow off-screen.
+                  // Reversed: the rail is anchored to the right edge, so the
+                  // ticks have to hug the screen and the labels open inward
+                  // to the left, or the capsule would grow off-screen.
                   className="rail-item relative flex h-[22px] flex-row-reverse items-center gap-[18px] rounded-[7px] px-[6px] outline-none"
                   style={{ "--i": i } as React.CSSProperties}
                 >
@@ -96,7 +99,11 @@ export function SectionRail() {
                       layoutId="rail-active"
                       aria-hidden="true"
                       className="rail-active-tick"
-                      transition={{ type: "spring", duration: 0.45, bounce: 0.15 }}
+                      transition={{
+                        type: "spring",
+                        duration: 0.45,
+                        bounce: 0.15,
+                      }}
                     />
                   )}
                   <span className="rail-label">{section.label}</span>
