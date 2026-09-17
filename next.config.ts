@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
   // the bucket; an unset value simply allows nothing, which fails loudly at
   // the first image rather than silently serving unoptimised originals.
   images: {
+    // AVIF first, WebP for browsers without it. AVIF comes out a quarter to
+    // a third smaller than WebP at the same quality; the only cost is a
+    // slower first encode, which the optimiser caches.
+    formats: ["image/avif", "image/webp"],
     remotePatterns: mediaHostname
       ? [{ protocol: "https", hostname: mediaHostname }]
       : [],

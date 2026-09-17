@@ -33,7 +33,7 @@ export function publicMediaBaseUrl(): string | undefined {
 
   if (url.hostname.endsWith(S3_API_HOST)) {
     console.warn(
-      "R2_PUBLIC_URL points at the R2 S3 API endpoint, which is not publicly readable — " +
+      "R2_PUBLIC_URL points at the R2 S3 API endpoint, which is not publicly readable - " +
         "bind a custom domain to the bucket and use that. Serving media through the app for now."
     )
     return undefined
