@@ -141,6 +141,10 @@ stacking, all of it in `max-sm:` classes so nothing waits on a measurement:
 - `sectionPadding` in `components/primitives.tsx` clamps down to 56px on
   a phone; at 88px each side, two adjacent sections left a screen of
   nothing between one block's end and the next block's reveal.
+- `overflow-x: clip` is on html, body and main. On html alone iOS Safari
+  still panned a few pixels sideways to reach a block waiting off to the
+  right for its reveal. It must stay `clip`, not `hidden`, or sticky and
+  fixed elements lose the viewport.
 
 ## Payload
 

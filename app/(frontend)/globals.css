@@ -194,8 +194,18 @@
   /* Blocks that arrive from the side start beyond their resting place, which
    * would widen the document for the length of the animation. `clip` cuts
    * that off without making a scroll container, so the fixed nav, the rail
-   * and every view-based measurement are untouched. */
-  html {
+   * and every view-based measurement are untouched.
+   *
+   * On html alone this was not enough for iOS Safari, which let the page
+   * pan a few pixels sideways to reach a block still off to the right: the
+   * root's overflow is handed to the viewport there, and the viewport does
+   * not clip touch panning the way a box does. So body and main clip too.
+   * Still `clip`, never `hidden`: hidden would make body the scroll
+   * container and the sticky people row and the fixed bar would lose the
+   * viewport they are measured against. */
+  html,
+  body,
+  main {
     overflow-x: clip;
   }
   ::selection {
