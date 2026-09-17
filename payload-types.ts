@@ -69,6 +69,8 @@ export interface Config {
   collections: {
     posts: Post;
     'client-stories': ClientStory;
+    roles: Role;
+    enquiries: Enquiry;
     authors: Author;
     categories: Category;
     media: Media;
@@ -82,6 +84,8 @@ export interface Config {
   collectionsSelect: {
     posts: PostsSelect<false> | PostsSelect<true>;
     'client-stories': ClientStoriesSelect<false> | ClientStoriesSelect<true>;
+    roles: RolesSelect<false> | RolesSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -293,6 +297,15 @@ export interface ClientStory {
    * Telecoms, shipping, energy, property, and so on.
    */
   sector?: string | null;
+  /**
+   * The delivery path, in order: the stages before production, two or three words each. Shown as stops on the homepage and the story page. Leave empty and the platforms and regions stand in.
+   */
+  stages?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
   challenge: string;
   approach: string;
   outcomes: {
@@ -341,12 +354,112 @@ export interface ClientStory {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Open positions shown on /careers. Unpublish a role to take it down. There is no need to delete it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles".
+ */
+export interface Role {
+  id: number;
+  /**
+   * As a candidate would search for it.
+   */
+  title: string;
+  /**
+   * The URL. Set from the title, and safe to edit before publishing.
+   */
+  slug: string;
+  discipline: 'platform-consulting' | 'integration-data' | 'product-engineering' | 'applied-ai';
+  type: 'full-time' | 'contract' | 'internship';
+  location: string;
+  remote?: ('onsite' | 'hybrid' | 'remote') | null;
+  /**
+   * Two sentences, shown in the listing. What the person will own.
+   */
+  summary: string;
+  responsibilities?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  requirements?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional longer detail below the lists.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Where applications for this role go. Leave empty to use the site address.
+   */
+  applyEmail?: string | null;
+  postedAt: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Submissions from the contact form. Nothing here was typed by us, so treat every field as untrusted input from the public internet.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: number;
+  name: string;
+  company?: string | null;
+  email: string;
+  phone: string;
+  subject:
+    | 'platform-implementation'
+    | 'optimization'
+    | 'integration'
+    | 'managed-services'
+    | 'training'
+    | 'products'
+    | 'careers'
+    | 'other';
+  message?: string | null;
+  status?: ('new' | 'in-progress' | 'answered' | 'spam') | null;
+  /**
+   * Internal. Never shown to the sender.
+   */
+  notes?: string | null;
+  /**
+   * The page the enquiry was sent from.
+   */
+  source?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: number;
   name: string;
+  /**
+   * Admins manage accounts. Editors edit content and their own account only.
+   */
   role: 'admin' | 'editor';
   updatedAt: string;
   createdAt: string;
@@ -398,6 +511,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'client-stories';
         value: number | ClientStory;
+      } | null)
+    | ({
+        relationTo: 'roles';
+        value: number | Role;
+      } | null)
+    | ({
+        relationTo: 'enquiries';
+        value: number | Enquiry;
       } | null)
     | ({
         relationTo: 'authors';
@@ -494,6 +615,12 @@ export interface ClientStoriesSelect<T extends boolean = true> {
   platform?: T;
   region?: T;
   sector?: T;
+  stages?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
   challenge?: T;
   approach?: T;
   outcomes?:
@@ -521,6 +648,54 @@ export interface ClientStoriesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles_select".
+ */
+export interface RolesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  discipline?: T;
+  type?: T;
+  location?: T;
+  remote?: T;
+  summary?: T;
+  responsibilities?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  requirements?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  body?: T;
+  applyEmail?: T;
+  postedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  name?: T;
+  company?: T;
+  email?: T;
+  phone?: T;
+  subject?: T;
+  message?: T;
+  status?: T;
+  notes?: T;
+  source?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -672,6 +847,19 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CodeBlock".
+ */
+export interface CodeBlock {
+  language?:
+    | ('plain' | 'json' | 'sql' | 'xml' | 'yaml' | 'shell' | 'typescript' | 'javascript' | 'python' | 'java' | 'abap')
+    | null;
+  code: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'code';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -14,13 +14,17 @@
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap",
     "migrate:create": "payload migrate:create",
-    "migrate": "payload migrate"
+    "migrate": "payload migrate",
+    "seed:demo": "node --env-file=.env --import=tsx scripts/seed-demo.ts",
+    "seed:demo:remove": "node --env-file=.env --import=tsx scripts/seed-demo.ts --remove"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
     "@hugeicons/core-free-icons": "^4.3.0",
     "@hugeicons/react": "^1.1.10",
     "@payloadcms/db-postgres": "^3.88.0",
+    "@payloadcms/email-resend": "^3.88.0",
+    "@payloadcms/live-preview-react": "^3.88.0",
     "@payloadcms/next": "^3.88.0",
     "@payloadcms/plugin-seo": "^3.88.0",
     "@payloadcms/richtext-lexical": "^3.88.0",

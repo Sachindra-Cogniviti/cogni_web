@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload"
 
 import { slugField } from "@/payload/fields/slug"
+import { livePreview, previewUrl } from "@/lib/preview"
 
 /**
  * The blog.
@@ -9,6 +10,10 @@ import { slugField } from "@/payload/fields/slug"
  * the real page rather than in a side panel. `_status` also means "publish" is
  * a distinct action from "save", so a half-finished post cannot reach the live
  * site by autosave.
+ *
+ * That preview is /blog/[slug] itself, in Next's draft mode: the Preview
+ * button opens it in a tab and the Live Preview panel shows it beside the
+ * form, re-rendering on each save. lib/preview.ts explains the route.
  */
 export const Posts: CollectionConfig = {
   slug: "posts",
@@ -16,10 +21,13 @@ export const Posts: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "author", "publishedAt", "_status"],
     group: "Content",
+    livePreview: livePreview("posts"),
+    preview: (doc) => previewUrl("posts", doc.slug),
   },
   access: {
     // Drafts stay private; only published posts are readable without a login.
-    read: ({ req }) => Boolean(req.user) || { _status: { equals: "published" } },
+    read: ({ req }) =>
+      Boolean(req.user) || { _status: { equals: "published" } },
   },
   versions: { drafts: true },
   fields: [
@@ -39,7 +47,9 @@ export const Posts: CollectionConfig = {
       name: "coverImage",
       type: "upload",
       relationTo: "media",
-      admin: { description: "Also the fallback image when the post is shared." },
+      admin: {
+        description: "Also the fallback image when the post is shared.",
+      },
     },
     { name: "body", type: "richText", required: true },
     {
@@ -64,7 +74,8 @@ export const Posts: CollectionConfig = {
       admin: {
         position: "sidebar",
         date: { pickerAppearance: "dayAndTime" },
-        description: "Drives ordering, the sitemap's lastModified and the JSON-LD date.",
+        description:
+          "Drives ordering, the sitemap's lastModified and the JSON-LD date.",
       },
     },
   ],
