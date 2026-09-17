@@ -530,6 +530,8 @@ export const productDesktop = {
   windowTitleSuffix: "Cogniviti Suite",
   detailLabel: "Information",
   closedHint: "Choose a product from the Dock to open it",
+  /** Seconds each product holds on the phone before the next slides in. */
+  dwell: 5,
   dock: {
     label: "Dock",
     contact: { label: "Talk to our team", href: "/contact?subject=products" },

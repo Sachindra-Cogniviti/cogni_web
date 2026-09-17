@@ -7,6 +7,7 @@ import {
   animate,
   motion,
   useDragControls,
+  useInView,
   useMotionValue,
   useReducedMotion,
   useScroll,
@@ -53,12 +54,16 @@ import { productDesktop, products } from "@/content/site"
  * Below the small breakpoint the same machine is a phone: a tall rounded
  * bezel, a status bar with the time and a notch in place of the menu bar,
  * the window filling the screen under a nav bar with no window controls,
- * the screen as tall as the detail so nothing scrolls inside it, and the
- * Dock as a phone's dock with the home indicator under it, wearing one
- * letter per app because two do not read at 38px. The same state and the same controls, so a product
- * chosen from the dock opens in the window either way; only the chrome
- * changes, and all of it in classes, so nothing depends on measuring the
- * screen before first paint.
+ * and the screen as tall as the detail so nothing scrolls inside it. There
+ * is no Dock on the phone. The products turn on their own instead, on the
+ * dwell the carousels keep, and a swipe across the window steps through
+ * them; a row of page dots under the window is the index and the clock,
+ * the way the updates pagination is. The switch slides the way the
+ * reader went. The rotation runs only while the section is on screen,
+ * holds while a finger is down, restarts its dwell after a manual step,
+ * and stops outright under reduced motion. The chrome is all classes, so
+ * nothing depends on measuring the screen before first paint; only the
+ * rotation and the swipe are gated on a media query.
  *
  * The screen itself arrives on the scroll rather than on a timer: tilted
  * back from its base edge and a little smaller while it is low in the
@@ -75,6 +80,40 @@ type MenuId = "app" | "window" | "help"
 const FINE_POINTER = "(hover: hover) and (pointer: fine)"
 const REDUCED = "(prefers-reduced-motion: reduce)"
 const EASE: [number, number, number, number] = [0.23, 1, 0.32, 1]
+/** Where the desktop is a phone, and the products turn by themselves. */
+const PHONE = "(max-width: 639px)"
+
+/** How far a finger has to travel across the window to count as a swipe. */
+const SWIPE = 40
+
+/**
+ * The app switch. `custom` carries the direction: +1 or -1 for a swipe or
+ * a page dot, so the old body leaves the way the reader went and the new
+ * one arrives from behind it; 0 from the Dock, where there is no
+ * direction and the body settles vertically as it always did.
+ */
+const appBody: Variants = {
+  enter: (dir: number) => ({
+    opacity: 0,
+    x: dir * 28,
+    y: dir ? 0 : 4,
+    filter: "blur(4px)",
+  }),
+  show: {
+    opacity: 1,
+    x: 0,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.22, ease: EASE },
+  },
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: dir * -28,
+    y: dir ? 0 : -4,
+    filter: "blur(4px)",
+    transition: { duration: 0.16, ease: EASE },
+  }),
+}
 
 /** The window: springs open from just above the Dock, eases closed toward it. */
 const windowVariants: Variants = {
@@ -97,6 +136,8 @@ const windowVariants: Variants = {
 
 export function ProductDesktop() {
   const [selected, setSelected] = React.useState(0)
+  // Which way the last switch went, for the slide (see appBody).
+  const [dir, setDir] = React.useState(0)
   const [windowOpen, setWindowOpen] = React.useState(true)
   const [zoomed, setZoomed] = React.useState(false)
   const [menu, setMenu] = React.useState<MenuId | null>(null)
@@ -118,10 +159,62 @@ export function ProductDesktop() {
   // (see the window body), so this only has to set state; a quick run along
   // the Dock is handled by presence, which waits for the exit and mounts
   // whichever app is current by then.
-  const open = React.useCallback((index: number) => {
+  const open = React.useCallback((index: number, direction = 0) => {
+    setDir(direction)
     setWindowOpen(true)
     setSelected(index)
   }, [])
+
+  /* ---- the phone: rotation and swipe ------------------------------------- */
+
+  const [phone, setPhone] = React.useState(false)
+  React.useEffect(() => {
+    const query = window.matchMedia(PHONE)
+    const sync = () => setPhone(query.matches)
+    sync()
+    query.addEventListener("change", sync)
+    return () => query.removeEventListener("change", sync)
+  }, [])
+
+  const reducedMotion = useReducedMotion()
+  const onScreen = useInView(sectionRef, { amount: 0.35 })
+  const [held, setHeld] = React.useState(false)
+  const rotating =
+    phone && onScreen && windowOpen && !held && !reducedMotion
+
+  React.useEffect(() => {
+    if (!rotating) return
+    const timer = window.setTimeout(
+      () => open((selected + 1) % products.length, 1),
+      productDesktop.dwell * 1000
+    )
+    // Keyed on `selected` too, so a swipe restarts the dwell rather than
+    // inheriting the rest of the last one.
+    return () => window.clearTimeout(timer)
+  }, [rotating, selected, open])
+
+  // A horizontal swipe across the window steps through the products. Touch
+  // events rather than pointer events so a vertical swipe stays the page's:
+  // nothing is prevented, and a gesture that is mostly vertical is ignored.
+  const touch = React.useRef<{ x: number; y: number } | null>(null)
+  const onTouchStart = (event: React.TouchEvent) => {
+    if (!phone) return
+    const point = event.touches[0]
+    touch.current = { x: point.clientX, y: point.clientY }
+    setHeld(true)
+  }
+  const onTouchEnd = (event: React.TouchEvent) => {
+    setHeld(false)
+    const start = touch.current
+    touch.current = null
+    if (!start || !phone) return
+    const point = event.changedTouches[0]
+    const dx = point.clientX - start.x
+    const dy = point.clientY - start.y
+    if (Math.abs(dx) < SWIPE || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    const n = products.length
+    open(dx < 0 ? (selected + 1) % n : (selected - 1 + n) % n, dx < 0 ? 1 : -1)
+  }
 
   /* ---- dragging the window ---------------------------------------------- */
 
@@ -306,14 +399,7 @@ export function ProductDesktop() {
   }
 
   const active = products[selected]
-  const iconSize = "size-[clamp(40px,4.4vw,54px)] max-sm:size-[38px]"
-  // One letter on the phone, both elsewhere.
-  const glyph = (value: string) => (
-    <>
-      <span className="max-sm:hidden">{value}</span>
-      <span className="sm:hidden">{value.charAt(0)}</span>
-    </>
-  )
+  const iconSize = "size-[clamp(40px,4.4vw,54px)]"
 
   return (
     <section
@@ -349,7 +435,7 @@ export function ProductDesktop() {
 
         {/* The screen. Perspective sits on the parent so the tilt reads as
             depth; the origin is the bottom edge, so it stands up like a lid. */}
-        <div className="mt-[48px] [perspective:1400px] max-sm:mx-auto max-sm:max-w-[340px]">
+        <div className="mt-[48px] [perspective:1400px]">
         <motion.div
           ref={screenRef}
           style={reduced ? undefined : { rotateX: screenTilt, scale: screenScale, opacity: screenOpacity }}
@@ -495,7 +581,7 @@ export function ProductDesktop() {
           {/* Desktop */}
           <div
             ref={desktopRef}
-            className="relative flex min-h-[560px] flex-1 flex-col items-center justify-center px-[clamp(12px,3vw,32px)] pt-[clamp(20px,3vw,36px)] pb-[112px] max-sm:min-h-0 max-sm:justify-start max-sm:px-3 max-sm:pt-2 max-sm:pb-[116px]"
+            className="relative flex min-h-[560px] flex-1 flex-col items-center justify-center px-[clamp(12px,3vw,32px)] pt-[clamp(20px,3vw,36px)] pb-[112px] max-sm:min-h-0 max-sm:justify-start max-sm:px-3 max-sm:pt-2 max-sm:pb-[68px]"
           >
             <motion.p
               aria-hidden={windowOpen}
@@ -527,6 +613,12 @@ export function ProductDesktop() {
                 variants={windowVariants}
                 initial={false}
                 animate={windowOpen ? "open" : "closed"}
+                onTouchStart={onTouchStart}
+                onTouchEnd={onTouchEnd}
+                onTouchCancel={() => {
+                  touch.current = null
+                  setHeld(false)
+                }}
                 className="app-window overflow-hidden rounded-[12px] border border-night-fg/14 bg-night-panel/85 text-night-fg shadow-[0_0_0_1px_rgb(0_0_0/0.45),0_30px_70px_rgb(0_0_0/0.55)] max-sm:rounded-[22px]"
               >
                 {/* Title bar. Drag handle. */}
@@ -571,19 +663,20 @@ export function ProductDesktop() {
                 {/* App content. Keyed on the app, so a switch is an exit and
                     an entrance: the old body blurs and drops out in 160ms,
                     the new one sharpens in over 220ms. */}
-                <AnimatePresence mode="wait" initial={false}>
+                <AnimatePresence mode="wait" initial={false} custom={dir}>
                 <motion.div
                   key={selected}
-                  initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -4, filter: "blur(4px)", transition: { duration: 0.16, ease: EASE } }}
-                  transition={{ duration: 0.22, ease: EASE }}
+                  custom={dir}
+                  variants={appBody}
+                  initial="enter"
+                  animate="show"
+                  exit="exit"
                   className="grid gap-x-8 gap-y-6 p-[clamp(20px,3vw,32px)] max-sm:p-5 md:grid-cols-[minmax(0,7fr)_minmax(240px,5fr)]"
                 >
                   <div className="flex min-h-[260px] flex-col">
                     <div className="flex items-center gap-4">
                       <span className="flex size-[56px] shrink-0 items-center justify-center rounded-[14px] bg-[linear-gradient(135deg,#8E2030,#C93B52)] font-mono text-[20px] font-semibold text-paper shadow-[0_8px_26px_rgb(142_32_48/0.5)]">
-                        {glyph(active.glyph)}
+                        {active.glyph}
                       </span>
                       <div className="min-w-0">
                         <div className="text-[20px] font-semibold tracking-[-0.01em]">{active.name}</div>
@@ -652,8 +745,58 @@ export function ProductDesktop() {
               )}
             </AnimatePresence>
 
+            {/* Page dots, on the phone only: the index and the dwell clock
+                in one row, under the window and over the home indicator.
+                Hidden from sm up, where the Dock does this job. */}
+            <div className="absolute inset-x-0 bottom-[26px] z-20 hidden justify-center max-sm:flex">
+              <ol
+                aria-label={productDesktop.dock.label}
+                className="m-0 flex list-none items-center gap-[4px]"
+              >
+                {products.map((product, index) => {
+                  const current = index === selected && windowOpen
+                  return (
+                    <li key={product.name} className="flex">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          open(index, index > selected ? 1 : index < selected ? -1 : 0)
+                        }
+                        aria-label={product.name}
+                        aria-current={current ? "true" : undefined}
+                        className="flex h-8 w-7 cursor-pointer items-center justify-center"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`relative block h-[6px] overflow-hidden rounded-full transition-[width,background-color] duration-250 ease-[cubic-bezier(.23,1,.32,1)] ${
+                            current
+                              ? "w-[24px] bg-night-fg/20"
+                              : "w-[6px] bg-night-fg/35"
+                          }`}
+                        >
+                          {current && !reducedMotion && (
+                            <span
+                              key={selected}
+                              className="updates-progress absolute inset-0 block origin-left rounded-full bg-oxblood-lift"
+                              style={{
+                                animationDuration: `${productDesktop.dwell}s`,
+                                animationPlayState: rotating ? "running" : "paused",
+                              }}
+                            />
+                          )}
+                          {current && reducedMotion && (
+                            <span className="absolute inset-0 block rounded-full bg-oxblood-lift" />
+                          )}
+                        </span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ol>
+            </div>
+
             {/* Dock */}
-            <div className="absolute inset-x-0 bottom-[18px] z-20 flex justify-center px-3 max-sm:bottom-[24px]">
+            <div className="absolute inset-x-0 bottom-[18px] z-20 flex justify-center px-3 max-sm:hidden">
               <div
                 ref={dockRef}
                 role="toolbar"
@@ -661,7 +804,7 @@ export function ProductDesktop() {
                 onKeyDown={onDockKey}
                 onPointerMove={magnify}
                 onPointerLeave={relax}
-                className="flex items-end gap-[8px] rounded-[20px] border border-night-fg/12 bg-night-deep/70 px-[10px] pt-[10px] pb-[8px] shadow-[0_18px_50px_rgb(0_0_0/0.5)] backdrop-blur-[12px] max-sm:gap-[5px] max-sm:rounded-[24px] max-sm:px-[9px] max-sm:pt-[9px] max-sm:pb-[7px]"
+                className="flex items-end gap-[8px] rounded-[20px] border border-night-fg/12 bg-night-deep/70 px-[10px] pt-[10px] pb-[8px] shadow-[0_18px_50px_rgb(0_0_0/0.5)] backdrop-blur-[12px] "
               >
                 {products.map((product, index) => {
                   const isActive = index === selected
@@ -685,7 +828,7 @@ export function ProductDesktop() {
                             : "border-night-fg/12 bg-night-fg/[0.07]"
                         }`}
                       >
-                        {glyph(product.glyph)}
+                        {product.glyph}
                       </DockIcon>
                       <span
                         className={`mt-[5px] size-[4px] rounded-full transition-opacity duration-200 ${
