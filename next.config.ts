@@ -33,6 +33,26 @@ const nextConfig: NextConfig = {
       : [],
   },
 
+  // sharp's native addon is loaded as an external module at runtime, and the
+  // addon in @img/sharp-linux-x64 dlopens libvips-cpp.so from a second
+  // package, @img/sharp-libvips-linux-x64. Next traces the require of the
+  // .node file and stops there - a shared object pulled in by the dynamic
+  // linker is invisible to tracing - so the function shipped the addon
+  // without the library it links against and every route that imports
+  // payload.config (which imports sharp) died on ERR_DLOPEN_FAILED:
+  // libvips-cpp.so.8.18.6: cannot open shared object file. A 500 on /admin
+  // and on every /api route, while the prerendered pages carried on serving
+  // and hid it.
+  //
+  // Nothing reproduces this locally on Windows: the win32 binary carries its
+  // own libvips DLL inside the one package, so there is no second package to
+  // miss. The glob is evaluated on the build machine, where only that
+  // platform's @img packages are installed, so it is a no-op here and the
+  // linux-x64 pair on Vercel.
+  outputFileTracingIncludes: {
+    "**/*": ["./node_modules/@img/**"],
+  },
+
   // Apache used to set this from .htaccess. Vercel sets compression, HTTPS,
   // MIME types and the immutable cache on /_next/static itself, but it does
   // not add this one, and dropping it silently would be a real regression.
