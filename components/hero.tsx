@@ -119,8 +119,27 @@ const HEADLINE_STEP = 110
 const HEADLINE_DURATION = 0.5
 
 
-/** How the words arrive: down from a third of an em above, out of a blur. */
-const headlineFrom = { opacity: 0, y: "-0.35em", filter: "blur(6px)" }
+/*
+ * How the words arrive: down from a third of an em above, out of a blur.
+ *
+ * The opacity starts a fraction above zero, and that fraction is the whole
+ * point. Chrome does not count an element painted at opacity 0 as a candidate
+ * for the largest contentful paint, and the largest element on this page is a
+ * word of this headline - so at a flat 0 the page's LCP was not the moment the
+ * headline was painted, it was the moment the last word's animation delay
+ * elapsed and it finally became visible. Measured on the deployment, that was
+ * 1.6s of "element render delay" hung on the end of a first paint that had
+ * already happened: an entrance the reader enjoys, charged as a page that
+ * takes five seconds to show its headline.
+ *
+ * At 0.28 the words are on screen from first paint and the same cascade plays
+ * over the top of them. It reads as type coming into focus rather than type
+ * arriving from nothing, which is a real change to the first half-second of
+ * the page - but it is the only version of this entrance that does not cost
+ * the reader the headline. Lowering it towards 0 walks back towards the old
+ * measurement; raising it flattens the reveal.
+ */
+const headlineFrom = { opacity: 0.28, y: "-0.35em", filter: "blur(6px)" }
 
 /** Word counts, so each run picks the cascade up where the last one left it. */
 const beforeWords = hero.headline.before.trim().split(" ").length

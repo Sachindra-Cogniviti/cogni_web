@@ -108,6 +108,33 @@ takes a `startDelay` and does not load three.js until the headline has
 landed: parsing three.js during the reveal would still stall the accent
 word's pressure sweep and the scramble on the strip, which are JavaScript.
 
+Two numbers in the hero are load-bearing for the score rather than the look,
+and both look like decoration until you change them:
+
+- **`headlineFrom.opacity` in `components/hero.tsx` is a fraction, not zero.**
+  Chrome does not count an element painted at opacity 0 as a candidate for
+  the largest contentful paint, and the largest element on the page is a word
+  of the headline. At a flat 0 the LCP was not when the headline painted, it
+  was when the last word's animation delay ran out — measured on the
+  deployment, 1.6s of "element render delay" bolted onto a first paint that
+  had already happened. Setting it back to 0 restores the old entrance and
+  the old 5.1s LCP together.
+- **The galaxy settles.** Its loop runs for `SETTLE_AFTER` seconds from boot
+  and then holds its frame, waking on pointer movement for `WAKE_GRACE`.
+  A canvas that never stops changing is a page that never finishes drawing,
+  which is charged as a Speed Index that cannot settle — 10.3s on a phone,
+  against a largest contentful paint of 5.1s. Because every rotation in
+  `drawFrame` is a multiple of `t`, the loop keeps its own accumulated clock
+  rather than reading `performance.now()` against a fixed start: a parked
+  loop reading wall-clock time snaps the disc forward by however long it
+  slept, which is also why the pre-existing off-screen park used to jump.
+
+`startDelay` is likewise no longer the only gate on the boot. It is now
+joined by the `load` event and an idle callback, because `startDelay` answers
+"has the headline landed" and says nothing about whether the page itself is
+still loading — on a throttled phone the timer fired seconds before `load`,
+and three.js parsed as a ~1.4s task in the middle of the LCP.
+
 ## Small screens
 
 Below the small breakpoint several sections change shape rather than just

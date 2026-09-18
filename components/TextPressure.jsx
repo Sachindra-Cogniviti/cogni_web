@@ -127,10 +127,26 @@ const TextPressure = ({
       const s = strengthRef.current;
       const maxDist = rect.width / 2;
 
-      spansRef.current.forEach(span => {
+      // Every letter's box is measured before any of them is written to.
+      //
+      // Interleaved, this loop was a forced synchronous reflow per letter per
+      // frame: fontVariationSettings on one span invalidates layout, and the
+      // next span's getBoundingClientRect has to flush it before it can
+      // answer. Variable-axis changes re-shape text, so each of those
+      // flushes is a real text layout, not a cheap one - and this runs
+      // through the accent word's sweep, which lands in the middle of the
+      // largest contentful paint. Reading first costs one layout per frame
+      // instead of one per letter, and changes nothing about the result:
+      // within a frame every rect was measured against the same mouse
+      // position anyway.
+      const rects = spansRef.current.map(span =>
+        span ? span.getBoundingClientRect() : null
+      );
+
+      spansRef.current.forEach((span, i) => {
         if (!span) return;
 
-        const r = span.getBoundingClientRect();
+        const r = rects[i];
         const d = dist(mouseRef.current, { x: r.x + r.width / 2, y: r.y + r.height / 2 });
 
         // Each axis is the rest value pulled towards the cursor-driven one by

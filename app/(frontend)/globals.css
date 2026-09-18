@@ -289,7 +289,15 @@
  * a `translate` too, would be pinned by the animation's final frame. */
 @keyframes hero-arrive {
   from {
-    opacity: 0;
+    /* Not zero, for the same reason the headline's start opacity is not zero
+     * - see `headlineFrom` in components/hero.tsx. Chrome will not treat an
+     * element painted at opacity 0 as a candidate for the largest contentful
+     * paint, and on a wide screen the largest element is not the headline, it
+     * is the paragraph under it: PSI named this very <p>, with 2.75s of
+     * "element render delay" that was nothing but its own animation-delay
+     * waiting to elapse. Every block in the hero carries this class, so the
+     * whole cascade was invisible to the metric until each piece landed. */
+    opacity: var(--arrive-opacity, 0.28);
     translate: var(--from-x, 0px) var(--from-y, 0px);
   }
   to {
