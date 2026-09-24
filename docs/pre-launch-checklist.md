@@ -45,19 +45,40 @@ Not flagged by the audit — flagged in the source, by whoever wrote them:
 |---|---|
 | [content/pages.ts](../content/pages.ts) — `productPages` | All six product pages. "Extrapolated from the one-line descriptions, not supplied by the business." Named integrations, compliance language and anything that reads as a number all need a read. |
 | [content/site.ts](../content/site.ts) — the integration blocks | Five blocks. "Still a claim about what we have actually built." |
-| [content/site.ts](../content/site.ts) — `updates` | The news carousel. A news feed is read as a record of fact. |
+| [content/site.ts](../content/site.ts) — `updates` | The news carousel. **Partly resolved:** the first three items are now confirmed announcements taken from the company's own LinkedIn — the Coupa Breakout Partner award, the Carsome go-live, and the Jakarta session with Coupa. The remaining four are the original derived set; two of them need a decision, below. |
 
 These are the pages most likely to rank and the ones a prospect quotes back in
 a meeting.
 
-### 1.3 Certification logos are placeholders
+### 1.3 Two news items still contradict or overreach
+
+Now that three confirmed announcements lead the carousel, two of the four
+derived ones stand out:
+
+- **"The Experience Centre is open"** is dated *Now live*, but every
+  `demoUrl` is still `null`, so the page it links to shows
+  request-a-demonstration panels. The announcement and the page disagree.
+- **"Official Coupa Training Partner"** is a specific accreditation claim.
+  The Breakout Partner award confirms a strong Coupa relationship but not
+  that particular designation — it needs confirming separately, alongside
+  §1.4.
+
+Dropping both leaves five items, which also cycles better: seven at a 7-second
+dwell is nearly a minute.
+
+**Also worth deciding:** the Coupa New Breakout Partner of the Year award is
+the strongest third-party credential the company has, and it currently appears
+only as one slide in a rotating carousel. It may deserve a fixed position —
+next to the certifications, or in the homepage credentials block.
+
+### 1.4 Certification logos are placeholders
 
 `public/logos/certifications/` holds `placeholder-coupa-partner.png`,
 `placeholder-iso-9001.png` and `placeholder-iso-27001.png`. Displaying an ISO
 mark the company does not hold is a different order of problem from a typo.
 Either supply the real marks or remove the strip.
 
-### 1.4 Confirm the canonical host
+### 1.5 Confirm the canonical host
 
 `siteUrl` in [content/site.ts](../content/site.ts) is
 `https://cognivitilabs.com` — no `www`. The supplied legal copy writes

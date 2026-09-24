@@ -294,13 +294,18 @@ export const certifications = {
  * The news carousel after the certifications: one announcement at a time,
  * each with a picture, paginated underneath (components/updates.tsx).
  *
- * DRAFT, and the one block on the site where that matters most. Every item
- * below is derived from something the site already says - AOS being in
- * development, the Experience Centre, the Coupa training partnership, the
- * offices in globalPresence - because a news feed is read as a record of
- * things that actually happened on the dates given. Nothing here should
- * announce a partner, a customer, a launch or a figure that has not been
- * confirmed, and the dates need setting to the real ones before launch.
+ * PART DRAFT, and the one block on the site where that matters most: a news
+ * feed is read as a record of things that actually happened on the dates
+ * given. Nothing here should announce a partner, a customer, a launch or a
+ * figure that has not been confirmed.
+ *
+ * The first three items are confirmed - each is a post on the company's own
+ * LinkedIn page. The remaining four are the original draft set, derived from
+ * things the site already says (AOS being in development, the Experience
+ * Centre, the Coupa training partnership, the offices in globalPresence)
+ * rather than from an announcement anybody made. Two of those four state
+ * something that is either contradicted by the page they link to or not yet
+ * confirmed - see the note above them.
  *
  * `kind` is the label over the headline, so keep it to one or two words.
  * `date` is display text, not a timestamp: it is never parsed, so "Q4 2026"
@@ -344,6 +349,64 @@ export const updates: {
   playLabel: "Play",
   imagePending: "Image to come",
   items: [
+    /* ---------------------------------------------------------------
+     * The three below are CONFIRMED: each is a post on the company's own
+     * LinkedIn page, so the claim is already public and attributable.
+     * They lead the carousel because real news outranks derived news.
+     *
+     * `date` is display text and never parsed, so each is anchored to
+     * something factual from the post itself rather than to a month.
+     * LinkedIn shows relative timestamps only, and turning "4 months ago"
+     * into a month is a guess that would then read as a record of fact.
+     * If exact dates are wanted, they are on the posts: the award was
+     * posted roughly May 2026, the Carsome go-live roughly June 2026,
+     * and the Jakarta session roughly February 2026.
+     * ------------------------------------------------------------- */
+    {
+      kind: "Award",
+      date: "Coupa Inspire 2026",
+      title: "Coupa New Breakout Partner of the Year, International",
+      body: "Chosen from a global field of partners for implementation discipline and the technical glue around it - integrations, data readiness and applied AI.",
+      image: null,
+      cta: { label: "Our Coupa practice", href: "/#platforms" },
+    },
+    {
+      kind: "Client",
+      date: "Live on Coupa",
+      title: "Carsome is live on Coupa",
+      body: "Delivered as implementation partner alongside the Carsome and Coupa teams, streamlining Source-to-Pay and setting the foundation for what follows.",
+      image: null,
+      cta: { label: "Client work", href: "/work/" },
+    },
+    {
+      kind: "Event",
+      date: "Jakarta, 2026",
+      title: "AI in spend management, with Coupa in Jakarta",
+      body: "A session with finance and procurement leaders on why close to 95% of AI proofs of concept fail - not on the model, but on the data and the operating model underneath it.",
+      image: null,
+      cta: {
+        label: "Data readiness",
+        href: "/products/master-data-management/",
+      },
+    },
+
+    /* ---------------------------------------------------------------
+     * The four below are the original DRAFT set, derived from things the
+     * site already says rather than from a confirmed announcement. Two
+     * need attention before launch:
+     *
+     * - "The Experience Centre is open" says "Now live", but every
+     *   `demoUrl` in experiencePage.demos is still null, so the page it
+     *   points at shows request-a-demonstration panels. The announcement
+     *   and the page disagree.
+     * - "Official Coupa Training Partner" is a specific accreditation
+     *   claim. The award above confirms a strong Coupa partnership but
+     *   not that particular designation; it needs confirming on its own.
+     *
+     * Seven items at a 7s dwell is nearly a minute to cycle. Dropping the
+     * two above would leave five, which reads better and removes both
+     * unconfirmed claims at once.
+     * ------------------------------------------------------------- */
     {
       kind: "Product",
       date: "In development",
