@@ -45,26 +45,24 @@ Not flagged by the audit — flagged in the source, by whoever wrote them:
 |---|---|
 | [content/pages.ts](../content/pages.ts) — `productPages` | All six product pages. "Extrapolated from the one-line descriptions, not supplied by the business." Named integrations, compliance language and anything that reads as a number all need a read. |
 | [content/site.ts](../content/site.ts) — the integration blocks | Five blocks. "Still a claim about what we have actually built." |
-| [content/site.ts](../content/site.ts) — `updates` | The news carousel. **Partly resolved:** the first three items are now confirmed announcements taken from the company's own LinkedIn — the Coupa Breakout Partner award, the Carsome go-live, and the Jakarta session with Coupa. The remaining four are the original derived set; two of them need a decision, below. |
+| ~~[content/site.ts](../content/site.ts) — `updates`~~ | **Resolved.** The carousel now carries only the three confirmed LinkedIn announcements — the Coupa Breakout Partner award, the Carsome go-live and the Jakarta session — each with the photograph from its post. The four derived items are gone. |
 
 These are the pages most likely to rank and the ones a prospect quotes back in
 a meeting.
 
-### 1.3 Two news items still contradict or overreach
+### 1.3 The "Official Coupa Training Partner" claim is still on the site
 
-Now that three confirmed announcements lead the carousel, two of the four
-derived ones stand out:
+The news carousel is resolved — it now carries only the three confirmed
+LinkedIn announcements, each with the photograph from its post, and the four
+derived items are gone.
 
-- **"The Experience Centre is open"** is dated *Now live*, but every
-  `demoUrl` is still `null`, so the page it links to shows
-  request-a-demonstration panels. The announcement and the page disagree.
-- **"Official Coupa Training Partner"** is a specific accreditation claim.
-  The Breakout Partner award confirms a strong Coupa relationship but not
-  that particular designation — it needs confirming separately, alongside
-  §1.4.
-
-Dropping both leaves five items, which also cycles better: seven at a 7-second
-dwell is nearly a minute.
+But removing the carousel item did **not** remove the claim. "Official Coupa
+Training Partner" still appears twice in
+[content/site.ts](../content/site.ts): in the certifications block, and as the
+badge and body of the entire Coupa Training homepage section. The Breakout
+Partner award confirms a strong Coupa relationship; it does not confirm that
+specific accreditation. It needs confirming on its own, and if it cannot be,
+a homepage section has to change — not just a line.
 
 **Also worth deciding:** the Coupa New Breakout Partner of the Year award is
 the strongest third-party credential the company has, and it currently appears
