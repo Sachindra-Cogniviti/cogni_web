@@ -325,13 +325,21 @@ export function Roll({ children }: { children: React.ReactNode }) {
  */
 export function FlipTrack({
   depth,
+  trackRef,
   children,
 }: {
   depth: number
+  /**
+   * The track element itself, for a caller that turns the box on its own
+   * schedule rather than waiting for a pointer - the idle roll on the client
+   * wall drives the same transform through the Web Animations API.
+   */
+  trackRef?: React.Ref<HTMLSpanElement>
   children: React.ReactNode
 }) {
   return (
     <span
+      ref={trackRef}
       className="logo-flip-track"
       style={{ "--logo-flip-depth": `${depth}px` } as React.CSSProperties}
     >

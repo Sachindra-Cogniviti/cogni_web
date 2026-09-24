@@ -7,7 +7,7 @@ import { Credentials } from "@/components/credentials"
 import { Hero } from "@/components/hero"
 import { OurStory } from "@/components/our-story"
 import { People } from "@/components/people"
-import { HatchBand } from "@/components/primitives"
+import { Container, HatchBand } from "@/components/primitives"
 import { PlatformServices } from "@/components/platform-services"
 import { ProductDesktop } from "@/components/product-desktop"
 // import { ProductPortfolio } from "@/components/product-portfolio"
@@ -17,6 +17,9 @@ import { SiteFooter } from "@/components/site-footer"
 import { SiteNav } from "@/components/site-nav"
 import { Together } from "@/components/together"
 import { TrustedBy } from "@/components/trusted-by"
+import { TrustedByArc } from "@/components/trusted-by-arc"
+import { TrustedByCards } from "@/components/trusted-by-cards"
+import { TrustedByLoop } from "@/components/trusted-by-loop"
 import { TwoSides } from "@/components/two-sides"
 import { Updates } from "@/components/updates"
 import { WhyCogniviti } from "@/components/why-cogniviti"
@@ -108,7 +111,22 @@ export default async function Page() {
             with the grid declared before the headline rather than after it. */}
         <HatchBand className="mt-[68px]" />
         <Hero />
+        {/* TEMPORARY - four treatments of the client wall on the page at
+            once so they can be compared in place. Delete the losing ones,
+            this comment, TrialCaption and every caption below once a shape is
+            chosen. */}
+        <TrialCaption>1 &mdash; two counter-scrolling rows</TrialCaption>
+        <TrustedByLoop />
+        <TrialCaption>
+          2 &mdash; hairline grid, one cell turning at a time
+        </TrialCaption>
         <TrustedBy />
+        <TrialCaption>3 &mdash; one line, centre stage</TrialCaption>
+        <TrustedByArc />
+        <TrialCaption>
+          4 &mdash; fanned deck, middle card square on
+        </TrialCaption>
+        <TrustedByCards />
         <Certifications />
         {/* The announcement band. It sits here because the two blocks
             above are static proof - who trusts us, what we are held to -
@@ -136,5 +154,16 @@ export default async function Page() {
       <SiteFooter />
       <SectionRail />
     </>
+  )
+}
+
+/** TEMPORARY. Goes with the two client-wall treatments above. */
+function TrialCaption({ children }: { children: React.ReactNode }) {
+  return (
+    <Container>
+      <p className="mt-8 border-l-2 border-oxblood pl-3 font-mono text-[11px] tracking-[0.18em] text-oxblood uppercase">
+        {children}
+      </p>
+    </Container>
   )
 }
