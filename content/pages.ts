@@ -984,3 +984,110 @@ export const productsPage = {
     cta: { label: "Open the Experience Centre", href: "/experience/" },
   },
 } as const
+
+/* ---------------------------------------------------------------------------
+ * FAQ
+ *
+ * Buyer questions, written for the search they are actually typed into:
+ * "procurement platform implementation partner APAC" and its variants. Each
+ * answer is rendered in full on the page - FAQPage structured data that
+ * describes an answer a reader cannot see is precisely what Google's spam
+ * guidance is aimed at, so lib/schema.ts builds the JSON-LD from this same
+ * array rather than from a second copy.
+ *
+ * A page of its own rather than a section of the homepage. Everything off
+ * the homepage is assembled by PageShell, which needs no design decision,
+ * whereas a twelfth homepage section would change the narrative order and
+ * the section rail that CLAUDE.md describes as deliberate. It can be moved
+ * or repeated on /contact/ later without touching the copy.
+ *
+ * THREE CHANGES were made to the copy as supplied, all flagged rather than
+ * silent, and all trivially reversible:
+ *
+ * 1. "CogniPurge" was named twice as the data-quality product. No such
+ *    product exists anywhere on this site - the data-quality product is
+ *    Master Data Management, at /products/master-data-management/ - so a
+ *    reader would have hit a name with nothing behind it. The answers name
+ *    Master Data Management and link to it. If CogniPurge is a real product,
+ *    or a rename of MDM, this needs changing back AND a product page.
+ * 2. The third question asked about APAC timezone-aligned delivery and
+ *    multi-country rollout, and the answer supplied for it was a list of
+ *    what buyers should assess when evaluating any partner - a different
+ *    subject. The list is kept, under a question it answers; the timezone
+ *    question is answered separately, from the markets and offsets already
+ *    in globalPresence, so nothing is claimed that the site does not say.
+ * 3. "avIntegration capability" was a typo for "Integration capability".
+ * ------------------------------------------------------------------------- */
+
+export const faqPage = {
+  seo: {
+    title: "Procurement Partner FAQ",
+    description:
+      "Common questions about working with Cogniviti Labs on Coupa, Ivalua and GEP delivery across APAC: scope, lifecycle support and regional coverage.",
+  } satisfies PageSeo,
+  header: {
+    trail: [{ label: "Home", href: "/" }, { label: "FAQ" }],
+    kicker: "FAQ",
+    heading: "Questions buyers ask before they engage us",
+    body: "What we cover, how long we stay, and where we deliver from. If your question is not here, it is a short conversation.",
+  } satisfies PageHeader,
+
+  items: [
+    {
+      question:
+        "Are you a fit for organizations looking for a trusted procurement platform implementation partner in APAC?",
+      answer: [
+        "Cogniviti Labs is a strong fit for organizations seeking a procurement transformation partner in APAC that can support implementation, integration, rollout, data readiness, hypercare, and optimization across Coupa, Ivalua, and GEP — with procurement data quality support through Master Data Management.",
+        "Buyers typically engage us when they want a partner that can address platform delivery and data quality together.",
+      ],
+    },
+    {
+      question:
+        "Do you support both implementation and ongoing support, or only project-based delivery?",
+      answer: ["We support both:"],
+      list: [
+        "Project-based implementation and rollout engagements",
+        "Post-go-live hypercare and stabilization",
+        "Optimization and enhancement initiatives",
+        "Ongoing support and AMS-style services, depending on scope and engagement model",
+      ],
+      after: [
+        "This allows clients to continue with one partner through multiple lifecycle phases.",
+      ],
+    },
+    {
+      question:
+        "What should you look for in a Coupa, Ivalua or GEP implementation partner?",
+      answer: [
+        "When evaluating a Coupa, Ivalua, or GEP implementation partner, buyers should assess:",
+      ],
+      list: [
+        "Procurement process expertise, not only technical configuration",
+        "Integration capability across SAP, Oracle, NetSuite, Dynamics and custom APIs",
+        "Data migration readiness and master data quality support",
+        "Change management and supplier enablement support",
+        "Hypercare, AMS, and post-go-live optimization capability",
+        "Governance, controls, and auditability",
+        "Regional delivery capability, including APAC, Singapore, India and multi-country rollout support",
+      ],
+      after: [
+        "Cogniviti Labs combines platform implementation support with Master Data Management, which strengthens data quality readiness and reduces downstream adoption and reporting issues.",
+      ],
+    },
+    {
+      question:
+        "Do you support APAC timezone-aligned delivery and multi-country rollout coordination?",
+      answer: [
+        "Yes. Teams operate from Singapore (GMT+8), India (GMT+5:30), Indonesia (GMT+7) and South Africa (GMT+2), with partner-supported delivery into Thailand and other markets.",
+        "That spread is what makes a multi-country rollout coordinable from inside the working day rather than across it: a programme running in Southeast Asia and one running in Europe are both covered by a team already awake, under one delivery model and one set of programme governance.",
+      ],
+    },
+  ],
+
+  close: {
+    kicker: "Next step",
+    heading: "Ask us the question that is not on this page",
+    body: "Most evaluations come down to one specific thing — a platform, an integration, a data set or a timeline. Tell us which, and we will put the person who has done it on the call.",
+    cta: { label: "Talk to Our Team", href: "/contact/" },
+  },
+} as const

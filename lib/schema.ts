@@ -1,3 +1,4 @@
+import { contactPage } from "@/content/pages"
 import { footer, globalPresence, products, site } from "@/content/site"
 import { publicSiteUrl } from "@/lib/deployment"
 import { DISCIPLINE_LABEL, PLATFORM_LABEL } from "@/lib/cms"
@@ -20,6 +21,47 @@ import type { ClientStory, Post, Role } from "@/payload-types"
  * organisation and the site's owner together as one entity instead of three
  * similarly-named ones.
  */
+
+/**
+ * The office whose `role` marks it as the headquarters, for the
+ * organisation's own `address`. Falls back to the first office rather than
+ * to nothing, so the field is populated even if the label is reworded.
+ */
+function headOffice() {
+  const items = contactPage.offices.items
+  return items.find((office) => /head\s*quarters?/i.test(office.role)) ?? items[0]
+}
+
+/**
+ * A one-line address as a PostalAddress.
+ *
+ * The addresses in content are written as a single human-readable line -
+ * which is how they are shown on /contact/ and how the business supplied
+ * them. Splitting "81 Ayer Rajah Crescent, #01-67 LaunchPad, Singapore
+ * 139967" into street, locality and postal code by comma would be guessing,
+ * and it guesses differently for each of the four countries. `streetAddress`
+ * with the whole line and an explicit `addressCountry` is accurate and needs
+ * no parsing; the country is the one part that can be read reliably, from
+ * the end of the string.
+ */
+function postalAddress(line: string | undefined) {
+  if (!line) return undefined
+  const country = COUNTRY_OF.find(([pattern]) => pattern.test(line))?.[1]
+  return clean({
+    "@type": "PostalAddress",
+    streetAddress: line,
+    addressCountry: country,
+  })
+}
+
+/** Matched against the end of an address line, longest form first. */
+const COUNTRY_OF: readonly [RegExp, string][] = [
+  [/republic of south africa|south africa$/i, "ZA"],
+  [/singapore\s*\d{6}$|singapore$/i, "SG"],
+  [/india$/i, "IN"],
+  [/indonesia$/i, "ID"],
+  [/united kingdom$|england$/i, "GB"],
+]
 
 /** Stable node ids, so nodes can refer to each other rather than repeat. */
 export function ids(origin = publicSiteUrl()) {
@@ -71,6 +113,16 @@ export function organization(origin = publicSiteUrl()): Json {
     email: site.email,
     slogan: footer.tagline,
     sameAs: footer.social.filter((link) => link.href).map((link) => link.href),
+    // The registered office. `address` takes one, and Singapore is the
+    // headquarters (`role` on the entry), so the rest are `location`.
+    address: postalAddress(headOffice()?.address),
+    location: contactPage.offices.items.map((office) =>
+      clean({
+        "@type": "Place",
+        name: office.city,
+        address: postalAddress(office.address),
+      })
+    ),
     areaServed: globalPresence.locations.map((location) => ({
       "@type": "Country",
       name: location.name,
@@ -368,6 +420,92 @@ const EMPLOYMENT_TYPE: Record<Role["type"], string> = {
   "full-time": "FULL_TIME",
   contract: "CONTRACTOR",
   internship: "INTERN",
+}
+
+/**
+ * A privacy policy or terms page.
+ *
+ * `dateModified` is the effective date the page itself states, not the
+ * deploy time: a policy's date is a legal fact about the document, and a
+ * crawler reading a fresher date than the page shows would be reading a
+ * claim nobody made.
+ */
+export function legalDocument({
+  doc,
+  origin = publicSiteUrl(),
+}: {
+  doc: {
+    seo: { title: string; description: string }
+    header: { heading: string }
+    effectiveIso: string
+    slug?: string
+  }
+  origin?: string
+}): Json {
+  const id = ids(origin)
+  const path = doc.slug ?? ""
+  return {
+    "@context": "https://schema.org",
+    ...clean({
+      "@type": "WebPage",
+      "@id": `${origin}${path}`,
+      url: `${origin}${path}`,
+      name: doc.seo.title,
+      headline: doc.header.heading,
+      description: doc.seo.description,
+      dateModified: doc.effectiveIso,
+      inLanguage: site.locale,
+      isPartOf: { "@id": id.website },
+      publisher: { "@id": id.organization },
+      about: { "@id": id.organization },
+    }),
+  }
+}
+
+/**
+ * A set of questions and answers.
+ *
+ * Every question here must be answered on the page itself, in visible text.
+ * FAQPage describing answers a reader cannot see is exactly what Google's
+ * spam guidance is aimed at, so this takes the same array the page renders
+ * rather than a second copy written for the crawler.
+ */
+export function faqPage({
+  name,
+  description,
+  path,
+  items,
+  origin = publicSiteUrl(),
+}: {
+  name: string
+  description: string
+  path: string
+  items: readonly { question: string; answer: readonly string[] }[]
+  origin?: string
+}): Json {
+  const id = ids(origin)
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${origin}${path}`,
+    url: `${origin}${path}`,
+    name,
+    description,
+    inLanguage: site.locale,
+    isPartOf: { "@id": id.website },
+    publisher: { "@id": id.organization },
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        // The answer's paragraphs and list items joined into one text, which
+        // is what `text` expects. The page renders the same strings as
+        // separate elements.
+        text: item.answer.join(" "),
+      },
+    })),
+  }
 }
 
 /**

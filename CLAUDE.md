@@ -246,6 +246,9 @@ The homepage is not the whole site any more:
 /careers              content/pages.ts  careersPage + the Payload roles collection
 /careers/[slug]       the role itself, keyed by Role.slug
 /contact              content/pages.ts  contactPage + the Payload enquiries collection
+/faq                  content/pages.ts  faqPage
+/privacy-policy       content/legal.ts  privacyPage
+/terms-conditions     content/legal.ts  termsPage
 /blog                 content/pages.ts  blogPage + the Payload posts collection
 /blog/[slug]          the post itself, rich text via components/rich-text.tsx
 /work                 content/pages.ts  workPage + the Payload client-stories collection
@@ -257,6 +260,16 @@ Everything off the homepage is assembled by `components/page-shell.tsx`:
 and `PageClose` (the dark closing ask). Sub-pages get no section rail - the
 rail lists the homepage's eleven sections and would say less than the
 scrollbar on a four-section page.
+
+Two of those URLs are the WordPress site's, kept on purpose:
+`/privacy-policy/` and `/terms-conditions/` rather than a tidier
+`/privacy/`. Both were in the old sitemap and linked from every page of the
+site being replaced, so keeping the address means no redirect to maintain.
+The rest of the old URLs are redirected from `redirects()` in
+`next.config.ts`, a map built from that site's `sitemap_index.xml` rather
+than guessed - including six `/solutions/*` pages that land on
+`/#platforms`, because no per-platform page exists here. If one is ever
+built, that is where it gets pointed.
 
 The 404 is `app/(frontend)/not-found.tsx`, in the site's own shell. It is
 reached two ways, and the second is not obvious: `notFound()` raised inside

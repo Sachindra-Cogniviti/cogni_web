@@ -18,6 +18,12 @@ completeness.
 > current state per finding. Only #16 (the sitemap route manifest) is outstanding, and
 > the parts of it that mattered — the roles, the honest `lastModified`, dropping
 > `changeFrequency`/`priority` — were done anyway.
+>
+> **Since then:** the legal pages, the FAQ page, office addresses in the
+> `Organization` schema, and the WordPress 301 map are all in. What remains between
+> here and launch — content, analytics, consent, the cutover — is tracked in
+> [pre-launch-checklist.md](./pre-launch-checklist.md), which is the document to work
+> from now. This one is the record of the audit.
 
 ---
 

@@ -1416,12 +1416,16 @@ export const footer = {
         { label: "Client Stories", href: "/work/" },
         { label: "Resources", href: "/blog/" },
         { label: "Careers", href: "/careers/" },
+        { label: "FAQ", href: "/faq/" },
         { label: "Contact", href: "/contact/" },
       ],
     },
   ],
+  // The WordPress addresses, kept deliberately - see content/legal.ts. These
+  // pointed at /#top until the pages existed, which made the two links every
+  // page on the site carries into links that went nowhere.
   legal: [
-    { label: "Privacy Policy", href: "/#top" },
-    { label: "Terms and Conditions", href: "/#top" },
+    { label: "Privacy Policy", href: "/privacy-policy/" },
+    { label: "Terms and Conditions", href: "/terms-conditions/" },
   ],
 } as const

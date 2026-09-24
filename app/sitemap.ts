@@ -49,8 +49,13 @@ const fixedRoutes = [
   "/experience/",
   "/careers/",
   "/contact/",
+  "/faq/",
   "/blog/",
   "/work/",
+  // The two legal pages keep their WordPress addresses, so they are listed
+  // at those rather than at tidier new ones. See content/legal.ts.
+  "/privacy-policy/",
+  "/terms-conditions/",
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

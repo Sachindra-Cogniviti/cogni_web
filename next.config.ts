@@ -53,6 +53,93 @@ const nextConfig: NextConfig = {
     "**/*": ["./node_modules/@img/**"],
   },
 
+  /*
+   * The WordPress site this replaces, redirected.
+   *
+   * Taken from its sitemap index (sitemap_index.xml -> page, post, category
+   * and author sitemaps), so this is the complete set of URLs it advertised
+   * rather than a guess at what was linked. Two of those URLs are absent
+   * here on purpose: /privacy-policy/ and /terms-conditions/ are served at
+   * the same addresses by this site, and /, /blog/ and /products/ did not
+   * move either. A redirect from a URL that still answers is a redirect loop.
+   *
+   * Permanent (308, which is Next's default for `permanent: true` and
+   * preserves the method where a 301 historically did not). These are not
+   * provisional: the old URLs are not coming back, and a temporary redirect
+   * tells Google to keep the old URL indexed, which is the opposite of what
+   * a migration wants.
+   *
+   * The six /solutions/* pages land on the homepage's platforms section.
+   * There is no per-platform page on this site, and sending all six to /
+   * would throw away the one piece of information the old URL carried. A
+   * fragment is not sent to the server, but it is honoured by the browser
+   * from the Location header, so a person lands on the right block; a
+   * crawler reads it as the homepage, which is the honest answer given no
+   * per-platform page exists. If those pages are ever built, these entries
+   * are where they get pointed.
+   *
+   * Sources are written without the trailing slash and match either form:
+   * `trailingSlash: true` normalises an unslashed request to the slashed one
+   * before these rules are consulted. Every URL the old sitemap advertised
+   * is slashed, so all of those resolve in a single hop. An inbound link
+   * written without the slash costs one extra hop through that
+   * normalisation, which is inherent to `trailingSlash` and not worth
+   * duplicating every rule to avoid. Destinations are slashed, so nothing
+   * lands on a URL that then redirects again.
+   */
+  async redirects() {
+    const toPlatforms = [
+      "/solutions",
+      "/solutions/coupa-solutions",
+      "/solutions/gep-solutions",
+      "/solutions/ivalua-solutions",
+      "/solutions/onestream-solutions",
+      "/solutions/oracle-solutions",
+      "/solutions/sap-solutions",
+    ]
+
+    const moved: [string, string][] = [
+      // Company
+      ["/about", "/#company"],
+      ["/about/why-us", "/#why"],
+      ["/team", "/#company"],
+      ["/services", "/#services"],
+      // Careers
+      ["/about/careers", "/careers/"],
+      ["/current-openings", "/careers/"],
+      // Contact
+      ["/contact-us", "/contact/"],
+      ["/book-a-discovery-call", "/contact/"],
+      // Evidence
+      ["/case-studies", "/work/"],
+      ["/category/case-studies", "/work/"],
+      // The two posts and the leftover taxonomy archives. The EPM post has
+      // no equivalent article here yet; /blog/ is the honest destination
+      // until one is written, and it is where a reader looking for it will
+      // find whatever replaces it.
+      ["/enterprise-performance-management", "/blog/"],
+      [
+        "/maximizing-efficiency-with-proper-technology-implementation-coffee-success-story",
+        "/work/",
+      ],
+      ["/category/uncategorized", "/blog/"],
+      ["/author/mohammed-zafar", "/blog/"],
+    ]
+
+    return [
+      ...toPlatforms.map((source) => ({
+        source,
+        destination: "/#platforms",
+        permanent: true,
+      })),
+      ...moved.map(([source, destination]) => ({
+        source,
+        destination,
+        permanent: true,
+      })),
+    ]
+  },
+
   // Apache used to set this from .htaccess. Vercel sets compression, HTTPS,
   // MIME types and the immutable cache on /_next/static itself, but it does
   // not add this one, and dropping it silently would be a real regression.
