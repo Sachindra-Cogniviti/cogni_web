@@ -265,11 +265,17 @@ Two of those URLs are the WordPress site's, kept on purpose:
 `/privacy-policy/` and `/terms-conditions/` rather than a tidier
 `/privacy/`. Both were in the old sitemap and linked from every page of the
 site being replaced, so keeping the address means no redirect to maintain.
-The rest of the old URLs are redirected from `redirects()` in
-`next.config.ts`, a map built from that site's `sitemap_index.xml` rather
-than guessed - including six `/solutions/*` pages that land on
-`/#platforms`, because no per-platform page exists here. If one is ever
-built, that is where it gets pointed.
+The rest of the old URLs are mapped in `redirects()` in `next.config.ts`,
+built from that site's `sitemap_index.xml` rather than guessed - including
+six `/solutions/*` pages that land on `/#platforms`, because no per-platform
+page exists here. If one is ever built, that is where it gets pointed.
+
+**That map is not served yet.** `wordpressRedirectsEnabled` in
+`lib/indexing.ts` is false, so those paths 404 here, and the redirects do
+not begin answering as a side effect of pointing the domain at Vercel. It is
+a second switch beside `indexingEnabled` because the two are different
+decisions at different moments: turn the redirects on and prove them against
+the live domain first, and only then invite crawlers in.
 
 The 404 is `app/(frontend)/not-found.tsx`, in the site's own shell. It is
 reached two ways, and the second is not obvious: `notFound()` raised inside

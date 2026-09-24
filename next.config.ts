@@ -1,7 +1,7 @@
 import { withPayload } from "@payloadcms/next/withPayload"
 import type { NextConfig } from "next"
 
-import { indexingEnabled } from "./lib/indexing"
+import { indexingEnabled, wordpressRedirectsEnabled } from "./lib/indexing"
 import { publicMediaBaseUrl } from "./lib/media-url"
 
 // The host media is served from, taken from R2_PUBLIC_URL so the bucket's
@@ -56,6 +56,12 @@ const nextConfig: NextConfig = {
   /*
    * The WordPress site this replaces, redirected.
    *
+   * SERVED ONLY WHEN `wordpressRedirectsEnabled` IS TRUE, which it is not.
+   * The map below is complete and verified; the switch in lib/indexing.ts
+   * decides whether it answers, so that pointing the domain at Vercel does
+   * not silently start redirecting a set of URLs nobody re-read that day.
+   * The reasoning is written out there.
+   *
    * Taken from its sitemap index (sitemap_index.xml -> page, post, category
    * and author sitemaps), so this is the complete set of URLs it advertised
    * rather than a guess at what was linked. Two of those URLs are absent
@@ -88,6 +94,8 @@ const nextConfig: NextConfig = {
    * lands on a URL that then redirects again.
    */
   async redirects() {
+    if (!wordpressRedirectsEnabled) return []
+
     const toPlatforms = [
       "/solutions",
       "/solutions/coupa-solutions",

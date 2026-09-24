@@ -7,11 +7,20 @@ here and switching indexing on — content, legal, analytics and the cutover
 itself. The audit covers *how the site describes itself*; this covers *whether
 what it describes is true and measured*.
 
-**Indexing is deliberately still off.** `indexingEnabled` in
-[lib/indexing.ts](../lib/indexing.ts) is `false`, which means every deployment
-refuses crawlers four ways: `robots.txt`, the `robots` meta, the
-`X-Robots-Tag` header from [next.config.ts](../next.config.ts), and an empty
-sitemap. Nothing on this list should be done by flipping that switch early.
+**Two switches are deliberately off**, both in
+[lib/indexing.ts](../lib/indexing.ts), and each is turned on by its own
+one-line commit:
+
+- `indexingEnabled` — every deployment refuses crawlers four ways:
+  `robots.txt`, the `robots` meta, the `X-Robots-Tag` header from
+  [next.config.ts](../next.config.ts), and an empty sitemap.
+- `wordpressRedirectsEnabled` — the old-URL map is written and verified but
+  not served. Old WordPress paths 404 on this site until it is turned on.
+
+They are separate because they happen at different moments. The domain can
+move to Vercel before the site is ready to be indexed, and the redirects need
+proving on the live domain before crawlers are invited in. Nothing on this
+list should be done by flipping either switch early.
 
 ---
 
@@ -74,7 +83,7 @@ Recorded so nobody redoes them.
   `/#top` on every page of the site until now.
 - **They keep the WordPress addresses.** Both were in the old sitemap, so
   keeping the URL means no redirect to maintain and nothing lost.
-- **The WordPress 301 map is written**, in
+- **The WordPress 301 map is written but not switched on**, in
   [next.config.ts](../next.config.ts), built from the old `sitemap_index.xml`
   rather than guessed — see §4.
 - **FAQ page** at `/faq/` with `FAQPage` structured data — see §3 for three
@@ -117,7 +126,10 @@ nothing the site does not already claim, but it is new marketing prose.
 
 ## 4. The WordPress migration
 
-The old site advertised 26 URLs across five sitemaps. All are handled.
+The old site advertised 26 URLs across five sitemaps. All are mapped — and the
+map is **off** until `wordpressRedirectsEnabled` is set. Until then these
+paths 404 on this site, which is correct while WordPress still serves the
+domain and they are unreachable here anyway.
 
 | Old URL | Goes to | Why |
 |---|---|---|
@@ -134,7 +146,9 @@ The old site advertised 26 URLs across five sitemaps. All are handled.
 | `/maximizing-efficiency-…-coffee-success-story/` | `/work/` | Case study post |
 | `/category/uncategorized/` `/author/mohammed-zafar/` | `/blog/` | Archives |
 
-Verified against a production build: each redirects in one hop, `308`.
+Verified against a production build with the switch on: each redirects in one
+hop, `308`. Verified again with it off: each returns `404`, and no real route
+is affected.
 
 **Two things to know.** The six `/solutions/*` redirects land on a fragment; a
 browser honours it and scrolls, but a crawler reads it as the homepage. That is
@@ -231,9 +245,13 @@ cookies section (§10) should describe what you actually run.
 3. Search Console + Bing verified.
 4. Consent decided; GTM/GA4 installed; Speed Insights on.
 5. Point the domain at Vercel; confirm the certificate issues.
-6. Confirm the old WordPress URLs 301 correctly **on the live domain**, not
-   just locally.
-7. Set `indexingEnabled = true`, push, deploy to production.
+6. Set `wordpressRedirectsEnabled = true`, deploy, then confirm the old URLs
+   301 correctly **on the live domain**, not just locally. Walk the table in
+   §4. This is its own step so that the redirects start answering when
+   someone is watching, rather than as a side effect of the DNS change.
+7. Only once §6 is proven: set `indexingEnabled = true`, push, deploy to
+   production. Handing Google a sitemap before the redirects answer is how a
+   migration loses the rankings it was meant to carry over.
 8. Work §12 of [seo-gap-analysis.md](./seo-gap-analysis.md) — the verification
    checklist.
 9. Submit the sitemap in Search Console.
