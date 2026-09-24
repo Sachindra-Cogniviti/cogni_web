@@ -187,6 +187,25 @@ export const trustedBy = {
       height: 30,
       tone: "light",
     },
+    {
+      id: "tfg",
+      name: "TFG Limited",
+      href: "https://tfglimited.co.za/",
+      height: 46,
+    },
+    {
+      id: "digitalEdge",
+      name: "Digital Edge",
+      href: "https://www.digitaledgedc.com/",
+      height: 42,
+    },
+    {
+      id: "fidelity",
+      name: "Fidelity Services Group",
+      href: "https://fidelity-services.com/",
+      height: 32,
+    },
+    { id: "aeci", name: "AECI", href: "https://www.aeciworld.com/", height: 54 },
   ],
 } as const
 

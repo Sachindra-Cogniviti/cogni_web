@@ -8,20 +8,25 @@ import { ScrambleText } from "@/components/scramble-text"
 import { FlowRule, Parallax } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
 import { trustedBy } from "@/content/site"
+import { useIdleTurns } from "@/lib/idle-turns"
 
+import aeci from "@/public/logos/aeci.svg"
 import bangchak from "@/public/logos/bangchak.png"
 import carsome from "@/public/logos/carsome.png"
+import digitalEdge from "@/public/logos/digital_edge.png"
 import dynapack from "@/public/logos/dynapack.png"
+import fidelity from "@/public/logos/fsg-logo.png"
 import indosat from "@/public/logos/indosat.png"
 import mirvac from "@/public/logos/mirvac.png"
 import nets from "@/public/logos/nets.png"
 import pil from "@/public/logos/pil.png"
+import tfg from "@/public/logos/tfg.svg"
 import wearnes from "@/public/logos/wearnes.png"
 
 /**
  * Client logo wall.
  *
- * Eight logos in a hairline grid beside the section copy, in their own
+ * Twelve logos in a hairline grid beside the section copy, in their own
  * colours, each linking out to the company. A white logo is flagged in
  * content and rendered dark (`.logo-mark` in globals.css) so it does not
  * vanish into the paper.
@@ -43,22 +48,37 @@ import wearnes from "@/public/logos/wearnes.png"
  * rasterised across two pixels at half strength, so the grid's borders faded
  * in and out as the reader scrolled. Hairlines and parallax do not mix.
  *
+ * The wall does not wait for a pointer to move, either. Once it is properly
+ * in view a cell turns over every couple of seconds on its own, in a shuffled
+ * order, through the same box and the same quarter turn the hover uses
+ * (`lib/idle-turns.ts`). It is the one piece of the section that is alive
+ * without the reader doing anything, and it is deliberately the smallest such
+ * piece that works: one mark in twelve moving at a time reads as a wall that
+ * is awake, where all twelve moving reads as a screensaver. The hook holds
+ * the gates - off-screen, hidden tab and reduced motion all stop it.
+ *
  * The rule under the section is static, not scroll-drawn: this section sits
  * within the first viewport on a tall screen, where a drawn rule would start
  * life part-way across and finish only once the reader moved.
  */
 const files: Record<(typeof trustedBy.logos)[number]["id"], StaticImageData> = {
+  aeci,
   bangchak,
   carsome,
+  digitalEdge,
   dynapack,
+  fidelity,
   indosat,
   mirvac,
   nets,
   pil,
+  tfg,
   wearnes,
 }
 
 export function TrustedBy() {
+  const { scope, tracks } = useIdleTurns(trustedBy.logos.length)
+
   return (
     <section
       aria-label="Trusted by"
@@ -87,17 +107,17 @@ export function TrustedBy() {
             </div>
           </Parallax>
 
-          <div>
+          <div ref={scope}>
             <Stagger
               as="ul"
               from="fade"
-              // Slightly tighter than the page's beat because eight cells at the
-              // full step drags, but nowhere near the 55ms it used to be: these
-              // only fade, so the order has to come from the timing alone.
+              // Slightly tighter than the page's beat because twelve cells at
+              // the full step drags, but nowhere near the 55ms it used to be:
+              // these only fade, so the order has to come from the timing alone.
               step={0.11}
               className="m-0 grid list-none grid-cols-2 gap-px border border-rule bg-rule sm:grid-cols-4"
             >
-              {trustedBy.logos.map((logo) => {
+              {trustedBy.logos.map((logo, i) => {
                 const mark = (
                   <Image
                     src={files[logo.id]}
@@ -123,10 +143,21 @@ export function TrustedBy() {
                       rel="noopener noreferrer"
                       aria-label={`${logo.name} (opens in a new tab)`}
                       whileTap={{ scale: 0.97 }}
-                      transition={{ type: "spring", duration: 0.35, bounce: 0.2 }}
+                      transition={{
+                        type: "spring",
+                        duration: 0.35,
+                        bounce: 0.2,
+                      }}
                       className="logo-link logo-flip flex h-[104px] items-center justify-center px-5 outline-none focus-visible:ring-2 focus-visible:ring-oxblood focus-visible:ring-inset"
                     >
-                      <FlipTrack depth={logo.height / 2}>{mark}</FlipTrack>
+                      <FlipTrack
+                        depth={logo.height / 2}
+                        trackRef={(el) => {
+                          tracks.current[i] = el
+                        }}
+                      >
+                        {mark}
+                      </FlipTrack>
                     </motion.a>
                   </li>
                 )
