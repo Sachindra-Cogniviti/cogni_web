@@ -6,6 +6,7 @@ import { notFound } from "next/navigation"
 import { ArticleNav } from "@/components/article-nav"
 import { PostCard } from "@/components/cms-cards"
 import { DraftPreview } from "@/components/draft-preview"
+import { JsonLd } from "@/components/json-ld"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
 import {
   Container,
@@ -31,6 +32,7 @@ import {
 import { publicSiteUrl } from "@/lib/deployment"
 import { headingsOf } from "@/lib/headings"
 import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
+import { blogPosting } from "@/lib/schema"
 
 export const revalidate = 60
 
@@ -117,30 +119,18 @@ export default async function PostPage({
   const others = (await getPosts(4)).filter((p) => p.id !== post.id).slice(0, 3)
   const kicker = categories.map((c) => c.title).join(" · ") || "Insight"
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description: post.excerpt,
-    datePublished: post.publishedAt,
-    dateModified: post.updatedAt,
-    author: author
-      ? {
-          "@type": "Person",
-          name: author.name,
-          jobTitle: author.role ?? undefined,
-        }
-      : { "@type": "Organization", name: "Cogniviti Labs" },
-    publisher: { "@type": "Organization", name: "Cogniviti Labs" },
-    mainEntityOfPage: `${publicSiteUrl()}/blog/${post.slug}/`,
-    ...(image ? { image: image.src } : {}),
-  }
-
   return (
     <PageShell>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      {/* The article, naming the same organisation the layout's graph
+          describes rather than a second one of the same name - see
+          lib/schema.ts. The breadcrumb comes from PageHeader. */}
+      <JsonLd
+        data={blogPosting({
+          post,
+          author,
+          section: categories[0]?.title,
+          image: image?.src,
+        })}
       />
 
       <PageHeader
@@ -216,7 +206,7 @@ export default async function PostPage({
                 </div>
                 {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load by design: the scroll flow binds on load (components/reveal-observer.tsx), so page links are plain anchors site-wide */}
                 <a
-                  href="/blog"
+                  href="/blog/"
                   className="control-motion mt-6 inline-block border-b border-oxblood/35 pb-[3px] text-[14px] font-medium text-oxblood hover:border-ink/35 hover:text-ink"
                 >
                   <Roll>&larr;&nbsp;&nbsp;{blogPage.backLabel}</Roll>
@@ -300,7 +290,7 @@ export default async function PostPage({
               <a
                 data-reveal="60"
                 data-flow="right"
-                href="/blog"
+                href="/blog/"
                 className="control-motion border-b border-oxblood/35 pb-[3px] text-[15px] font-medium text-oxblood hover:border-ink/35 hover:text-ink"
               >
                 <Roll>{blogPage.allLabel}&nbsp;&nbsp;&rarr;</Roll>

@@ -1,5 +1,7 @@
 import type { PageHeader as PageHeaderContent } from "@/content/pages"
 
+import { JsonLd } from "@/components/json-ld"
+import { breadcrumbs } from "@/lib/schema"
 import {
   Container,
   HatchBand,
@@ -64,6 +66,10 @@ export function PageHeader({
   return (
     <section className="relative pt-[clamp(40px,5vw,64px)] pb-[clamp(48px,6vw,80px)]">
       <Container>
+        {/* The same trail the <ol> below renders, in the form a crawler
+            reads. Built from one array, so the visible breadcrumb and the
+            structured one cannot describe different paths. */}
+        <JsonLd data={breadcrumbs(content.trail)} />
         <nav aria-label="Breadcrumb" data-reveal="0" data-flow="left">
           <ol className="flex flex-wrap items-center gap-2 font-mono text-[11px] tracking-[0.14em] text-ink-faint uppercase">
             {content.trail.map((step, index) => {

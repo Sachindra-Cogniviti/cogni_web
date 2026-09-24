@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 
-import { pageMetadata } from "@/lib/metadata"
+import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
 
 import { ExperienceCentre } from "@/components/experience-centre"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
@@ -15,9 +15,13 @@ import { Stagger } from "@/components/stagger"
 import { experiencePage } from "@/content/pages"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Experience Centre",
-  description: experiencePage.header.body,
+  ...experiencePage.seo,
   path: "/experience/",
+  image: {
+    url: "/experience/og.png",
+    ...OG_IMAGE,
+    alt: experiencePage.header.heading,
+  },
 })
 
 /**

@@ -1,8 +1,10 @@
 import type { Metadata } from "next"
 
-import { pageMetadata } from "@/lib/metadata"
+import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
+import { itemList } from "@/lib/schema"
 
 import { PostCard } from "@/components/cms-cards"
+import { JsonLd } from "@/components/json-ld"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
 import { Container, sectionPadding } from "@/components/primitives"
 import { FlowRule } from "@/components/scroll-motion"
@@ -11,9 +13,13 @@ import { blogPage } from "@/content/pages"
 import { getPosts } from "@/lib/cms"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Insights",
-  description: blogPage.header.body,
+  ...blogPage.seo,
   path: "/blog/",
+  image: {
+    url: "/blog/og.png",
+    ...OG_IMAGE,
+    alt: blogPage.header.heading,
+  },
 })
 
 /**
@@ -37,6 +43,21 @@ export default async function BlogIndex() {
 
   return (
     <PageShell>
+      {/* What this page lists, in order. Names and URLs only - each post's
+          own page carries its description, and two descriptions of one
+          thing is a reconciliation a crawler should not have to do. */}
+      <JsonLd
+        data={itemList({
+          name: blogPage.seo.title,
+          description: blogPage.seo.description,
+          path: "/blog/",
+          items: posts.map((post) => ({
+            name: post.title,
+            path: `/blog/${post.slug}/`,
+          })),
+        })}
+      />
+
       <PageHeader content={blogPage.header}>
         <p
           data-reveal="240"

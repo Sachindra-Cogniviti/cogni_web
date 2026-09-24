@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next"
 
 import { products } from "@/content/site"
-import { getPosts, getStories } from "@/lib/cms"
+import { getPosts, getRoles, getStories } from "@/lib/cms"
 import { isLiveSite, publicSiteUrl } from "@/lib/deployment"
 
-// Rebuilt hourly rather than fixed at build: posts and client stories are
-// published from the admin without a deploy, and the sitemap has to say so.
+// Rebuilt hourly rather than fixed at build: posts, client stories and open
+// roles are published from the admin without a deploy, and the sitemap has to
+// say so.
 export const revalidate = 3600
 
 /*
@@ -13,20 +14,35 @@ export const revalidate = 3600
  * route group, but the two belong together and splitting them is how the
  * robots.ts trap gets sprung (see the note there).
  *
- * Still a hardcoded list, except for the product pages, which are generated
- * from the same array the routes themselves are - so a seventh product is one
- * edit rather than two.
- *
  * Trailing slashes throughout, because `trailingSlash: true` means that is
  * the URL that actually answers 200. Listing "/contact" would hand a crawler
- * a 308 for every page on the site.
+ * a 308 for every page on the site. `npm run check:links` holds the rest of
+ * the site to the same shape.
  *
- * The blog posts and client stories come from Payload, with their last
- * update as lastModified. Both reads fall back to an empty list if the
- * database is unreachable, so the fixed routes are always listed. The open
- * roles on /careers are not pages of their own, so they are not here.
+ * What is NOT here, deliberately:
+ *
+ * - `changeFrequency` and `priority`. Google has said plainly that it ignores
+ *   both. They are not harmless: they read like signals that do something,
+ *   and the next person to touch this file would reasonably spend time
+ *   tuning numbers that no crawler reads.
+ *
+ * - `lastModified` on the fixed routes. It used to be `new Date()`, which
+ *   claimed every static page changed at the moment the sitemap regenerated -
+ *   hourly, and false. Worse, it devalued the accurate `lastModified` on the
+ *   posts and stories in the same file, which are real. A crawler that learns
+ *   a site lies about one is entitled to discount the other. Omitting it says
+ *   "no claim", which is true.
  */
-const routes = [
+
+/**
+ * The pages that exist because a file exists, as against the ones that exist
+ * because something was published. Product pages are generated from the same
+ * array the routes are, so a seventh product is one edit rather than two.
+ *
+ * The open roles on /careers are pages of their own now (/careers/[slug]),
+ * so unlike before they belong in the published half below.
+ */
+const fixedRoutes = [
   "/",
   "/products/",
   ...products.map((product) => `/products/${product.slug}/`),
@@ -46,27 +62,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (!isLiveSite) return []
 
   const origin = publicSiteUrl()
-  const lastModified = new Date()
-  const fixed: MetadataRoute.Sitemap = routes.map((path) => ({
+  const fixed: MetadataRoute.Sitemap = fixedRoutes.map((path) => ({
     url: `${origin}${path}`,
-    lastModified,
-    changeFrequency: "monthly",
-    priority: path === "/" ? 1 : 0.7,
   }))
 
-  const [posts, stories] = await Promise.all([getPosts(), getStories()])
+  // Each read falls back to an empty list if the database is unreachable, so
+  // the fixed routes are always listed even when Payload is down.
+  const [posts, stories, roles] = await Promise.all([
+    getPosts(),
+    getStories(),
+    getRoles(),
+  ])
+
   const published: MetadataRoute.Sitemap = [
     ...posts.map((post) => ({
       url: `${origin}/blog/${post.slug}/`,
       lastModified: new Date(post.updatedAt),
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
     })),
     ...stories.map((story) => ({
       url: `${origin}/work/${story.slug}/`,
       lastModified: new Date(story.updatedAt),
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
+    })),
+    ...roles.map((role) => ({
+      url: `${origin}/careers/${role.slug}/`,
+      lastModified: new Date(role.updatedAt),
     })),
   ]
 

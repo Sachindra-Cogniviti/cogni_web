@@ -28,6 +28,31 @@ export type PageHeader = {
   body: string
 }
 
+/**
+ * What a page says about itself in a search result, as against what it says
+ * on the page.
+ *
+ * These were the same thing until they were measured: `header.body` is a
+ * standfirst, written to be read under a heading that is already on screen,
+ * and several of them ran past 200 characters. Google renders about 155, so
+ * the tail - which is where the specifics usually are - was being cut. The
+ * homepage was the worst of them, losing both "procurement" and "finance"
+ * off the end of a 227-character description.
+ *
+ * So they are separate fields now. The standfirsts are unchanged and still
+ * read as copy; these are written to the limit a result actually shows.
+ *
+ * `title` excludes the site name, which lib/metadata.ts appends through the
+ * layout's title template. Keep it under ~45 characters so the whole thing
+ * with " | Cogniviti Labs" stays under 60.
+ */
+export type PageSeo = {
+  /** Under ~45 characters. The site name is added, so do not repeat it. */
+  title: string
+  /** Under ~155 characters, and complete as a sentence at that length. */
+  description: string
+}
+
 /* ---------------------------------------------------------------------------
  * Contact
  *
@@ -38,6 +63,11 @@ export type PageHeader = {
  * ------------------------------------------------------------------------- */
 
 export const contactPage = {
+  seo: {
+    title: "Contact",
+    description:
+      "Talk to a senior consultant about procurement and EPM delivery. Teams in Singapore, India, Indonesia, the UK and South Africa.",
+  } satisfies PageSeo,
   header: {
     trail: [{ label: "Home", href: "/" }, { label: "Contact Us" }],
     kicker: "Contact Us",
@@ -176,6 +206,11 @@ export const contactPage = {
  * ------------------------------------------------------------------------- */
 
 export const careersPage = {
+  seo: {
+    title: "Careers in Procurement, Finance & AI",
+    description:
+      "Open roles across platform consulting, integration and data engineering, product engineering and applied AI, in five markets.",
+  } satisfies PageSeo,
   header: {
     trail: [{ label: "Home", href: "/" }, { label: "Careers" }],
     kicker: "Careers",
@@ -255,9 +290,16 @@ export const careersPage = {
     heading: "Current openings",
     body: "Apply with a note about the work you have done that is closest to the role. We read every application ourselves.",
     apply: "Apply for this role",
+    /** To the role's own page, /careers/[slug]. */
+    detail: "Full description",
     typeLabel: "Type",
     locationLabel: "Location",
     disciplineLabel: "Track",
+    /** On the role's own page: back to the list. */
+    backLabel: "All open roles",
+    postedLabel: "Posted",
+    ownLabel: "What you will own",
+    bringLabel: "What you will bring",
   },
 
   close: {
@@ -266,7 +308,7 @@ export const careersPage = {
     body: "Send us the track you belong in and one thing you have built or fixed that you are proud of. That is more useful to us than a covering letter.",
     cta: {
       label: "Send an Open Application",
-      href: "/contact?subject=careers",
+      href: "/contact/?subject=careers",
     },
   },
 
@@ -323,6 +365,11 @@ export const careersPage = {
  * ------------------------------------------------------------------------- */
 
 export const blogPage = {
+  seo: {
+    title: "Insights on Procurement & Finance Platforms",
+    description:
+      "Notes from implementation, integration and adoption work: what actually decides whether an enterprise platform delivers.",
+  } satisfies PageSeo,
   header: {
     trail: [{ label: "Home", href: "/" }, { label: "Insights" }],
     kicker: "Insights",
@@ -344,11 +391,16 @@ export const blogPage = {
     kicker: "Talk to us",
     heading: "Bring us the problem behind the article",
     body: "Most of what we write starts as a question from a client program. If one of these is your question, the conversation is short.",
-    cta: { label: "Talk to Our Team", href: "/contact" },
+    cta: { label: "Talk to Our Team", href: "/contact/" },
   },
 } as const
 
 export const workPage = {
+  seo: {
+    title: "Client Stories",
+    description:
+      "Selected client programs: the platform, the problem it was brought in for, what we did, and what changed. Figures are the client's own.",
+  } satisfies PageSeo,
   header: {
     trail: [{ label: "Home", href: "/" }, { label: "Client work" }],
     kicker: "Client work",
@@ -388,7 +440,7 @@ export const workPage = {
     kicker: "Your program",
     heading: "Planning a platform program of your own?",
     body: "Tell us the platform, the landscape it has to fit and the outcome it is for, and we will connect you with a senior consultant who has done it before.",
-    cta: { label: "Talk to Our Team", href: "/contact" },
+    cta: { label: "Talk to Our Team", href: "/contact/" },
   },
 } as const
 
@@ -417,6 +469,11 @@ export type ProductDemo = {
 }
 
 export const experiencePage = {
+  seo: {
+    title: "Experience Centre",
+    description:
+      "Run each Cogniviti product in a live sandbox with representative data. Nothing touches your systems, and nothing you do is saved.",
+  } satisfies PageSeo,
   header: {
     trail: [{ label: "Home", href: "/" }, { label: "Experience Centre" }],
     kicker: "Experience Centre",
@@ -441,7 +498,7 @@ export const experiencePage = {
     body: "This product is demonstrated live by the team rather than through a public sandbox. We will walk you through it against your own scenario.",
     cta: {
       label: "Request a Demonstration",
-      href: "/contact?subject=products",
+      href: "/contact/?subject=products",
     },
   },
 
@@ -467,7 +524,7 @@ export const experiencePage = {
     kicker: "Next step",
     heading: "Seen something that fits?",
     body: "Book a working session and we will run the same product against your own process, data shape and integration landscape.",
-    cta: { label: "Book a Working Session", href: "/contact?subject=products" },
+    cta: { label: "Book a Working Session", href: "/contact/?subject=products" },
   },
 
   demos: [
@@ -851,7 +908,68 @@ export const productPages: Record<string, ProductPage> = {
  * Products index
  * ------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+ * 404
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The page for a URL that does not exist.
+ *
+ * There was none, so a bad link - and every `notFound()` from the three
+ * [slug] routes - rendered Next's bare default: correct status code, no nav,
+ * no footer, nothing to click. The status was never the problem; the dead
+ * end was. This is the same shell as every other page, with the four places
+ * worth sending someone who mistyped or followed a link that has moved.
+ */
+export const notFoundPage = {
+  header: {
+    trail: [{ label: "Home", href: "/" }, { label: "Not found" }],
+    kicker: "404",
+    heading: "That page is not here",
+    body: "The link may be out of date, or the address may have a typo in it. Everything below is one step away.",
+  } satisfies PageHeader,
+  seo: {
+    title: "Page not found",
+    description:
+      "That page could not be found. Products, client stories, insights and contact are all one step away.",
+  } satisfies PageSeo,
+  linksLabel: "Try one of these",
+  links: [
+    {
+      label: "Products",
+      href: "/products/",
+      detail: "Six systems for procurement, finance and data.",
+    },
+    {
+      label: "Client stories",
+      href: "/work/",
+      detail: "Programs that reached production, with the client's figures.",
+    },
+    {
+      label: "Insights",
+      href: "/blog/",
+      detail: "Notes from implementation, integration and adoption work.",
+    },
+    {
+      label: "Careers",
+      href: "/careers/",
+      detail: "Open roles across five markets.",
+    },
+  ],
+  close: {
+    kicker: "Still stuck",
+    heading: "Tell us what you were looking for",
+    body: "If you followed a link from somewhere on this site, we would like to know which one, so it can be fixed.",
+    cta: { label: "Talk to Our Team", href: "/contact/" },
+  },
+} as const
+
 export const productsPage = {
+  seo: {
+    title: "Procurement & EPM Products",
+    description:
+      "Six products for master data, integrations, spend analytics, project cash flow, platform adoption and agentic operations.",
+  } satisfies PageSeo,
   header: {
     trail: [{ label: "Home", href: "/" }, { label: "Products" }],
     kicker: "Products",
@@ -863,6 +981,6 @@ export const productsPage = {
     kicker: "Next step",
     heading: "Run them before you talk to us",
     body: "The Experience Centre puts each product in front of you with representative data, so the first conversation can be about your landscape rather than about what the software does.",
-    cta: { label: "Open the Experience Centre", href: "/experience" },
+    cta: { label: "Open the Experience Centre", href: "/experience/" },
   },
 } as const

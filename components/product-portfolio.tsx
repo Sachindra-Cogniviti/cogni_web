@@ -170,7 +170,7 @@ export function ProductPortfolio() {
 
             <div className="mt-auto">
               <a
-                href={`/products/${active.slug}`}
+                href={`/products/${active.slug}/`}
                 className="control-motion border-b border-oxblood-lift/40 pb-[3px] text-[14.5px] font-medium text-oxblood-lift hover:text-night-fg"
               >
                 <Roll>{active.cta}&nbsp;&nbsp;→</Roll>

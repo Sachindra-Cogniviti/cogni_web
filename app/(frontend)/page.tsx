@@ -25,6 +25,7 @@ import { Updates } from "@/components/updates"
 import { WhyCogniviti } from "@/components/why-cogniviti"
 import type { ResourceItem } from "@/components/resources"
 import type { WorkStory } from "@/components/client-work"
+import { site } from "@/content/site"
 import {
   categoriesOf,
   deliveryPath,
@@ -33,6 +34,35 @@ import {
   imageSource,
   mediaOf,
 } from "@/lib/cms"
+import { pageMetadata } from "@/lib/metadata"
+
+/**
+ * The homepage's own metadata, rather than whatever it inherited.
+ *
+ * It needs to be here for the canonical. Every other page gets one through
+ * `pageMetadata`; this page had none at all, because `metadataBase` in the
+ * layout does not emit a canonical - it only resolves relative URLs against
+ * an origin. So the site's most important page was the one page with no
+ * self-referencing canonical on it.
+ *
+ * Writing the whole set here also keeps it honest about the search copy in
+ * `site.seo`, which is shorter than the positioning statement the layout's
+ * share card uses.
+ */
+export const metadata = pageMetadata({
+  // The site name is spelled out here, unlike every other page, because
+  // Next's `title.template` applies to child segments and not to the segment
+  // that defines it - and this page sits in the same segment as the layout
+  // that sets the template. Left to the template it would render as the one
+  // page on the site with no brand in its title, which for the homepage is
+  // the worst place to lose it. 58 characters with the suffix.
+  title: `${site.seo.title} | ${site.name}`,
+  description: site.seo.description,
+  path: "/",
+  // The share card keeps the full statement: a card has the room, a result
+  // listing does not.
+  share: { title: site.title, description: site.description },
+})
 
 /**
  * Two sections carry Payload content - the selected client work and the

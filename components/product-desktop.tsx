@@ -701,7 +701,7 @@ export function ProductDesktop() {
                         are left alone, since real desktop chrome does not. */}
                     <div className="mt-auto pt-6">
                       <a
-                        href={`/products/${active.slug}`}
+                        href={`/products/${active.slug}/`}
                         className="control-motion inline-block rounded-[6px] bg-night-fg px-4 py-[9px] text-[13.5px] font-semibold text-ink hover:bg-paper active:scale-[0.97]"
                       >
                         <Roll>{active.cta}&nbsp;&nbsp;→</Roll>

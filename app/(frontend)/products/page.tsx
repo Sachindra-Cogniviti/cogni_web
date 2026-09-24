@@ -1,15 +1,19 @@
 import type { Metadata } from "next"
 
-import { pageMetadata } from "@/lib/metadata"
+import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
 
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
 import { ProductDesktop } from "@/components/product-desktop"
 import { productsPage } from "@/content/pages"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Products",
-  description: productsPage.header.body,
+  ...productsPage.seo,
   path: "/products/",
+  image: {
+    url: "/products/og.png",
+    ...OG_IMAGE,
+    alt: productsPage.header.heading,
+  },
 })
 
 /**

@@ -8,6 +8,7 @@ import type {
   ClientStory,
   Media,
   Post,
+  Role,
 } from "@/payload-types"
 
 /**
@@ -82,6 +83,59 @@ export async function getPost(
     return docs[0] ?? null
   } catch (error) {
     console.error(`Post ${slug} could not be loaded:`, error)
+    return null
+  }
+}
+
+/**
+ * Open roles, newest first.
+ *
+ * Here rather than inline in the careers page because three things read them
+ * now: that page, the role's own page at /careers/[slug], and the sitemap.
+ * Same empty-list-on-failure contract as the rest of this module - a
+ * candidate arriving from a job board should see a careers page with no
+ * openings rather than a 500.
+ */
+export async function getRoles(limit = 50): Promise<Role[]> {
+  try {
+    const payload = await db()
+    const { docs } = await payload.find({
+      collection: "roles",
+      where: PUBLISHED,
+      sort: "-postedAt",
+      limit,
+      // No relationships on a role, so nothing to resolve.
+      depth: 0,
+      pagination: false,
+      overrideAccess: false,
+    })
+    return docs
+  } catch (error) {
+    console.error("Roles could not be loaded:", error)
+    return []
+  }
+}
+
+export async function getRole(
+  slug: string,
+  { draft = false }: ReadOptions = {}
+): Promise<Role | null> {
+  try {
+    const payload = await db()
+    const { docs } = await payload.find({
+      collection: "roles",
+      where: draft
+        ? { slug: { equals: slug } }
+        : { and: [PUBLISHED, { slug: { equals: slug } }] },
+      draft,
+      limit: 1,
+      depth: 0,
+      pagination: false,
+      overrideAccess: draft,
+    })
+    return docs[0] ?? null
+  } catch (error) {
+    console.error(`Role ${slug} could not be loaded:`, error)
     return null
   }
 }
@@ -266,4 +320,34 @@ export const REGION_LABEL: Record<
   "united-kingdom": "United Kingdom",
   "south-africa": "South Africa",
   thailand: "Thailand",
+}
+
+/* ---------------------------------------------------------------------------
+ * The same for roles. Typed against the collection's own select values, so
+ * adding an option to payload/collections/roles.ts without a label here is a
+ * type error rather than a machine value leaking onto the page.
+ *
+ * Shared rather than local to the careers page, because the role's own page
+ * and the JobPosting structured data in lib/schema.ts need the same strings -
+ * and `occupationalCategory` saying something different from the page would
+ * be exactly the drift these maps exist to prevent.
+ * ------------------------------------------------------------------------- */
+
+export const DISCIPLINE_LABEL: Record<Role["discipline"], string> = {
+  "platform-consulting": "Platform consulting",
+  "integration-data": "Integration and data engineering",
+  "product-engineering": "Product engineering",
+  "applied-ai": "Applied AI",
+}
+
+export const ROLE_TYPE_LABEL: Record<Role["type"], string> = {
+  "full-time": "Full time",
+  contract: "Contract",
+  internship: "Internship",
+}
+
+export const REMOTE_LABEL: Record<NonNullable<Role["remote"]>, string> = {
+  onsite: "On site",
+  hybrid: "Hybrid",
+  remote: "Remote",
 }

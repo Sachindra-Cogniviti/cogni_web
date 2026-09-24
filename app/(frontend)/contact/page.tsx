@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 
-import { pageMetadata } from "@/lib/metadata"
+import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
 
 import { ContactForm } from "@/components/contact-form"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
@@ -18,9 +18,13 @@ import { contactPage } from "@/content/pages"
 import { globalPresence } from "@/content/site"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact Us",
-  description: contactPage.header.body,
+  ...contactPage.seo,
   path: "/contact/",
+  image: {
+    url: "/contact/og.png",
+    ...OG_IMAGE,
+    alt: contactPage.header.heading,
+  },
 })
 
 /**

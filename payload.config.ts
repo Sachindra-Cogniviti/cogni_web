@@ -198,7 +198,13 @@ export default buildConfig({
     seoPlugin({
       collections: ["posts", "client-stories"],
       uploadsCollection: "media",
-      generateTitle: ({ doc }) => `${doc?.title ?? ""} | Cogniviti Labs`,
+      // No " | Cogniviti Labs" here. This value becomes `meta.title`, which
+      // generateMetadata passes to pageMetadata as the page title, and the
+      // layout's title template appends the site name to that - so a suffix
+      // here produced "Post | Cogniviti Labs | Cogniviti Labs" the moment an
+      // editor pressed auto-generate. The site name is added exactly once,
+      // downstream, for every page on the site.
+      generateTitle: ({ doc }) => (doc?.title as string) ?? "",
       generateDescription: ({ doc }) => doc?.excerpt ?? "",
     }),
 

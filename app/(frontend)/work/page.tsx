@@ -1,8 +1,10 @@
 import type { Metadata } from "next"
 
-import { pageMetadata } from "@/lib/metadata"
+import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
+import { itemList } from "@/lib/schema"
 
 import { StoryCard } from "@/components/cms-cards"
+import { JsonLd } from "@/components/json-ld"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
 import { Container, sectionPadding } from "@/components/primitives"
 import { FlowRule } from "@/components/scroll-motion"
@@ -11,9 +13,13 @@ import { workPage } from "@/content/pages"
 import { getStories } from "@/lib/cms"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Client work",
-  description: workPage.header.body,
+  ...workPage.seo,
   path: "/work/",
+  image: {
+    url: "/work/og.png",
+    ...OG_IMAGE,
+    alt: workPage.header.heading,
+  },
 })
 
 export const revalidate = 60
@@ -30,6 +36,18 @@ export default async function WorkIndex() {
 
   return (
     <PageShell>
+      <JsonLd
+        data={itemList({
+          name: workPage.seo.title,
+          description: workPage.seo.description,
+          path: "/work/",
+          items: stories.map((story) => ({
+            name: `${story.client}: ${story.title}`,
+            path: `/work/${story.slug}/`,
+          })),
+        })}
+      />
+
       <PageHeader content={workPage.header}>
         <p
           data-reveal="240"

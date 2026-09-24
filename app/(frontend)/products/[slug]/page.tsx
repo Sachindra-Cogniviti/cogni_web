@@ -1,9 +1,10 @@
 import * as React from "react"
 import type { Metadata } from "next"
 
-import { pageMetadata } from "@/lib/metadata"
+import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
 import { notFound } from "next/navigation"
 
+import { JsonLd } from "@/components/json-ld"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
 import {
   Container,
@@ -16,6 +17,7 @@ import { FlowRule } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
 import { experiencePage, productPages } from "@/content/pages"
 import { products } from "@/content/site"
+import { softwareApplication } from "@/lib/schema"
 
 /**
  * Every product is known at build time, so all six pages are prerendered and
@@ -41,6 +43,14 @@ export async function generateMetadata({
     title: product.name,
     description: productPages[slug]?.lede ?? product.desc,
     path: `/products/${slug}/`,
+    // The card drawn beside this page, rather than the site card all six
+    // products used to share. No cache-busting query: the copy it is drawn
+    // from is in the repo, so it cannot change without a deploy.
+    image: {
+      url: `/products/${slug}/og.png`,
+      ...OG_IMAGE,
+      alt: `${product.name} - ${product.tag}`,
+    },
   })
 }
 
@@ -71,11 +81,16 @@ export default async function ProductPage({
 
   return (
     <PageShell>
+      {/* SoftwareApplication rather than Product: there is no price, no SKU
+          and no offer here, and Product without one earns nothing while
+          warning about both. See lib/schema.ts. */}
+      <JsonLd data={softwareApplication({ product, lede: page.lede })} />
+
       <PageHeader
         content={{
           trail: [
             { label: "Home", href: "/" },
-            { label: "Products", href: "/products" },
+            { label: "Products", href: "/products/" },
             { label: product.name },
           ],
           kicker: product.kicker,
@@ -88,8 +103,9 @@ export default async function ProductPage({
           data-flow="left"
           className="mt-9 flex flex-wrap items-center gap-6"
         >
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load by design: the scroll flow binds on load (components/reveal-observer.tsx), so page links are plain anchors site-wide */}
           <a
-            href="/experience"
+            href="/experience/"
             className="control-motion border-b border-oxblood/35 pb-[3px] text-[15px] font-medium text-oxblood hover:border-ink/35 hover:text-ink"
           >
             <Roll>
@@ -99,8 +115,9 @@ export default async function ProductPage({
               &nbsp;&nbsp;&rarr;
             </Roll>
           </a>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load by design: the scroll flow binds on load (components/reveal-observer.tsx), so page links are plain anchors site-wide */}
           <a
-            href="/contact?subject=products"
+            href="/contact/?subject=products"
             className="control-motion border-b border-ink/20 pb-[3px] text-[15px] font-medium text-ink-soft hover:border-oxblood/35 hover:text-oxblood"
           >
             <Roll>Talk to us about it&nbsp;&nbsp;&rarr;</Roll>
@@ -262,7 +279,7 @@ export default async function ProductPage({
                 {others.map((other) => (
                   <li key={other.slug}>
                     <a
-                      href={`/products/${other.slug}`}
+                      href={`/products/${other.slug}/`}
                       className="control-motion inline-flex items-baseline gap-3 text-[15px] text-ink-soft hover:text-oxblood"
                     >
                       <span
@@ -287,7 +304,7 @@ export default async function ProductPage({
           kicker: "Next step",
           heading: `See ${product.name} against your own process`,
           body: "Run it in the Experience Centre with sample data, or book a session and we will run it against your categories, your ERP and your approval chains.",
-          cta: { label: "Open the Experience Centre", href: "/experience" },
+          cta: { label: "Open the Experience Centre", href: "/experience/" },
         }}
       />
     </PageShell>

@@ -244,6 +244,7 @@ The homepage is not the whole site any more:
 /products/[slug]      content/pages.ts  productPages, keyed by Product.slug
 /experience           content/pages.ts  experiencePage
 /careers              content/pages.ts  careersPage + the Payload roles collection
+/careers/[slug]       the role itself, keyed by Role.slug
 /contact              content/pages.ts  contactPage + the Payload enquiries collection
 /blog                 content/pages.ts  blogPage + the Payload posts collection
 /blog/[slug]          the post itself, rich text via components/rich-text.tsx
@@ -257,8 +258,24 @@ and `PageClose` (the dark closing ask). Sub-pages get no section rail - the
 rail lists the homepage's eleven sections and would say less than the
 scrollbar on a four-section page.
 
-Three things are easy to break here:
+The 404 is `app/(frontend)/not-found.tsx`, in the site's own shell. It is
+reached two ways, and the second is not obvious: `notFound()` raised inside
+the group finds it directly, but a URL matching no segment at all belongs to
+no route group and would get Next's bare built-in instead - so
+`app/(frontend)/[...notFound]/page.tsx` exists to catch those and call
+`notFound()`. That catch-all does not shadow `/admin` or `/api/*`, because
+Next matches a literal segment before a dynamic one and a dynamic one before
+a catch-all. Check both if you touch it.
 
+Four things are easy to break here:
+
+- **Internal links carry the trailing slash**, because `trailingSlash: true`
+  means `/contact/` is the URL that answers 200 and `/contact` answers a 308.
+  The slash goes before any query: `/contact/?subject=products`. `npm run
+  check:links` fails the moment one is written without it. Note that adding
+  the slash is also what makes ESLint's `no-html-link-for-pages` recognise a
+  link as internal, so a new page anchor may need the disable comment the
+  rest of the site uses.
 - **Nav and footer hash links are written `/#services`, not `#services`**, so
   they work from a sub-page. `components/smooth-anchors.tsx` recognises both
   and still scrolls in place when the reader is already on `/`.
@@ -306,10 +323,10 @@ pill (`components/article-nav.tsx`, a table of contents built from the
 body's headings by `lib/headings.ts`, which is also what gives the headings
 their ids), a share row (`components/share-row.tsx`), and a share card.
 
-Share cards are `og.png` route handlers - `app/og.png` for the site,
-`app/(frontend)/blog/[slug]/og.png` and `app/(frontend)/work/[slug]/og.png`
-for a post and a story - drawn by `lib/og.tsx` with `next/og`. Not Next's
-`opengraph-image.tsx` convention: with `trailingSlash` on, its
+Share cards are `og.png` route handlers, one per page rather than one for
+the site: `app/og.png` is the fallback, and every listing, product, post and
+story draws its own beside it. Drawn by `lib/og.tsx` with `next/og`. Not
+Next's `opengraph-image.tsx` convention: with `trailingSlash` on, its
 extensionless URL is redirected to a slash it does not answer on. The
 renderer has no fallback font and fails with none loaded, so the three
 faces are checked in under `assets/fonts` and read from disk. Every page
@@ -317,6 +334,39 @@ names its card through `pageMetadata` in `lib/metadata.ts`, which also
 writes the full Open Graph and Twitter sets - Next does not merge those
 objects from the layout, so a page that set only a title would share with
 the site's description.
+
+Two things about titles and descriptions, both of which look like
+duplication until you measure them:
+
+- **What a page says in a search result is not what it says on the page.**
+  `PageSeo` in `content/pages.ts` (and `site.seo` for the homepage) holds a
+  title under ~45 characters and a description under ~155, because that is
+  what Google renders. The `header.body` standfirsts are copy, several run
+  past 200 characters, and using them as descriptions cut the specifics off
+  the end. A share card is a third case again - it has the room, so
+  `pageMetadata` takes a `share` override where the longer line is better.
+- **The site name is appended exactly once, downstream.** The layout's
+  `title.template` does it for every page - except the homepage, because a
+  template does not apply to the segment that defines it, so
+  `app/(frontend)/page.tsx` spells it out. Nothing upstream should add it:
+  `generateTitle` in the seo plugin used to, which produced
+  "Post | Cogniviti Labs | Cogniviti Labs" the moment an editor pressed
+  auto-generate.
+
+Structured data is built in `lib/schema.ts` and rendered by
+`components/json-ld.tsx`. The layout emits `Organization` and `WebSite` on
+every page with stable `@id`s, and everything else - a post, a story, a
+product, a role, a listing, the breadcrumb from `PageHeader` - refers back
+to the organisation by that id rather than describing a second one with the
+same name. Every URL in there goes through `publicSiteUrl()`, so a preview
+describes itself; a hardcoded domain in an `@id` would undo the care taken
+everywhere else about exactly that.
+
+The icon set (`public/icon-*.png`, `apple-icon.png`) is cropped from the
+left 384px square of the one logo file, which is the dot mark on its own.
+They are named explicitly in the layout's `metadata.icons` rather than
+through Next's `app/icon.png` convention, and the manifest is a route at
+`app/manifest.webmanifest/` - both for the `trailingSlash` reason above.
 
 The contact form is a server action writing to the `enquiries` collection.
 Every new enquiry is announced by email from an `afterChange` hook on the

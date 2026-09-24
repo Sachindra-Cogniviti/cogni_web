@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 
 import { ArticleNav } from "@/components/article-nav"
 import { DraftPreview } from "@/components/draft-preview"
+import { JsonLd } from "@/components/json-ld"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
 import {
   Container,
@@ -32,6 +33,7 @@ import {
 import { publicSiteUrl } from "@/lib/deployment"
 import { headingsOf, type Heading } from "@/lib/headings"
 import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
+import { clientStory } from "@/lib/schema"
 import type { ClientStory, Post } from "@/payload-types"
 
 export const revalidate = 60
@@ -166,6 +168,20 @@ export default async function StoryPage({
 
   return (
     <PageShell>
+      {/* The story as an Article about the client, naming the same
+          organisation the layout's graph describes. The blog's sibling page
+          has had this since it shipped; this one did not, though it carries
+          more structured content than a post. See lib/schema.ts. */}
+      <JsonLd
+        data={clientStory({
+          story,
+          // The story's own share card, not the client's logo: schema.org
+          // wants an image representing the article, and a logo on its own
+          // represents the client.
+          image: `/work/${story.slug}/og.png`,
+        })}
+      />
+
       <PageHeader
         content={{
           trail: [
@@ -349,15 +365,16 @@ export default async function StoryPage({
                 data-flow="left"
                 className="mt-10 flex flex-wrap gap-x-8 gap-y-3"
               >
+                {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load by design: the scroll flow binds on load (components/reveal-observer.tsx), so page links are plain anchors site-wide */}
                 <a
-                  href="/contact?subject=platform-implementation"
+                  href="/contact/?subject=platform-implementation"
                   className="control-motion border-b border-oxblood/35 pb-[3px] text-[15px] font-medium text-oxblood hover:border-ink/35 hover:text-ink"
                 >
                   <Roll>{workPage.ctaLabel}&nbsp;&nbsp;&rarr;</Roll>
                 </a>
                 {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load by design: the scroll flow binds on load (components/reveal-observer.tsx), so page links are plain anchors site-wide */}
                 <a
-                  href="/work"
+                  href="/work/"
                   className="control-motion border-b border-ink/20 pb-[3px] text-[15px] font-medium text-ink-soft hover:border-oxblood/35 hover:text-oxblood"
                 >
                   <Roll>{workPage.allLabel}&nbsp;&nbsp;&rarr;</Roll>
@@ -431,7 +448,7 @@ function Rail({ others, updates }: { others: ClientStory[]; updates: Post[] }) {
             </ul>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load by design: the scroll flow binds on load (components/reveal-observer.tsx), so page links are plain anchors site-wide */}
             <a
-              href="/work"
+              href="/work/"
               className="control-motion mt-5 inline-block border-b border-oxblood/35 pb-[3px] text-[14px] font-medium text-oxblood hover:border-ink/35 hover:text-ink"
             >
               <Roll>{workPage.allLabel}&nbsp;&nbsp;&rarr;</Roll>
@@ -464,7 +481,7 @@ function Rail({ others, updates }: { others: ClientStory[]; updates: Post[] }) {
             </ul>
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load by design: the scroll flow binds on load (components/reveal-observer.tsx), so page links are plain anchors site-wide */}
             <a
-              href="/blog"
+              href="/blog/"
               className="control-motion mt-5 inline-block border-b border-oxblood/35 pb-[3px] text-[14px] font-medium text-oxblood hover:border-ink/35 hover:text-ink"
             >
               <Roll>{workPage.rail.allUpdates}&nbsp;&nbsp;&rarr;</Roll>

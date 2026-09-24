@@ -1,9 +1,7 @@
 import type { Metadata } from "next"
 
-import { pageMetadata } from "@/lib/metadata"
-import { getPayload } from "payload"
+import { OG_IMAGE, pageMetadata } from "@/lib/metadata"
 
-import config from "@/payload.config"
 import { CareersLife } from "@/components/careers-life"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
 import {
@@ -17,12 +15,22 @@ import { FlowRule } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
 import { careersPage } from "@/content/pages"
 import { site } from "@/content/site"
+import {
+  DISCIPLINE_LABEL,
+  getRoles,
+  REMOTE_LABEL,
+  ROLE_TYPE_LABEL,
+} from "@/lib/cms"
 import type { Role } from "@/payload-types"
 
 export const metadata: Metadata = pageMetadata({
-  title: "Careers",
-  description: careersPage.header.body,
+  ...careersPage.seo,
   path: "/careers/",
+  image: {
+    url: "/careers/og.png",
+    ...OG_IMAGE,
+    alt: careersPage.header.heading,
+  },
 })
 
 /**
@@ -32,55 +40,6 @@ export const metadata: Metadata = pageMetadata({
  * that the careers page is not a database query per visitor.
  */
 export const revalidate = 60
-
-/** Track value -> the label used on the page above. One source, two uses. */
-const DISCIPLINES: Record<string, string> = {
-  "platform-consulting": "Platform consulting",
-  "integration-data": "Integration and data engineering",
-  "product-engineering": "Product engineering",
-  "applied-ai": "Applied AI",
-}
-
-const TYPES: Record<string, string> = {
-  "full-time": "Full time",
-  contract: "Contract",
-  internship: "Internship",
-}
-
-const REMOTE: Record<string, string> = {
-  onsite: "On site",
-  hybrid: "Hybrid",
-  remote: "Remote",
-}
-
-/**
- * Open roles, newest first.
- *
- * Returns an empty list rather than throwing if Payload cannot be reached.
- * The careers page is mostly stable copy about how we work, and it is better
- * for that to render with no openings than for a database blip to 500 a page
- * a candidate reached from a job board.
- */
-async function openRoles(): Promise<Role[]> {
-  try {
-    const payload = await getPayload({ config })
-    const { docs } = await payload.find({
-      collection: "roles",
-      where: { _status: { equals: "published" } },
-      sort: "-postedAt",
-      limit: 50,
-      depth: 0,
-      // No page count: that is a second round trip to the database for a
-      // number nothing here shows.
-      pagination: false,
-      overrideAccess: false,
-    })
-    return docs
-  } catch (error) {
-    console.error("Roles could not be loaded:", error)
-    return []
-  }
-}
 
 /**
  * /careers
@@ -92,7 +51,7 @@ async function openRoles(): Promise<Role[]> {
  * addition to it rather than the point of it.
  */
 export default async function CareersPage() {
-  const roles = await openRoles()
+  const roles = await getRoles()
 
   return (
     <PageShell>
@@ -272,8 +231,17 @@ function RoleCard({ role }: { role: Role }) {
     >
       <div className="grid gap-x-10 gap-y-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <div>
+          {/* The title links to the role's own page. A posting needs one
+              canonical URL of its own to be a candidate for Google Jobs, and
+              a candidate sent a link to "the Integration Engineer role"
+              should land on that role rather than on a list to scroll. */}
           <h3 className="text-[clamp(20px,2.1vw,26px)] leading-[1.15] font-semibold tracking-[-0.02em] text-balance">
-            {role.title}
+            <a
+              href={`/careers/${role.slug}/`}
+              className="control-motion hover:text-oxblood"
+            >
+              <Roll>{role.title}</Roll>
+            </a>
           </h3>
           <p className="mt-3 max-w-[56ch] text-[15px] leading-[1.65] text-pretty text-ink-soft">
             {role.summary}
@@ -283,13 +251,13 @@ function RoleCard({ role }: { role: Role }) {
             <div className="mt-6 grid gap-x-10 gap-y-6 sm:grid-cols-2">
               {role.responsibilities && role.responsibilities.length > 0 && (
                 <RoleList
-                  title="What you will own"
+                  title={careersPage.roles.ownLabel}
                   items={role.responsibilities}
                 />
               )}
               {role.requirements && role.requirements.length > 0 && (
                 <RoleList
-                  title="What you will bring"
+                  title={careersPage.roles.bringLabel}
                   items={role.requirements}
                 />
               )}
@@ -300,22 +268,30 @@ function RoleCard({ role }: { role: Role }) {
         <div className="lg:pt-2">
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-3 text-[13.5px]">
             <Meta label={careersPage.roles.disciplineLabel}>
-              {DISCIPLINES[role.discipline] ?? role.discipline}
+              {DISCIPLINE_LABEL[role.discipline] ?? role.discipline}
             </Meta>
             <Meta label={careersPage.roles.locationLabel}>
               {role.location}
-              {role.remote ? ` · ${REMOTE[role.remote] ?? role.remote}` : ""}
+              {role.remote ? ` · ${REMOTE_LABEL[role.remote] ?? role.remote}` : ""}
             </Meta>
             <Meta label={careersPage.roles.typeLabel}>
-              {TYPES[role.type] ?? role.type}
+              {ROLE_TYPE_LABEL[role.type] ?? role.type}
             </Meta>
           </dl>
-          <a
-            href={`mailto:${to}?subject=${subject}`}
-            className="control-motion mt-7 inline-block border-b border-oxblood/35 pb-[3px] text-[15px] font-medium text-oxblood hover:border-ink/35 hover:text-ink"
-          >
-            <Roll>{careersPage.roles.apply}</Roll>
-          </a>
+          <div className="mt-7 flex flex-wrap items-baseline gap-x-7 gap-y-3">
+            <a
+              href={`/careers/${role.slug}/`}
+              className="control-motion inline-block border-b border-oxblood/35 pb-[3px] text-[15px] font-medium text-oxblood hover:border-ink/35 hover:text-ink"
+            >
+              <Roll>{careersPage.roles.detail}&nbsp;&nbsp;&rarr;</Roll>
+            </a>
+            <a
+              href={`mailto:${to}?subject=${subject}`}
+              className="control-motion inline-block text-[14.5px] text-ink-muted hover:text-ink"
+            >
+              <Roll>{careersPage.roles.apply}</Roll>
+            </a>
+          </div>
         </div>
       </div>
     </li>

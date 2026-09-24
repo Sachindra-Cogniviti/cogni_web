@@ -14,7 +14,29 @@ export const site = {
     "Cogniviti Labs: Engineering the systems behind modern procurement and finance",
   description:
     "Cogniviti Labs implements and supports enterprise procurement and EPM platforms, and builds proprietary products for master data, integrations, spend intelligence, cash-flow management, platform adoption and agentic operations.",
-  locale: "en",
+  /**
+   * The homepage in a search result, which is not the same job as `title`
+   * and `description` above.
+   *
+   * Those two are the positioning statement, and they are the right length
+   * for the tab and for a share card, where the whole string is shown. A
+   * result listing is not: Google renders roughly 60 characters of title and
+   * 155 of description. At 77 and 227 the pair lost "procurement" and
+   * "finance" off the end of the title and everything past "spend
+   * intelligence" off the description - the specifics, in both cases.
+   *
+   * See `PageSeo` in content/pages.ts, which does the same thing for every
+   * other page.
+   */
+  seo: {
+    title: "Procurement & Finance Systems Engineering",
+    description:
+      "Cogniviti Labs implements enterprise procurement and EPM platforms, and builds products for master data, integrations and spend intelligence.",
+  },
+  // en-GB, not en: the copy is written in British English and every market
+  // the company operates in reads it. It was "en" against an og:locale of
+  // "en_GB", which is the same claim made two different ways.
+  locale: "en-GB",
   email: "contact@cognivitilabs.com",
   // The logo file itself is statically imported where it is rendered
   // (site-nav, site-footer). The import gives next/image the file's intrinsic
@@ -30,14 +52,14 @@ export const site = {
 export const nav = {
   links: [
     { label: "Services", href: "/#services" },
-    { label: "Products", href: "/products" },
+    { label: "Products", href: "/products/" },
     { label: "Platforms", href: "/#platforms" },
-    { label: "Experience", href: "/experience" },
+    { label: "Experience", href: "/experience/" },
     { label: "Training", href: "/#training" },
     { label: "Company", href: "/#company" },
-    { label: "Careers", href: "/careers" },
+    { label: "Careers", href: "/careers/" },
   ],
-  cta: { label: "Talk to Our Team", href: "/contact" },
+  cta: { label: "Talk to Our Team", href: "/contact/" },
   /** The compact bar's toggle, read out by assistive technology. */
   menuLabel: "Open menu",
   closeLabel: "Close menu",
@@ -330,7 +352,7 @@ export const updates: {
       image: null,
       cta: {
         label: "What we are building",
-        href: "/products/agentic-operating-system",
+        href: "/products/agentic-operating-system/",
       },
     },
     {
@@ -339,7 +361,7 @@ export const updates: {
       title: "The Experience Centre is open",
       body: "Run the products yourself against representative data, at desktop, tablet or phone width, before you speak to anybody.",
       image: null,
-      cta: { label: "Open the Experience Centre", href: "/experience" },
+      cta: { label: "Open the Experience Centre", href: "/experience/" },
     },
     {
       kind: "Partnership",
@@ -355,7 +377,7 @@ export const updates: {
       title: "Cross-border delivery across five markets",
       body: "Teams operating from Singapore, India, Indonesia, the United Kingdom and South Africa, with partner coverage into Thailand.",
       image: null,
-      cta: { label: "Where to find us", href: "/contact" },
+      cta: { label: "Where to find us", href: "/contact/" },
     },
   ],
 }
@@ -503,10 +525,10 @@ export const productPortfolio = {
   heading: "Products built from problems we know first-hand",
   body: "Our products are designed around enterprise requirements for control, integration, auditability and operational use.",
   links: [
-    { label: "View All Products", href: "/products", emphasis: "primary" },
+    { label: "View All Products", href: "/products/", emphasis: "primary" },
     {
       label: "Request a Demonstration",
-      href: "/experience",
+      href: "/experience/",
       emphasis: "secondary",
     },
   ],
@@ -534,8 +556,8 @@ export const productDesktop = {
     window: "Window",
     help: "Help",
     helpItems: [
-      { label: "Talk to our team", href: "/contact?subject=products" },
-      { label: "Request a demonstration", href: "/experience" },
+      { label: "Talk to our team", href: "/contact/?subject=products" },
+      { label: "Request a demonstration", href: "/experience/" },
     ],
   },
   spotlight: {
@@ -553,7 +575,7 @@ export const productDesktop = {
   dwell: 5,
   dock: {
     label: "Dock",
-    contact: { label: "Talk to our team", href: "/contact?subject=products" },
+    contact: { label: "Talk to our team", href: "/contact/?subject=products" },
   },
   controls: {
     close: "Close window",
@@ -819,7 +841,7 @@ export const services = {
       ],
     },
   ],
-  cta: { label: "Explore Platform Services", href: "/contact?subject=platform-implementation" },
+  cta: { label: "Explore Platform Services", href: "/contact/?subject=platform-implementation" },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -834,10 +856,10 @@ export const training = {
     "Our trainers combine platform knowledge with practical delivery experience across procurement processes, integrations, data, testing, rollout and adoption.",
   ],
   actions: [
-    { label: "Explore Coupa Training", href: "/contact?subject=training", variant: "solid" },
+    { label: "Explore Coupa Training", href: "/contact/?subject=training", variant: "solid" },
     {
       label: "Discuss Your Training Requirements",
-      href: "/contact?subject=training",
+      href: "/contact/?subject=training",
       variant: "outline",
     },
   ],
@@ -1157,7 +1179,7 @@ export const people = {
 export const clientWork = {
   kicker: "Selected client work",
   heading: "Work that reaches production",
-  cta: { label: "View All Client Stories", href: "/work" },
+  cta: { label: "View All Client Stories", href: "/work/" },
   readLabel: "Read the Client Story",
   /** Seconds a story stays open before the index turns to the next. */
   dwell: 6,
@@ -1182,21 +1204,21 @@ export const clientWork = {
         "Multi-entity rollout",
       ],
       body: "Designed and delivered enterprise procurement processes, platform configuration, ERP integration, data migration, testing and business rollout across multiple operating entities.",
-      href: "/work",
+      href: "/work/",
     },
     {
       num: "02",
       title: "Enterprise integration and data readiness",
       tags: ["Master data", "Governed workflows", "Third-party systems"],
       body: "Prepared master data and connected procurement processes with ERP and third-party systems through governed integration workflows.",
-      href: "/work",
+      href: "/work/",
     },
     {
       num: "03",
       title: "Post-go-live support and optimization",
       tags: ["Stabilization", "Issue resolution", "Managed support"],
       body: "Stabilized production operations, resolved process and integration issues, and established ongoing platform support and improvement.",
-      href: "/work",
+      href: "/work/",
     },
   ],
 } as const
@@ -1252,7 +1274,7 @@ export const together = {
   kicker: "Products and services, working together",
   heading: "Use our products independently, or as part of a wider program",
   body: "Every Cogniviti product can address a defined business requirement on its own. Where appropriate, we also combine our products with platform implementation, integration and managed services. This gives clients the flexibility to solve an immediate problem or establish a broader transformation capability.",
-  cta: { label: "Discuss Your Requirements", href: "/contact" },
+  cta: { label: "Discuss Your Requirements", href: "/contact/" },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -1266,7 +1288,7 @@ export const resources = {
   kicker: "Resources",
   heading: "Practical insight for enterprise teams",
   body: "Guidance based on the realities of platform delivery, integration, data management and business adoption.",
-  cta: { label: "Explore Resources", href: "/blog" },
+  cta: { label: "Explore Resources", href: "/blog/" },
   readLabel: "Read",
   /**
    * FALLBACK ONLY. The row shows the three most recent blog posts from
@@ -1279,20 +1301,20 @@ export const resources = {
       title:
         "Preparing master data for an enterprise procurement implementation",
       image: "editorial photo · data infrastructure",
-      href: "/blog",
+      href: "/blog/",
     },
     {
       eyebrow: "Featured guide",
       title:
         "Designing controlled integrations across development, test and production",
       image: "editorial photo · systems architecture",
-      href: "/blog",
+      href: "/blog/",
     },
     {
       eyebrow: "Featured insight",
       title: "Measuring adoption after an enterprise-platform rollout",
       image: "editorial photo · modern workplace",
-      href: "/blog",
+      href: "/blog/",
     },
   ],
 } as const
@@ -1305,7 +1327,7 @@ export const careers = {
   kicker: "Careers",
   heading: "Build enterprise technology that businesses depend on",
   body: "Work across product engineering, procurement, finance, integrations, data and applied AI, solving problems that continue beyond the initial implementation.",
-  cta: { label: "Explore Careers", href: "/careers" },
+  cta: { label: "Explore Careers", href: "/careers/" },
 } as const
 
 /* ---------------------------------------------------------------------------
@@ -1320,12 +1342,12 @@ export const contact = {
   actions: [
     {
       label: "Discuss a Services Requirement",
-      href: "/contact?subject=platform-implementation",
+      href: "/contact/?subject=platform-implementation",
       variant: "solid",
     },
     {
       label: "Request a Product Demonstration",
-      href: "/contact?subject=products",
+      href: "/contact/?subject=products",
       variant: "outline",
     },
   ],
@@ -1369,13 +1391,13 @@ export const footer = {
       links: [
         {
           label: "Master Data Management",
-          href: "/products/master-data-management",
+          href: "/products/master-data-management/",
         },
-        { label: "CogniFlow", href: "/products/cogniflow" },
-        { label: "Cogniviti Bridge", href: "/products/cogniviti-bridge" },
-        { label: "Spend Analytics", href: "/products/spend-analytics" },
-        { label: "Adoption Copilot", href: "/products/adoption-copilot" },
-        { label: "Experience Centre", href: "/experience" },
+        { label: "CogniFlow", href: "/products/cogniflow/" },
+        { label: "Cogniviti Bridge", href: "/products/cogniviti-bridge/" },
+        { label: "Spend Analytics", href: "/products/spend-analytics/" },
+        { label: "Adoption Copilot", href: "/products/adoption-copilot/" },
+        { label: "Experience Centre", href: "/experience/" },
       ],
     },
     {
@@ -1391,10 +1413,10 @@ export const footer = {
       label: "Company",
       links: [
         { label: "Our Story", href: "/#company" },
-        { label: "Client Stories", href: "/work" },
-        { label: "Resources", href: "/blog" },
-        { label: "Careers", href: "/careers" },
-        { label: "Contact", href: "/contact" },
+        { label: "Client Stories", href: "/work/" },
+        { label: "Resources", href: "/blog/" },
+        { label: "Careers", href: "/careers/" },
+        { label: "Contact", href: "/contact/" },
       ],
     },
   ],
