@@ -214,7 +214,7 @@
 
   /* One focus ring for the page: oxblood, offset, keyboard only. Dark
    * grounds lift it so it holds contrast. Controls with their own ring
-   * (logo cells, dock, rail) opt out locally. */
+   * (logo cells, rail) opt out locally. */
   :where(a, button, [tabindex]):focus-visible {
     outline: 2px solid var(--color-oxblood);
     outline-offset: 2px;
@@ -897,23 +897,17 @@ button:focus-visible .roll-track {
   }
 }
 
-/* Client logo wall (components/trusted-by.tsx).
+/* Client logos (components/trusted-by-arc.tsx).
  *
  * Logos keep their own colours. A white logo is rendered dark so it shows on
- * the paper. Cells fade up in a short sequence once the wrapper has been
- * revealed. Hover, where a fine pointer exists, tints the cell. */
+ * the paper. */
 .logo-mark[data-tone="light"] {
   filter: brightness(0);
   opacity: 0.8;
 }
 
-.logo-link {
-  transition: background-color 200ms ease;
-}
-
 /* Logo flip (FlipTrack in components/primitives.tsx): the label roll
- * (`.roll` above) taken into depth, used by the client logo wall and the
- * platform experience tiles. The track holds the mark and a copy as two faces
+ * (`.roll` above) taken into depth, used by the platform experience tiles. The track holds the mark and a copy as two faces
  * of a box - the mark in front, the copy folded underneath at -90deg - and
  * hovering the `.logo-flip` owner (the cell's link or button) turns the
  * track a quarter forward, so the mark leaves over its top edge as the copy
@@ -964,82 +958,6 @@ button:focus-visible .roll-track {
 @media (prefers-reduced-motion: reduce) {
   .logo-flip-track {
     transition: none;
-  }
-}
-
-/* Client logo loop (components/trusted-by-loop.tsx).
- *
- * The scrolling shape of the client wall: two rows of logos passing each
- * other in opposite directions. The track is four copies of the row laid out
- * in a row that is as wide as it needs to be, and the animation moves it left
- * by exactly a quarter of itself - one copy - so the last frame is the first
- * frame and there is no seam to hide.
- *
- * `animation-direction: reverse` is what sends the second row the other way.
- * On an infinite linear loop that is the same animation played backwards
- * forever, so it stays as seamless as the forward one; translating a positive
- * quarter instead would need a second keyframe set for no gain.
- *
- * The fade at each end is a mask rather than a pair of gradient overlays,
- * because the section ground is paper here and night on a dark block, and a
- * mask does not care which. It is sized off the row height so the fade is in
- * proportion to the logos rather than to the window.
- *
- * The row stops under a pointer and for keyboard focus - a logo is a link,
- * and a link that is moving cannot be aimed at. Under reduced motion it does
- * not move at all: the first copy is simply a static row, clipped, which is
- * the same thing the wall would be if it had never scrolled. */
-.logo-loop-row {
-  --loop-fade: clamp(32px, 8%, 96px);
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 var(--loop-fade),
-    #000 calc(100% - var(--loop-fade)),
-    transparent
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 var(--loop-fade),
-    #000 calc(100% - var(--loop-fade)),
-    transparent
-  );
-}
-
-.logo-loop-track {
-  width: max-content;
-  animation: logo-loop var(--loop-duration, 48s) linear infinite;
-  /* The track is the only thing moving in the section and it moves for the
-   * whole time the section is on screen, so it is worth its own layer. */
-  will-change: transform;
-}
-
-.logo-loop-row[data-reverse] .logo-loop-track {
-  animation-direction: reverse;
-}
-
-@keyframes logo-loop {
-  to {
-    transform: translate3d(-25%, 0, 0);
-  }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .logo-loop-row:hover .logo-loop-track {
-    animation-play-state: paused;
-  }
-}
-
-.logo-loop-row:focus-within .logo-loop-track {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .logo-loop-track {
-    animation: none;
-    will-change: auto;
   }
 }
 
@@ -1146,142 +1064,6 @@ button:focus-visible .roll-track {
 @media (prefers-reduced-motion: reduce) {
   .logo-arc-item {
     will-change: auto;
-  }
-}
-
-/* Client deck, fanned (components/trusted-by-cards.tsx).
- *
- * A hand of cards spread across the middle of the page, turned by the fan
- * tuning of the ride in lib/logo-ride.ts. The geometry the loop depends on:
- *
- *   --card-pitch   the step between two cards, and the width of a slot
- *   --card-w       the card, near twice the pitch, so the deck overlaps
- *   --card-h       the card
- *   --card-rise    how far the square-on card stands above the rest
- *
- * The slot and the card are deliberately different widths. The loop writes
- * whole-pitch positions into the slot; the card is drawn wider than its slot
- * and centred in it, so how far the deck overlaps is a property of the
- * stylesheet alone and the loop never has to know about it.
- *
- * The row has to be tall enough for the card, the rise, the parabolic fall of
- * the outermost cards, and the corner a 15-degree turn lifts - that last one
- * is the easy one to forget, and it clips the top corner of the second card
- * out from the middle if you do.
- */
-.logo-cards {
-  /* Two pitches, and which one applies decides whether this is a deck or a
-   * row. The tight one overlaps the cards, and it is only correct once the
-   * loop is running to turn them: without the fan, cards this close are a
-   * pile with one readable face and eleven slivers. So the overlap is scoped
-   * to `.js`, the class the inline head script sets before the body paints,
-   * and with scripting off the same markup lays out as a plain row of cards
-   * at their own width. Nothing flashes - the class is there at first paint -
-   * and the loop reads whichever pitch is in force off the slot itself. */
-  --card-pitch: clamp(196px, 21vw, 272px);
-  --card-w: clamp(180px, 20vw, 252px);
-  --card-h: clamp(118px, 14vw, 164px);
-  --card-rise: 10px;
-  --cards-fade: clamp(48px, 12%, 180px);
-
-  position: relative;
-  height: calc(var(--card-h) + var(--card-rise) + 70px);
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 var(--cards-fade),
-    #000 calc(100% - var(--cards-fade)),
-    transparent
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 var(--cards-fade),
-    #000 calc(100% - var(--cards-fade)),
-    transparent
-  );
-}
-
-.js .logo-cards {
-  --card-pitch: clamp(92px, 10vw, 132px);
-}
-
-.logo-cards-track {
-  position: absolute;
-  inset: 0;
-}
-
-/* The slot. `transform-origin` at the foot is what makes the tilt a fan: the
- * top of the card swings out and the bottoms stay gathered, the way a hand of
- * cards is held at one end. At the default centre origin a tilting card
- * slides sideways instead and the gather is lost. */
-.logo-card {
-  position: absolute;
-  /* Clear of the floor by more than `drop`, or the outermost cards of the
-   * fan are cut off at the bottom of the row instead of receding into it. */
-  bottom: 38px;
-  left: 0;
-  width: var(--card-pitch);
-  height: var(--card-h);
-  transform-origin: 50% 100%;
-  will-change: transform;
-}
-
-/* The card, wider than its slot and centred in it. */
-.logo-card-face {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: var(--card-w);
-  height: 100%;
-  margin-left: calc(var(--card-w) / -2);
-  background-color: var(--color-paper);
-  border: 1px solid var(--color-rule);
-  transition:
-    border-color var(--roll-duration) var(--roll-ease),
-    box-shadow var(--roll-duration) var(--roll-ease);
-}
-
-/* Dimming the contents, not the card.
- *
- * The deck overlaps, so a card at reduced opacity shows the card behind it
- * through its own face and the fan turns to mush. Instead the card stays
- * opaque and this scrim - the page ground, over the contents, under nothing -
- * takes a card that is not square on back toward the paper. `--ride-b` is
- * written by the loop: 1 square on, 0 at the edge of the fan. */
-.logo-card-face::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: var(--color-paper);
-  opacity: calc((1 - var(--ride-b, 1)) * 0.62);
-  pointer-events: none;
-}
-
-/* The one card square on. The border goes up a step and the brackets take the
- * accent - the page's own two moves for a cell being singled out - and it
- * lifts off the deck. This is the only shadow on the site outside the section
- * rail, and it is the same argument: at that moment this card really is the
- * floating element. */
-.logo-card[data-lit] .logo-card-face {
-  border-color: var(--color-rule-strong);
-  box-shadow:
-    0 18px 40px rgb(23 20 15 / 0.14),
-    0 4px 12px rgb(23 20 15 / 0.08);
-}
-
-.logo-card[data-lit] .logo-card-face i {
-  border-color: var(--color-oxblood);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .logo-card {
-    will-change: auto;
-  }
-
-  .logo-card-face {
-    transition: none;
   }
 }
 
@@ -1923,71 +1705,8 @@ button:focus-visible .roll-track {
   outline-offset: 2px;
 }
 
-.dock-item {
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Magnification is Motion's (transform, per icon, on a spring). The press
- * uses the separate `scale` property so it composes with it. */
-.dock-icon {
-  transition:
-    scale 100ms cubic-bezier(0.23, 1, 0.32, 1),
-    background-color 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.dock-item:active .dock-icon {
-  scale: 0.94;
-}
-
-.dock-item:focus-visible {
-  outline: none;
-}
-
-.dock-item:focus-visible .dock-icon {
-  box-shadow:
-    0 0 0 2px var(--color-night-deep),
-    0 0 0 4px var(--color-oxblood-lift);
-}
-
-.dock-tip {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  translate: -50% 4px;
-  padding: 5px 11px;
-  border-radius: 8px;
-  background: var(--color-night-fg);
-  color: var(--color-ink);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 0.4);
-  opacity: 0;
-  pointer-events: none;
-  transition:
-    opacity 120ms ease-out,
-    translate 120ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.dock-item:focus-visible .dock-tip {
-  opacity: 1;
-  translate: -50% 0;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .dock-item:hover .dock-tip {
-    opacity: 1;
-    translate: -50% 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .window-drag,
-  .dock-icon,
-  .dock-tip,
   .traffic-light {
     transition-duration: 0.01ms;
   }

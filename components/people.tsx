@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Image, { type StaticImageData } from "next/image"
-import { motion, useScroll, useTransform } from "motion/react"
+import { motion, useMotionValue } from "motion/react"
 
 import { Container, Corners, Kicker, Roll } from "@/components/primitives"
 import { ScrambleText } from "@/components/scramble-text"
@@ -49,7 +49,10 @@ import valentina from "@/public/team/team-valentina.jpg"
  * shown as cropped.
  */
 const framing: Record<string, { zoom: number; eyes: string }> = {
-  sushil: { zoom: 1.32, eyes: "26%" },
+  // Sushil's hair already touches the top of his file, so the zoom is
+  // about the top edge: it grows the head downward into the jacket rather
+  // than pushing the crown out of the frame, which an origin at the eyes did.
+  sushil: { zoom: 1.28, eyes: "0%" },
   manav: { zoom: 1.34, eyes: "22%" },
   leroy: { zoom: 1.32, eyes: "24%" },
   animesh: { zoom: 1.26, eyes: "22%" },
@@ -97,7 +100,15 @@ type Member = (typeof people.groups)[number]["members"][number]
  *
  * The pin is the outer section's height: the viewport plus the distance
  * the row has to travel, with the row's frame stuck to the top of the
- * viewport for the whole of it. The frame fills from the top - heading,
+ * viewport for the whole of it. So how far the row has moved is simply how
+ * far the section's top has gone above the viewport's, clamped to the
+ * travel, and that is read straight off the section on every scroll frame.
+ * It used to come through Motion's scroll tracking against the section
+ * with a start/end offset, which keeps its own measurements and hands the
+ * progress on through its frame loop; on the way back up the row would
+ * sometimes hold its last position with the section already scrolled past.
+ * One rectangle per scroll event, with the last event always applied,
+ * cannot be left behind. The frame fills from the top - heading,
  * then the line, then the rule - and the card width is derived from the
  * viewport height on the pin, so the whole thing fits under the bar on a
  * short laptop screen as well as a tall one. Heights are in svh, the
@@ -153,12 +164,38 @@ export function People() {
     return () => observer.disconnect()
   }, [pinned])
 
-  const { scrollYProgress } = useScroll({
-    target: outer,
-    offset: ["start start", "end end"],
-  })
-  const x = useTransform(scrollYProgress, [0, 1], [0, -travel])
-  const progress = useTransform(scrollYProgress, [0, 1], [0.04, 1])
+  // The row's offset and the progress rule, driven from the section's own
+  // position. Coalesced to one read per frame; `scrollend`, where the
+  // browser has it, is a last settle after the final scroll event.
+  const x = useMotionValue(0)
+  const progress = useMotionValue(0.04)
+
+  React.useEffect(() => {
+    if (!pinned) return
+    const section = outer.current
+    if (!section) return
+    let frameId = 0
+    const sync = () => {
+      frameId = 0
+      const top = section.getBoundingClientRect().top
+      const moved = Math.min(travel, Math.max(0, -top))
+      x.set(-moved)
+      progress.set(travel > 0 ? 0.04 + 0.96 * (moved / travel) : 0.04)
+    }
+    const schedule = () => {
+      if (!frameId) frameId = requestAnimationFrame(sync)
+    }
+    sync()
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule)
+    window.addEventListener("scrollend", sync)
+    return () => {
+      cancelAnimationFrame(frameId)
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+      window.removeEventListener("scrollend", sync)
+    }
+  }, [pinned, travel, x, progress])
 
   return (
     <section
@@ -383,12 +420,18 @@ function PersonCard({ member }: { member: Member }) {
             ) : null}
           </div>
 
-          <div
-            title={`Ex-${member.previously.join(" · ")}`}
-            className="mt-[9px] truncate text-[12.5px] leading-[1.45] text-oxblood"
-          >
-            Ex-{member.previously.join(" · ")}
-          </div>
+          {/* The platforms this person is certified on. The team carry
+              them; the founders do not, and their card is simply a line
+              shorter - the row aligns its cards to the top, so nothing
+              else moves. */}
+          {"certifications" in member && member.certifications.length > 0 ? (
+            <div
+              title={`${member.certifications.join(" · ")} certified`}
+              className="mt-[9px] truncate text-[12.5px] leading-[1.45] text-oxblood"
+            >
+              {member.certifications.join(" · ")} certified
+            </div>
+          ) : null}
 
           <p className="mt-[9px] line-clamp-3 text-[13px] leading-[1.5] text-pretty text-ink-muted max-sm:line-clamp-2">
             {member.body}

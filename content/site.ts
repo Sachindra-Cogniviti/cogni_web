@@ -109,7 +109,7 @@ export const hero = {
     },
   ],
   footnote:
-    "Operating across Singapore, India, Indonesia, the United Kingdom and South Africa, with partner-supported delivery in Thailand and other markets.",
+    "Operating across Singapore, India, Indonesia and South Africa, with partner-supported delivery in Australia, Thailand and other markets.",
   // The galaxy in the hero's right-hand whitespace (components/hero-galaxy.tsx).
   // Five capability nodes orbit a core: `r` is orbit radius, `a` the angle in
   // radians, `product` marks Cogniviti products against platforms we serve.
@@ -254,7 +254,7 @@ export const trustedBy = {
 
 export const certifications = {
   kicker: "Certified expertise",
-  body: "Independently audited management systems, and platform accreditation held directly with the vendor.",
+  body: "Independently audited management systems, and platform accreditation held directly with each vendor.",
   // PLACEHOLDER: `issuer` and `reference` are blank pending the certificates.
   // Each renders only when filled, so the cards are complete without them.
   items: [
@@ -282,6 +282,25 @@ export const certifications = {
       eyebrow: "Procurement platform",
       standard: "Coupa Platform Partner",
       body: "Accredited by Coupa to implement and support the platform, and an Official Coupa Training Partner.",
+      issuer: "",
+      reference: "",
+    },
+    // DRAFT: the two partner designations below are worded to match the
+    // Coupa card. Check each against the actual partner tier held before
+    // launch, as the badge (and its rules) come from that programme.
+    {
+      id: "gep-partner",
+      eyebrow: "Procurement platform",
+      standard: "GEP Partner",
+      body: "Accredited by GEP to implement and support GEP SMART across sourcing, procurement and supplier management.",
+      issuer: "",
+      reference: "",
+    },
+    {
+      id: "ivalua-partner",
+      eyebrow: "Procurement platform",
+      standard: "Ivalua Partner",
+      body: "Accredited by Ivalua to implement and support the platform across the Source-to-Pay lifecycle.",
       issuer: "",
       reference: "",
     },
@@ -448,7 +467,8 @@ export const twoSides = {
  *
  * One list drives three surfaces: the portfolio table (hidden for now), the
  * product desktop, and the footer product column. `glyph` is the two-letter
- * mark used by the desktop's app icons and dock.
+ * mark used by the desktop's app icons. The order is the order the desktop's
+ * product list, the footer and /products present them in.
  * ------------------------------------------------------------------------- */
 
 export type Product = {
@@ -470,7 +490,7 @@ export const products: readonly Product[] = [
     glyph: "MD",
     kicker: "Data foundation",
     tag: "Better data before it reaches your enterprise systems",
-    desc: "Standardize, validate, enrich and govern master data for procurement, ERP, analytics and other operational platforms.",
+    desc: "Standardize, validate, enrich and govern master data for procurement, ERP, analytics and other operational platforms, and clean up the messy historical data already in them.",
     cta: "Explore MDM",
     rows: [
       ["Supplier records validated", "12,408 / 12,431"],
@@ -480,18 +500,18 @@ export const products: readonly Product[] = [
     ],
   },
   {
-    name: "CogniFlow",
-    slug: "cogniflow",
-    glyph: "CF",
-    kicker: "Project cash flow",
-    tag: "See project cash flow before it becomes a problem",
-    desc: "Track project inflows, outflows, billing, collections, committed costs and forward cash position through a unified operational view.",
-    cta: "Explore CogniFlow",
+    name: "Agentic Operating System",
+    slug: "agentic-operating-system",
+    glyph: "OS",
+    kicker: "Agentic operations",
+    tag: "Enterprise agents designed to operate together",
+    desc: "A governed suite of agents for procurement and other business operations, designed to coordinate tasks, decisions and workflows across enterprise systems.",
+    cta: "Explore Agentic Operating System",
     rows: [
-      ["Forward cash position", "+13 weeks visible"],
-      ["Committed costs tracked", "1,142 lines"],
-      ["Collections outstanding", "38 invoices"],
-      ["Billing milestones", "9 upcoming"],
+      ["Agents coordinating", "6 governed"],
+      ["Tasks orchestrated today", "318"],
+      ["Human approvals pending", "4"],
+      ["Audit trail", "Complete"],
     ],
   },
   {
@@ -540,18 +560,18 @@ export const products: readonly Product[] = [
     ],
   },
   {
-    name: "Agentic Operating System",
-    slug: "agentic-operating-system",
-    glyph: "OS",
-    kicker: "Agentic operations",
-    tag: "Enterprise agents designed to operate together",
-    desc: "A governed suite of agents for procurement and other business operations, designed to coordinate tasks, decisions and workflows across enterprise systems.",
-    cta: "Explore Agentic Operating System",
+    name: "CogniFlow",
+    slug: "cogniflow",
+    glyph: "CF",
+    kicker: "Project cash flow",
+    tag: "See project cash flow before it becomes a problem",
+    desc: "Track project inflows, outflows, billing, collections, committed costs and forward cash position through a unified operational view.",
+    cta: "Explore CogniFlow",
     rows: [
-      ["Agents coordinating", "6 governed"],
-      ["Tasks orchestrated today", "318"],
-      ["Human approvals pending", "4"],
-      ["Audit trail", "Complete"],
+      ["Forward cash position", "+13 weeks visible"],
+      ["Committed costs tracked", "1,142 lines"],
+      ["Collections outstanding", "38 invoices"],
+      ["Billing milestones", "9 upcoming"],
     ],
   },
 ]
@@ -574,7 +594,8 @@ export const productPortfolio = {
  * Product desktop (components/product-desktop.tsx): the suite shown as a
  * small operating system. `menuBar` holds the menu titles and items ({name}
  * is replaced by the open product), `spotlight` the search panel's copy, and
- * `dock.contact` the extra Dock item that links to the contact section.
+ * `list` the product list beside the window, with the extra item that links
+ * to the contact section.
  */
 export const productDesktop = {
   kicker: "Product portfolio",
@@ -606,11 +627,11 @@ export const productDesktop = {
   },
   windowTitleSuffix: "Cogniviti Suite",
   detailLabel: "Information",
-  closedHint: "Choose a product from the Dock to open it",
+  closedHint: "Choose a product from the list to open it",
   /** Seconds each product holds on the phone before the next slides in. */
   dwell: 5,
-  dock: {
-    label: "Dock",
+  list: {
+    label: "Products",
     contact: { label: "Talk to our team", href: "/contact/?subject=products" },
   },
   controls: {
@@ -764,6 +785,12 @@ export const services = {
     },
     {
       label: "Integration experience",
+      // The position, and what every panel in this group opens with before
+      // the system's own copy. `emphasis` names the product in it, which is
+      // set bold and links to its page. Supplied copy: it calls the product
+      // CogniBridge where the product list says Cogniviti Bridge.
+      opening: "Your procurement platform should run as one with your ERP, not beside it. We implement it end to end and make sure it works hand in hand with your back end, whether you run SAP PI/PO, SAP BTP, or nothing at all. No middleware? We bring our own: CogniBridge. White-glove from start to finish.",
+      emphasis: { text: "CogniBridge", href: "/products/cogniviti-bridge/" },
       // Five items rather than the four above, so this row runs five columns.
       // Heights are optical, not arithmetic: Oracle's wordmark is 7.7:1 and
       // has to sit far shorter than SAP's near-square block to carry the same
@@ -1077,6 +1104,14 @@ export const globalPresence = {
  * plausible number.
  * ------------------------------------------------------------------------- */
 
+/**
+ * PLACEHOLDER. Every team member lists all three platform certifications
+ * until the real list per person arrives; replace this with each person's
+ * own `certifications` array then. Founders carry none. The card sets them
+ * where the former employers used to be (components/people.tsx).
+ */
+const TEAM_CERTIFICATIONS = ["Coupa", "GEP", "Ivalua"] as const
+
 export const people = {
   kicker: "Founders and team",
   heading: "The people behind it",
@@ -1093,7 +1128,6 @@ export const people = {
           photo: "zafar",
           role: "Executive Director",
           tenure: "25+ yrs",
-          previously: ["Accenture", "Deloitte", "KPMG"],
           body: "Large-scale procurement transformation programs.",
           linkedin: "https://www.linkedin.com/in/mdzafarali/",
         },
@@ -1102,7 +1136,6 @@ export const people = {
           photo: "john",
           role: "Executive Director",
           tenure: "22+ yrs",
-          previously: ["SAP", "KPMG", "BCT"],
           body: "Tech consulting, value selling and enterprise delivery.",
           linkedin: "https://www.linkedin.com/in/john-philip-07a29416/",
         },
@@ -1111,7 +1144,6 @@ export const people = {
           photo: "sushil",
           role: "Director",
           tenure: "14+ yrs",
-          previously: ["Coupa"],
           body: "25+ source-to-pay implementations across APAC.",
           linkedin: "https://www.linkedin.com/in/sushil-yerunkar-8a852820/",
         },
@@ -1120,7 +1152,6 @@ export const people = {
           photo: "robin",
           role: "Director",
           tenure: "15+ yrs",
-          previously: ["BCG"],
           body: "Procurement strategy across BCG's global offices.",
           linkedin: "https://www.linkedin.com/in/robingarg15/",
         },
@@ -1129,7 +1160,6 @@ export const people = {
           photo: "kriti",
           role: "Director",
           tenure: "15+ yrs",
-          previously: ["EY", "PwC", "KPMG"],
           body: "Transformation and change management at Big-Four scale.",
           linkedin: "https://www.linkedin.com/in/kriti-gaurav-64850a11/",
         },
@@ -1138,7 +1168,6 @@ export const people = {
           photo: "manav",
           role: "Managing Director, Africa",
           tenure: "15+ yrs",
-          previously: ["PSA Group", "Letsema"],
           body: "Enterprise transformation and delivery leadership.",
           linkedin: "https://www.linkedin.com/in/manav-sachdeva-b191212/",
         },
@@ -1150,57 +1179,57 @@ export const people = {
         {
           name: "Niko Sutiono",
           photo: "niko",
-          role: "Senior Manager",
-          previously: ["Deloitte", "EY"],
+          role: "Country Head, Indonesia",
           body: "Tech-enabled transformation in finance and procurement.",
+          certifications: TEAM_CERTIFICATIONS,
           linkedin: "https://www.linkedin.com/in/niko-sutiono/",
         },
         {
           name: "Animesh Singhal",
           photo: "animesh",
           role: "Product Manager",
-          previously: ["Bahwan CyberTek", "IBM"],
           body: "AI-powered products across procurement, data and automation.",
+          certifications: TEAM_CERTIFICATIONS,
           linkedin: "https://www.linkedin.com/in/animsin/",
         },
         {
           name: "Sandesh Jagtap",
           photo: "sandesh",
           role: "Manager",
-          previously: ["Bahwan CyberTek", "Zycus"],
           body: "Digital transformation and eProcurement practice across S2P.",
+          certifications: TEAM_CERTIFICATIONS,
           linkedin: "https://www.linkedin.com/in/sandesh-jagtap-4a1221103/",
         },
         {
           name: "Rahul Pawar",
           photo: "rahul",
           role: "Senior Solution Consultant",
-          previously: ["Bahwan CyberTek", "Zycus"],
           body: "Solution design and delivery across procurement platforms.",
+          certifications: TEAM_CERTIFICATIONS,
           linkedin: "https://www.linkedin.com/in/rahul-pawar-88993ba0/",
         },
         {
           name: "Leroy Vieira",
           photo: "leroy",
           role: "Solution Consultant",
-          previously: ["Bahwan CyberTek", "Decathlon"],
           body: "End-to-end Source-to-Pay delivery across global clients.",
+          certifications: TEAM_CERTIFICATIONS,
           linkedin: "https://www.linkedin.com/in/leroy-vieira/",
         },
         {
           name: "Joyce Kuppekar",
           photo: "joyce",
           role: "Solutions Consultant",
-          previously: ["Bahwan CyberTek", "WNS"],
           body: "Supply chain management, Coupa-certified P2P & S2P.",
+          certifications: TEAM_CERTIFICATIONS,
           linkedin: "https://www.linkedin.com/in/joyce-kuppekar-7bb7491b8/",
         },
         {
           name: "Valentina Aranjo",
           photo: "valentina",
           role: "Software Implementation Consultant",
-          previously: ["Bahwan CyberTek"],
           body: "SaaS implementation and supply-chain optimization, S2P & P2P.",
+          certifications: TEAM_CERTIFICATIONS,
           linkedin: "https://www.linkedin.com/in/valentina-aranjo-b11892131/",
         },
       ],

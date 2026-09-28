@@ -155,9 +155,10 @@ stacking, all of it in `max-sm:` classes so nothing waits on a measurement:
   screen and the grid would otherwise size its column to the row.
 - **The product desktop** wears phone chrome: bezel, status bar with the
   time and a notch, no window controls, the screen as tall as the detail.
-  There is no Dock; the products turn on their own (`productDesktop.dwell`)
-  and a swipe across the window steps them, with page dots as index and
-  clock. Same state either way; only the chrome and the gesture change.
+  The product list beside the window is gone; the products turn on their
+  own (`productDesktop.dwell`) and a swipe across the window steps them,
+  with page dots as index and clock. Same state either way; only the
+  chrome and the gesture change.
 - **The people row** pins on every screen (reduced motion is the only
   exception) with heights in `svh`, so the rule is above a phone's
   address bar. The card width is derived from the viewport height with a

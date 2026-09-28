@@ -11,9 +11,7 @@ import {
   useMotionValue,
   useReducedMotion,
   useScroll,
-  useSpring,
   useTransform,
-  type MotionValue,
   type Variants,
 } from "motion/react"
 
@@ -30,23 +28,26 @@ import { productDesktop, products } from "@/content/site"
 /**
  * Product desktop - the suite presented as a small operating system: a menu
  * bar with working menus, one app window you can drag, zoom and close, a
- * Spotlight-style search, and a Dock that magnifies around the pointer.
- * Choosing an app anywhere (Dock, Window menu, search) opens it in the
+ * Spotlight-style search, and the products listed by name down the side.
+ * Choosing an app anywhere (the list, Window menu, search) opens it in the
  * window. It is a toy, but every control does what its shape promises, which
  * is what makes it feel operated rather than pictured.
+ *
+ * The list replaced a Dock of two-letter icons. A row of MD, CF, BR under
+ * the window said nothing about what the suite was until each was hovered
+ * or opened; the names down the side read as the portfolio at a glance,
+ * which is the one thing this section has to do before it is a toy.
  *
  * All motion here is Motion's, on transform, opacity and filter: the app
  * switch is an AnimatePresence crossfade, 160ms out and 220ms in with a
  * touch of blur to bridge the two states; menus and the search panel enter
  * 150ms from their trigger and leave in 100ms, and are instant when opened
- * from the keyboard; the Dock magnifies on springs driven from the pointer
- * position, so a fast sweep along it overshoots a little and settles; the
- * window opens on a short spring and closes 220ms toward the Dock. Reduced
- * motion is honoured through the page's MotionConfig. Hover effects and
- * magnification are gated to fine pointers.
+ * from the keyboard; the window opens on a short spring and closes 220ms
+ * downward. Reduced motion is honoured through the page's MotionConfig.
+ * Hover effects are gated to fine pointers.
  *
  * The window drag is Motion's: started from the title bar through drag
- * controls, bounded to the desktop with the Dock kept clear, and elastic at
+ * controls, bounded to the stage beside the list, and elastic at
  * the edges, so pushing past a bound moves the window a quarter of the way
  * and it settles back on release instead of hitting a wall. Zoom and close
  * ease the offset home over 220ms.
@@ -55,7 +56,7 @@ import { productDesktop, products } from "@/content/site"
  * bezel, a status bar with the time and a notch in place of the menu bar,
  * the window filling the screen under a nav bar with no window controls,
  * and the screen as tall as the detail so nothing scrolls inside it. There
- * is no Dock on the phone. The products turn on their own instead, on the
+ * is no list on the phone. The products turn on their own instead, on the
  * dwell the carousels keep, and a swipe across the window steps through
  * them; a row of page dots under the window is the index and the clock,
  * the way the updates pagination is. The switch slides the way the
@@ -77,8 +78,6 @@ import { productDesktop, products } from "@/content/site"
 
 type MenuId = "app" | "window" | "help"
 
-const FINE_POINTER = "(hover: hover) and (pointer: fine)"
-const REDUCED = "(prefers-reduced-motion: reduce)"
 const EASE: [number, number, number, number] = [0.23, 1, 0.32, 1]
 /** Where the desktop is a phone, and the products turn by themselves. */
 const PHONE = "(max-width: 639px)"
@@ -89,7 +88,7 @@ const SWIPE = 40
 /**
  * The app switch. `custom` carries the direction: +1 or -1 for a swipe or
  * a page dot, so the old body leaves the way the reader went and the new
- * one arrives from behind it; 0 from the Dock, where there is no
+ * one arrives from behind it; 0 from the list, where there is no
  * direction and the body settles vertically as it always did.
  */
 const appBody: Variants = {
@@ -115,7 +114,7 @@ const appBody: Variants = {
   }),
 }
 
-/** The window: springs open from just above the Dock, eases closed toward it. */
+/** The window: springs open from a little below its place, eases closed the same way. */
 const windowVariants: Variants = {
   open: {
     opacity: 1,
@@ -148,7 +147,9 @@ export function ProductDesktop() {
   const sectionRef = React.useRef<HTMLElement>(null)
   const desktopRef = React.useRef<HTMLDivElement>(null)
   const dragRef = React.useRef<HTMLDivElement>(null)
-  const dockRef = React.useRef<HTMLDivElement>(null)
+  // The stage: the part of the desktop the window lives in, beside the list.
+  const stageRef = React.useRef<HTMLDivElement>(null)
+  const listRef = React.useRef<HTMLDivElement>(null)
   const menuBarRef = React.useRef<HTMLDivElement>(null)
   const searchButtonRef = React.useRef<HTMLButtonElement>(null)
   const inView = React.useRef(false)
@@ -156,8 +157,8 @@ export function ProductDesktop() {
   /* ---- opening an app ---------------------------------------------------- */
 
   // The switch itself is an AnimatePresence crossfade keyed on `selected`
-  // (see the window body), so this only has to set state; a quick run along
-  // the Dock is handled by presence, which waits for the exit and mounts
+  // (see the window body), so this only has to set state; a quick run down
+  // the list is handled by presence, which waits for the exit and mounts
   // whichever app is current by then.
   const open = React.useCallback((index: number, direction = 0) => {
     setDir(direction)
@@ -244,13 +245,12 @@ export function ProductDesktop() {
     if (event.button !== 0 || event.pointerType === "touch" || zoomed) return
     if ((event.target as Element).closest("button")) return
     const wrap = dragRef.current
-    const desk = desktopRef.current
-    if (!wrap || !desk) return
+    const stage = stageRef.current
+    if (!wrap || !stage) return
 
     const w = wrap.getBoundingClientRect()
-    const d = desk.getBoundingClientRect()
+    const d = stage.getBoundingClientRect()
     const pad = 8
-    const dockClearance = 100
     // Constraints are relative to the untransformed box, so subtract the
     // current offset from the measured edges.
     const restLeft = w.left - x.get()
@@ -262,7 +262,7 @@ export function ProductDesktop() {
         left: d.left + pad - restLeft,
         right: d.right - pad - restRight,
         top: d.top + pad - restTop,
-        bottom: d.bottom - dockClearance - restBottom,
+        bottom: d.bottom - pad - restBottom,
       })
     )
     dragControls.start(event)
@@ -286,31 +286,20 @@ export function ProductDesktop() {
     home()
   }
 
-  /* ---- Dock magnification ------------------------------------------------ */
+  /* ---- the product list -------------------------------------------------- */
 
-  // One motion value carries the pointer's x across the Dock; each icon
-  // derives its own scale and lift from its distance to it and smooths them
-  // on a spring (see DockIcon). Infinity means "no pointer", which relaxes
-  // every icon.
-  const pointerX = useMotionValue(Number.POSITIVE_INFINITY)
-
-  const magnify = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!window.matchMedia(FINE_POINTER).matches) return
-    if (window.matchMedia(REDUCED).matches) return
-    pointerX.set(event.clientX)
-  }
-
-  const relax = () => pointerX.set(Number.POSITIVE_INFINITY)
-
-  const onDockKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return
+  // One tab stop, arrows to move: the list is a toolbar, so the products are
+  // stepped through with the up and down keys and the page's own tab order
+  // does not grow by six.
+  const onListKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return
     event.preventDefault()
     const next =
-      event.key === "ArrowRight"
+      event.key === "ArrowDown"
         ? (selected + 1) % products.length
         : (selected - 1 + products.length) % products.length
     open(next)
-    dockRef.current?.querySelectorAll<HTMLButtonElement>("[data-dock-app]")[next]?.focus()
+    listRef.current?.querySelectorAll<HTMLButtonElement>("[data-list-app]")[next]?.focus()
   }
 
   /* ---- menu bar ------------------------------------------------------------ */
@@ -399,7 +388,6 @@ export function ProductDesktop() {
   }
 
   const active = products[selected]
-  const iconSize = "size-[clamp(40px,4.4vw,54px)]"
 
   return (
     <section
@@ -578,11 +566,96 @@ export function ProductDesktop() {
             </span>
           </div>
 
-          {/* Desktop */}
+          {/* Desktop: the list down the left, the stage with the window in
+              it on the right. On the phone the list is gone and the stage
+              is the whole screen. */}
           <div
             ref={desktopRef}
-            className="relative flex min-h-[560px] flex-1 flex-col items-center justify-center px-[clamp(12px,3vw,32px)] pt-[clamp(20px,3vw,36px)] pb-[112px] max-sm:min-h-0 max-sm:justify-start max-sm:px-3 max-sm:pt-2 max-sm:pb-[68px]"
+            className="relative flex min-h-[560px] flex-1 items-stretch gap-x-[clamp(16px,2.5vw,28px)] px-[clamp(12px,3vw,32px)] py-[clamp(20px,3vw,32px)] max-sm:min-h-0 max-sm:flex-col max-sm:px-3 max-sm:pt-2 max-sm:pb-[68px]"
           >
+            {/* The list. Every product by name, the open one lit, and the
+                way to the contact page at the foot where a Dock kept it. */}
+            <nav
+              aria-label={productDesktop.list.label}
+              className="w-[clamp(196px,21vw,244px)] shrink-0 max-sm:hidden"
+            >
+              <div
+                ref={listRef}
+                role="toolbar"
+                aria-orientation="vertical"
+                aria-label={productDesktop.list.label}
+                onKeyDown={onListKey}
+                className="flex h-full flex-col rounded-[14px] border border-night-fg/12 bg-night-deep/60 p-[8px] backdrop-blur-[12px]"
+              >
+                <div className="px-[10px] pt-[6px] pb-[10px] font-mono text-[10px] tracking-[0.16em] text-night-fg/45 uppercase">
+                  {productDesktop.list.label}
+                </div>
+                {products.map((product, index) => {
+                  const isActive = index === selected && windowOpen
+                  return (
+                    <button
+                      key={product.name}
+                      type="button"
+                      data-list-app
+                      onClick={() => open(index)}
+                      aria-pressed={isActive}
+                      tabIndex={index === selected ? 0 : -1}
+                      className={`control-motion flex w-full cursor-pointer items-center gap-[10px] rounded-[8px] px-[10px] py-[8px] text-left text-[13px] leading-[1.25] font-medium tracking-[-0.005em] focus-visible:outline-none active:scale-[0.985] ${
+                        isActive
+                          ? "bg-[linear-gradient(135deg,#8E2030,#C93B52)] text-paper shadow-[0_8px_22px_rgb(142_32_48/0.35)]"
+                          : "text-night-fg/75 hover:bg-night-fg/8 hover:text-night-fg focus-visible:bg-night-fg/8 focus-visible:text-night-fg"
+                      }`}
+                    >
+                      <span
+                        className={`flex size-[26px] shrink-0 items-center justify-center rounded-[7px] border font-mono text-[10px] font-semibold ${
+                          isActive
+                            ? "border-paper/25 bg-paper/15 text-paper"
+                            : "border-night-fg/12 bg-night-fg/[0.07] text-night-fg/85"
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {product.glyph}
+                      </span>
+                      <span className="min-w-0 flex-1">{product.name}</span>
+                    </button>
+                  )
+                })}
+
+                <span className="mx-[10px] mt-[8px] h-px bg-night-fg/10" aria-hidden="true" />
+
+                <a
+                  href={productDesktop.list.contact.href}
+                  className="control-motion mt-auto flex items-center gap-[10px] rounded-[8px] px-[10px] py-[8px] text-[13px] leading-[1.25] font-medium text-night-fg/75 hover:bg-night-fg/8 hover:text-night-fg focus-visible:bg-night-fg/8 focus-visible:text-night-fg focus-visible:outline-none"
+                >
+                  <span
+                    className="flex size-[26px] shrink-0 items-center justify-center rounded-[7px] border border-night-fg/12 bg-night-fg/[0.07] text-night-fg"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M4 6h16v12H4z" />
+                      <path d="m4 7 8 6 8-6" />
+                    </svg>
+                  </span>
+                  <Roll>{productDesktop.list.contact.label}</Roll>
+                </a>
+              </div>
+            </nav>
+
+            {/* The stage. */}
+            <div
+              ref={stageRef}
+              className="relative flex min-w-0 flex-1 flex-col items-center justify-center max-sm:justify-start"
+            >
             <motion.p
               aria-hidden={windowOpen}
               initial={false}
@@ -697,8 +770,8 @@ export function ProductDesktop() {
                         that product. It keeps the window's button shape - a
                         6px radius and tighter padding than the page's buttons
                         - because it is app chrome inside a simulated desktop,
-                        not a page CTA. The label rolls; the menu bar and Dock
-                        are left alone, since real desktop chrome does not. */}
+                        not a page CTA. The label rolls; the menu bar is left
+                        alone, since real desktop chrome does not. */}
                     <div className="mt-auto pt-6">
                       <a
                         href={`/products/${active.slug}/`}
@@ -730,7 +803,9 @@ export function ProductDesktop() {
               </motion.div>
             </motion.div>
 
-            {/* Spotlight */}
+            </div>
+
+            {/* Spotlight. Over the whole desktop, list included. */}
             <AnimatePresence>
               {search && (
                 <Spotlight
@@ -747,10 +822,10 @@ export function ProductDesktop() {
 
             {/* Page dots, on the phone only: the index and the dwell clock
                 in one row, under the window and over the home indicator.
-                Hidden from sm up, where the Dock does this job. */}
+                Hidden from sm up, where the list does this job. */}
             <div className="absolute inset-x-0 bottom-[26px] z-20 hidden justify-center max-sm:flex">
               <ol
-                aria-label={productDesktop.dock.label}
+                aria-label={productDesktop.list.label}
                 className="m-0 flex list-none items-center gap-[4px]"
               >
                 {products.map((product, index) => {
@@ -795,83 +870,7 @@ export function ProductDesktop() {
               </ol>
             </div>
 
-            {/* Dock */}
-            <div className="absolute inset-x-0 bottom-[18px] z-20 flex justify-center px-3 max-sm:hidden">
-              <div
-                ref={dockRef}
-                role="toolbar"
-                aria-label={productDesktop.dock.label}
-                onKeyDown={onDockKey}
-                onPointerMove={magnify}
-                onPointerLeave={relax}
-                className="flex items-end gap-[8px] rounded-[20px] border border-night-fg/12 bg-night-deep/70 px-[10px] pt-[10px] pb-[8px] shadow-[0_18px_50px_rgb(0_0_0/0.5)] backdrop-blur-[12px] "
-              >
-                {products.map((product, index) => {
-                  const isActive = index === selected
-                  return (
-                    <button
-                      key={product.name}
-                      type="button"
-                      data-dock-app
-                      onClick={() => open(index)}
-                      aria-label={product.name}
-                      aria-pressed={isActive && windowOpen}
-                      tabIndex={isActive ? 0 : -1}
-                      className="dock-item relative flex flex-col items-center"
-                    >
-                      <span className="dock-tip">{product.name}</span>
-                      <DockIcon
-                        pointerX={pointerX}
-                        className={`flex ${iconSize} items-center justify-center rounded-[22%] border font-mono text-[15px] font-semibold text-paper ${
-                          isActive
-                            ? "border-[#e0526b]/60 bg-[linear-gradient(135deg,#8E2030,#C93B52)] shadow-[0_8px_22px_rgb(142_32_48/0.45)]"
-                            : "border-night-fg/12 bg-night-fg/[0.07]"
-                        }`}
-                      >
-                        {product.glyph}
-                      </DockIcon>
-                      <span
-                        className={`mt-[5px] size-[4px] rounded-full transition-opacity duration-200 ${
-                          isActive && windowOpen ? "bg-night-fg/80 opacity-100" : "opacity-0"
-                        }`}
-                      />
-                    </button>
-                  )
-                })}
-
-                <span className="mx-[4px] mb-[9px] w-px self-stretch bg-night-fg/15" aria-hidden="true" />
-
-                <a
-                  href={productDesktop.dock.contact.href}
-                  aria-label={productDesktop.dock.contact.label}
-                  className="dock-item relative flex flex-col items-center"
-                >
-                  <span className="dock-tip">{productDesktop.dock.contact.label}</span>
-                  <DockIcon
-                    pointerX={pointerX}
-                    className={`flex ${iconSize} items-center justify-center rounded-[22%] border border-night-fg/12 bg-night-fg/[0.07] text-night-fg`}
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M4 6h16v12H4z" />
-                      <path d="m4 7 8 6 8-6" />
-                    </svg>
-                  </DockIcon>
-                  <span className="mt-[5px] size-[4px] rounded-full opacity-0" />
-                </a>
-              </div>
-            </div>
-
-            {/* The home indicator, under the dock. */}
+            {/* The home indicator, under the page dots. */}
             <span
               aria-hidden="true"
               className="absolute bottom-[8px] left-1/2 z-20 hidden h-[5px] w-[110px] -translate-x-1/2 rounded-full bg-night-fg/35 max-sm:block"
@@ -881,41 +880,6 @@ export function ProductDesktop() {
         </div>
       </Container>
     </section>
-  )
-}
-
-/* ---- Dock icon --------------------------------------------------------------- */
-
-/**
- * One Dock icon. Its scale and lift are derived from the pointer's distance
- * to its centre (a quadratic falloff over 120px, as macOS does) and smoothed
- * on a spring, so the magnification trails the pointer with a little weight
- * instead of snapping to it. With no pointer (Infinity) it relaxes to rest.
- */
-function DockIcon({
-  pointerX,
-  className,
-  children,
-}: {
-  pointerX: MotionValue<number>
-  className: string
-  children: React.ReactNode
-}) {
-  const ref = React.useRef<HTMLSpanElement>(null)
-  const closeness = useTransform(pointerX, (x) => {
-    const r = ref.current?.getBoundingClientRect()
-    if (!r || !Number.isFinite(x)) return 0
-    const k = Math.max(0, 1 - Math.abs(x - (r.left + r.width / 2)) / 120)
-    return k * k
-  })
-  const spring = { stiffness: 420, damping: 30, mass: 0.5 }
-  const scale = useSpring(useTransform(closeness, (k) => 1 + 0.32 * k), spring)
-  const y = useSpring(useTransform(closeness, (k) => -12 * k), spring)
-
-  return (
-    <motion.span ref={ref} style={{ scale, y }} className={`dock-icon ${className}`}>
-      {children}
-    </motion.span>
   )
 }
 

@@ -24,7 +24,7 @@ import wearnes from "@/public/logos/wearnes.png"
 /**
  * Client line with a stage at the centre.
  *
- * The third treatment, and the one taken from Sentry's welcome page: a single
+ * The treatment taken from Sentry's welcome page: a single
  * row of clients travelling steadily sideways, with whatever reaches the
  * middle lifted out of the row, held large for a moment, and set back down as
  * it carries on. The row does not close up behind it - the empty slot travels
@@ -37,8 +37,8 @@ import wearnes from "@/public/logos/wearnes.png"
  * particular kind of seriousness. So the mechanic is kept and the story is
  * replaced with the page's own vocabulary for "look at this one":
  *
- *   - **Brackets.** The same Corners that mark a cell on the logo wall and a
- *     card in the certifications, in oxblood rather than ghost, standing
+ *   - **Brackets.** The same Corners that mark a card in the certifications
+ *     and a portrait in the people row, in oxblood rather than ghost, standing
  *     around the stage. They are the page's existing way of saying that a
  *     thing is being singled out.
  *   - **A wash, not a beam.** A pale oxblood gradient in a trapezoid that
@@ -52,7 +52,7 @@ import wearnes from "@/public/logos/wearnes.png"
  * in the line sit back at 42% and only the held one comes to full strength.
  * That is what stops the band reading as twelve things competing, which is
  * the failure mode of every logo row, and it is why this one can be a single
- * line where the other two treatments need a grid or two rows to breathe.
+ * line where a grid or a pair of marquee rows would be needed to breathe.
  *
  * All the movement is in lib/logo-ride.ts - one rAF loop, no per-frame
  * measurement, and the same three gates as everything else that moves on this
@@ -86,9 +86,9 @@ export function TrustedByArc() {
       className="relative py-[clamp(48px,7vw,72px)]"
     >
       <Container>
-        {/* Centred and above the line, where the label column of the other
-            two treatments sits beside it: a single line has no side to put a
-            column next to without making the line shorter than it wants. */}
+        {/* Centred and above the line rather than in a label column beside
+            it: a single line has no side to put a column next to without
+            making the line shorter than it wants. */}
         <div className="text-center">
           <div
             data-reveal="0"

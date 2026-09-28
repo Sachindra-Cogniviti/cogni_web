@@ -89,8 +89,8 @@ const DIM = 0.42
  * A frame gap is also clamped, so a tab that was busy resumes rather than
  * jumps.
  *
- * The gates are the ones the idle turns use (lib/idle-turns.ts) and exist for
- * the same reason: off-screen the loop does not run, a hidden tab does not run
+ * The gates are the ones everything that moves on this page uses, and exist
+ * for the same reason: off-screen the loop does not run, a hidden tab does not run
  * it, and `prefers-reduced-motion` gets a single static pass and no loop at
  * all - a row of logos, evenly spaced, none of them lifted.
  *

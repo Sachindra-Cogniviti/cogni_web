@@ -97,6 +97,9 @@ function ExperienceGroup({ group, index }: { group: Group; index: number }) {
   const active = group.items.find((item) => item.name === open)
   const activeDetail = active ? detailOf(active) : undefined
   const hint = "hint" in group ? group.hint : undefined
+  // What every panel in this group opens with, before the system's own copy.
+  const opening = "opening" in group ? group.opening : undefined
+  const emphasis = "emphasis" in group ? group.emphasis : undefined
 
   // Escape closes, matching every other dismissible thing on the page. Bound
   // only while something is open, so the page carries no idle key listener.
@@ -203,6 +206,8 @@ function ExperienceGroup({ group, index }: { group: Group; index: number }) {
                   labelledBy={`${slug}-tab-${active.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                   name={active.name}
                   detail={activeDetail}
+                  opening={opening}
+                  emphasis={emphasis}
                   onClose={() => setOpen(null)}
                 />
               </motion.div>
@@ -222,6 +227,34 @@ function ExperienceGroup({ group, index }: { group: Group; index: number }) {
  * than none, and a keyboard user should not have to tab through tiles that do
  * nothing to reach the ones that do.
  */
+/**
+ * A paragraph with one phrase set bold and linked. Splits on the first
+ * occurrence only; if the phrase is not in the text, the text is returned
+ * as it is rather than the link being lost silently somewhere else.
+ */
+function Emphasised({
+  text,
+  emphasis,
+}: {
+  text: string
+  emphasis: { text: string; href: string }
+}) {
+  const at = text.indexOf(emphasis.text)
+  if (at < 0) return text
+  return (
+    <>
+      {text.slice(0, at)}
+      <a
+        href={emphasis.href}
+        className="font-semibold text-ink underline decoration-rule-strong underline-offset-[3px] transition-colors duration-[var(--roll-duration)] ease-[var(--roll-ease)] hover:text-oxblood hover:decoration-oxblood"
+      >
+        {emphasis.text}
+      </a>
+      {text.slice(at + emphasis.text.length)}
+    </>
+  )
+}
+
 function LogoTile({
   item,
   isOpen,
@@ -332,12 +365,18 @@ function DetailPanel({
   labelledBy,
   name,
   detail,
+  opening,
+  emphasis,
   onClose,
 }: {
   id: string
   labelledBy: string
   name: string
   detail: Detail
+  /** The group's opening line, the same in every panel of the group. */
+  opening?: string
+  /** A phrase in `opening` set bold and linked. */
+  emphasis?: { text: string; href: string }
   onClose: () => void
 }) {
   return (
@@ -375,6 +414,18 @@ function DetailPanel({
           so it should not arrive before it. */}
       <div className="mt-7 grid gap-x-[clamp(28px,4vw,64px)] gap-y-8 lg:grid-cols-[1fr_minmax(220px,280px)]">
         <div>
+          {opening ? (
+            // The group's position, opening every panel in it: the panel is
+            // where the reader has just asked what we do about a system, so
+            // it is where the answer that holds for all of them belongs.
+            <p className="mb-5 max-w-[62ch] border-l-2 border-oxblood pl-4 text-[15.5px] leading-[1.65] text-pretty text-ink">
+              {emphasis ? (
+                <Emphasised text={opening} emphasis={emphasis} />
+              ) : (
+                opening
+              )}
+            </p>
+          ) : null}
           <p className="max-w-[62ch] text-[15.5px] leading-[1.65] text-pretty text-ink-soft">
             {detail.summary}
           </p>
