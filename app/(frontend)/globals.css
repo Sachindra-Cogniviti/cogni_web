@@ -897,7 +897,7 @@ button:focus-visible .roll-track {
   }
 }
 
-/* Client logos (components/trusted-by-arc.tsx).
+/* Client logos (components/trusted-by-loop.tsx).
  *
  * Logos keep their own colours. A white logo is rendered dark so it shows on
  * the paper. */
@@ -958,6 +958,82 @@ button:focus-visible .roll-track {
 @media (prefers-reduced-motion: reduce) {
   .logo-flip-track {
     transition: none;
+  }
+}
+
+/* Client logo loop (components/trusted-by-loop.tsx).
+ *
+ * The scrolling shape of the client wall: two rows of logos passing each
+ * other in opposite directions. The track is four copies of the row laid out
+ * in a row that is as wide as it needs to be, and the animation moves it left
+ * by exactly a quarter of itself - one copy - so the last frame is the first
+ * frame and there is no seam to hide.
+ *
+ * `animation-direction: reverse` is what sends the second row the other way.
+ * On an infinite linear loop that is the same animation played backwards
+ * forever, so it stays as seamless as the forward one; translating a positive
+ * quarter instead would need a second keyframe set for no gain.
+ *
+ * The fade at each end is a mask rather than a pair of gradient overlays,
+ * because the section ground is paper here and night on a dark block, and a
+ * mask does not care which. It is sized off the row height so the fade is in
+ * proportion to the logos rather than to the window.
+ *
+ * The row stops under a pointer and for keyboard focus - a logo is a link,
+ * and a link that is moving cannot be aimed at. Under reduced motion it does
+ * not move at all: the first copy is simply a static row, clipped, which is
+ * the same thing the wall would be if it had never scrolled. */
+.logo-loop-row {
+  --loop-fade: clamp(32px, 8%, 96px);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--loop-fade),
+    #000 calc(100% - var(--loop-fade)),
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--loop-fade),
+    #000 calc(100% - var(--loop-fade)),
+    transparent
+  );
+}
+
+.logo-loop-track {
+  width: max-content;
+  animation: logo-loop var(--loop-duration, 48s) linear infinite;
+  /* The track is the only thing moving in the section and it moves for the
+   * whole time the section is on screen, so it is worth its own layer. */
+  will-change: transform;
+}
+
+.logo-loop-row[data-reverse] .logo-loop-track {
+  animation-direction: reverse;
+}
+
+@keyframes logo-loop {
+  to {
+    transform: translate3d(-25%, 0, 0);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .logo-loop-row:hover .logo-loop-track {
+    animation-play-state: paused;
+  }
+}
+
+.logo-loop-row:focus-within .logo-loop-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-loop-track {
+    animation: none;
+    will-change: auto;
   }
 }
 

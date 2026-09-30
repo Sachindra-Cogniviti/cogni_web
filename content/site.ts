@@ -161,7 +161,7 @@ export const hero = {
 
 /**
  * Client logos. Files live in public/logos and are imported statically in
- * components/trusted-by.tsx, keyed by `id`. `height` is the rendered height in
+ * components/trusted-by-loop.tsx, keyed by `id`. `height` is the rendered height in
  * pixels, set per logo so wide wordmarks and stacked marks sit at the same
  * optical weight. `tone: "light"` marks a white logo, which is rendered dark
  * so it shows on the paper ground. Each logo links to `href`.

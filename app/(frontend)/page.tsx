@@ -16,7 +16,7 @@ import { SectionRail } from "@/components/section-rail"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNav } from "@/components/site-nav"
 import { Together } from "@/components/together"
-import { TrustedByArc } from "@/components/trusted-by-arc"
+import { TrustedByLoop } from "@/components/trusted-by-loop"
 import { TwoSides } from "@/components/two-sides"
 import { Updates } from "@/components/updates"
 import { WhyCogniviti } from "@/components/why-cogniviti"
@@ -138,7 +138,7 @@ export default async function Page() {
             with the grid declared before the headline rather than after it. */}
         <HatchBand className="mt-[68px]" />
         <Hero />
-        <TrustedByArc />
+        <TrustedByLoop />
         <Certifications />
         {/* The announcement band. It sits here because the two blocks
             above are static proof - who trusts us, what we are held to -
