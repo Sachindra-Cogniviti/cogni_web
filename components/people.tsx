@@ -62,7 +62,6 @@ const framing: Record<string, { zoom: number; eyes: string }> = {
   niko: { zoom: 1.1, eyes: "28%" },
   sandesh: { zoom: 1.08, eyes: "24%" },
   valentina: { zoom: 1.1, eyes: "26%" },
-  robin: { zoom: 1.06, eyes: "28%" },
 }
 
 const portraits: Record<string, StaticImageData> = {
@@ -315,7 +314,10 @@ function GroupLabel({ label }: { label: string }) {
 
 function PersonCard({ member }: { member: Member }) {
   const portrait = portraits[member.photo]
-  const tenure = "tenure" in member ? member.tenure : undefined
+  const certified =
+    "certifications" in member && member.certifications.length > 0
+      ? `${member.certifications.join(" · ")} certified`
+      : null
   const frame = framing[member.photo]
   // The zoom sits on a wrapper around each layer, on the `scale` property,
   // so the hover's own scale on the image inside composes with it rather
@@ -401,39 +403,33 @@ function PersonCard({ member }: { member: Member }) {
             {member.name}
           </div>
 
-          {/* Role and tenure are separate fields; the middle dot is drawn
-            here so it is punctuation rather than part of the copy. */}
           {/* One line, always: a title that does not fit is cut with an
               ellipsis rather than wrapped, because the caption's height is
               what the card budget above is built on. The full title is
               in the tooltip. */}
           <div
-            title={tenure ? `${member.role} · ${tenure}` : member.role}
+            title={member.role}
             className="mt-[6px] truncate font-mono text-[10px] leading-[1.4] tracking-[0.14em] text-ink-faint uppercase"
           >
             {member.role}
-            {tenure ? (
-              <>
-                <span className="px-[6px] text-ink-ghost">·</span>
-                {tenure}
-              </>
-            ) : null}
           </div>
 
           {/* The platforms this person is certified on. The team carry
-              them; the founders do not, and their card is simply a line
-              shorter - the row aligns its cards to the top, so nothing
-              else moves. */}
-          {"certifications" in member && member.certifications.length > 0 ? (
-            <div
-              title={`${member.certifications.join(" · ")} certified`}
-              className="mt-[9px] truncate text-[12.5px] leading-[1.45] text-oxblood"
-            >
-              {member.certifications.join(" · ")} certified
-            </div>
-          ) : null}
+              them; the founders do not, but the line's height is reserved
+              on every card (`min-h-[1lh]` on an empty div) so the
+              biography - and everything under it - sits at one level
+              across the whole row. */}
+          <div
+            title={certified ?? undefined}
+            className="mt-[9px] min-h-[1lh] truncate text-[12.5px] leading-[1.45] text-oxblood"
+          >
+            {certified}
+          </div>
 
-          <p className="mt-[9px] line-clamp-3 text-[13px] leading-[1.5] text-pretty text-ink-muted max-sm:line-clamp-2">
+          {/* Three lines reserved whether or not the biography fills them
+              (two where the phone budget clamps it to two), so the Connect
+              link lands on the same level on every card. */}
+          <p className="mt-[9px] line-clamp-3 min-h-[3lh] text-[13px] leading-[1.5] text-pretty text-ink-muted max-sm:line-clamp-2 max-sm:min-h-[2lh]">
             {member.body}
           </p>
 

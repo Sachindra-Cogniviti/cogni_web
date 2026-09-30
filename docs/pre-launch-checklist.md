@@ -69,12 +69,14 @@ the strongest third-party credential the company has, and it currently appears
 only as one slide in a rotating carousel. It may deserve a fixed position —
 next to the certifications, or in the homepage credentials block.
 
-### 1.4 Certification logos are placeholders
+### 1.4 Certification logos — resolved, with one caveat
 
-`public/logos/certifications/` holds `placeholder-coupa-partner.png`,
-`placeholder-iso-9001.png` and `placeholder-iso-27001.png`. Displaying an ISO
-mark the company does not hold is a different order of problem from a typo.
-Either supply the real marks or remove the strip.
+The placeholder seals are gone: `public/logos/certifications/` now holds the
+artwork the company supplied (Sept 2026) — the two ISO seals, the Coupa
+Certified and Authorized Training Partner badges, and the GEP and Ivalua
+logos. The caveat: the ISO seals are generic "certified company" graphics,
+not the auditing body's own mark. If the certifier's badge (with their
+accreditation mark and the certificate number) is available, swap it in.
 
 ### 1.5 Confirm the canonical host
 

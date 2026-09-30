@@ -6,11 +6,11 @@ import { FlowRule, Parallax } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
 import { certifications } from "@/content/site"
 
-import coupaPartner from "@/public/logos/certifications/placeholder-coupa-partner.png"
-import gepPartner from "@/public/logos/certifications/placeholder-gep-partner.png"
-import iso9001 from "@/public/logos/certifications/placeholder-iso-9001.png"
-import iso27001 from "@/public/logos/certifications/placeholder-iso-27001.png"
-import ivaluaPartner from "@/public/logos/certifications/placeholder-ivalua-partner.png"
+import coupaPartner from "@/public/logos/certifications/coupa-partner.png"
+import gepPartner from "@/public/logos/certifications/gep-partner.png"
+import iso9001 from "@/public/logos/certifications/iso-9001.png"
+import iso27001 from "@/public/logos/certifications/iso-27001.png"
+import ivaluaPartner from "@/public/logos/certifications/ivalua-partner.png"
 
 /**
  * Certifications, directly under the client line.
@@ -28,36 +28,18 @@ import ivaluaPartner from "@/public/logos/certifications/placeholder-ivalua-part
  * block instead of two unrelated strips. FlowRule draws the hairline at the
  * bottom edge of each, and TwoSides adds the normal section gap below.
  *
- * It is set as type rather than as a row of badge graphics. That is not a
- * placeholder standing in for artwork - it is the finished treatment, and the
- * reason is in content/site.ts: ISO issues no logo to certified organisations,
- * so a badge scraped off the web certifies nothing. The designation, the
- * discipline and - once they exist - the auditing body and certificate number
- * are the things a procurement buyer can actually check.
+ * Each card leads with its mark, but the designation is still set as type
+ * beneath it: the discipline, the standard and - once they exist - the
+ * auditing body and certificate number are the things a procurement buyer
+ * can actually check, and they must survive the artwork being swapped.
  */
 
 /**
- * PLACEHOLDER ARTWORK - MUST BE SWAPPED BEFORE LAUNCH.
- *
- * These five seals are drawn in the site's own palette. They are not any
- * certification body's mark and are not meant to pass as one: they exist so
- * the section can be judged with artwork in place. The `placeholder-` prefix
- * on every filename is the guard - it makes an accidental launch obvious in
- * a file listing and in a diff.
- *
- * The real mark comes from whichever body performed the audit (BSI, TUV, DNV,
- * SGS, Bureau Veritas...), carries their accreditation mark and your
- * certificate number, and is governed by their rules on placement and minimum
- * size. The Coupa, GEP and Ivalua partner badges come from each vendor's
- * partner portal and are specific to the partner tier.
- *
- * Do NOT substitute a badge found on the web. ISO performs no certification
- * and issues no logo to certified organisations - its globe mark is a
- * trademark reserved to ISO itself - so a generic "ISO 27001 certified"
- * graphic attests to nothing and is not ours to display.
- *
- * To swap: replace the file, drop the `placeholder-` prefix, update the
- * import. Nothing else changes.
+ * Artwork supplied by the company (Sept 2026), backgrounds removed. The two
+ * ISO seals are generic "certified company" graphics rather than the auditing
+ * body's own mark - if the certifier's badge (with their accreditation mark
+ * and the certificate number) becomes available, it belongs here instead.
+ * The Coupa, GEP and Ivalua marks are those vendors' logos / partner badges.
  */
 const badges: Record<string, StaticImageData> = {
   "iso-27001": iso27001,
@@ -144,20 +126,32 @@ export function Certifications() {
                       // `w-auto`. Without it a round mark is pulled to the
                       // card's width against a pinned height and renders as
                       // an ellipse.
-                      className="mb-5 w-auto max-w-full self-start"
-                      // A round mark reads smaller than a wordmark of the
-                      // same height, and a circle only offers its diameter
-                      // at the centre line - a five-character mark inside
-                      // one needs real diameter before it resolves. 96px is
-                      // where "27001" becomes comfortably readable.
-                      style={{ height: 96 }}
+                      //
+                      // The box is a flat 96px tall on every card so the
+                      // designations below line up across the row: a round
+                      // seal needs that much diameter before "27001"
+                      // resolves. The wordmarks (GEP, Ivalua) are wider than
+                      // the cell at that height, so `max-w-full` clamps them
+                      // and `object-contain` keeps the clamp from squashing
+                      // the mark against the pinned height. `object-left`
+                      // holds every mark to the text edge.
+                      className="mb-5 h-24 w-auto max-w-full self-start object-contain object-left"
                     />
                   )}
 
-                  <div className="font-mono text-[11px] tracking-[0.16em] text-ink-faint uppercase">
+                  {/* The eyebrow and the designation each get a flat
+                      two-line zone (`min-h-[2lh]`), because the row reads
+                      as five copies of one card and the copy does not
+                      cooperate: two eyebrows wrap to a second line and one
+                      designation does, and without the reservation every
+                      card's rows sat at a different height. `lh` tracks the
+                      element's own line-height, so the zones follow the
+                      fluid type size; a browser without the unit drops the
+                      min-height and degrades to the unaligned layout. */}
+                  <div className="min-h-[2lh] font-mono text-[11px] tracking-[0.16em] text-ink-faint uppercase">
                     {item.eyebrow}
                   </div>
-                  <h3 className="mt-[14px] text-[clamp(20px,1.85vw,25px)] leading-[1.15] font-semibold tracking-[-0.025em] text-balance">
+                  <h3 className="mt-[14px] min-h-[2lh] text-[clamp(20px,1.85vw,25px)] leading-[1.15] font-semibold tracking-[-0.025em] text-balance">
                     {item.standard}
                   </h3>
                   <p className="mt-[10px] text-[13.5px] leading-[1.6] text-pretty text-ink-muted">

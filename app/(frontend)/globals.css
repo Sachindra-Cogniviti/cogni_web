@@ -1712,12 +1712,105 @@ button:focus-visible .roll-track {
   }
 }
 
-/* Selected client work (components/client-work.tsx) and Why Cogniviti
- * Labs (components/why-motion.tsx). The choreography is Motion's; what is
- * left here is the colour of the Why thread and the two pulse rings, which
- * are hidden under reduced motion. */
-.work-pulse {
-  animation: work-pulse 2.2s cubic-bezier(0.23, 1, 0.32, 1) 0.6s infinite;
+/* Selected client work (components/client-work.tsx, and the same path on
+ * /work/[slug]) and Why Cogniviti Labs (components/why-motion.tsx).
+ *
+ * The delivery path runs on a loop: a highlight travels the stops from
+ * first to last - each dot fills as it is reached and the line after it
+ * draws out of it - and the Production ring pings as the run arrives,
+ * then the whole thing rests and goes again. Every element keeps its own
+ * infinite animation on one shared cycle, offset by its stop index
+ * (`--stop`, set inline by the markup), so the wave stays in step however
+ * many stops a story has; a story shorter than the cycle simply rests
+ * longer. Entrances are Motion's; this is only the loop. */
+.work-path {
+  --path-cycle: 4.2s;
+  --path-step: 0.4s;
+}
+
+.work-path-dot,
+.work-path-link::after,
+.work-path-ping {
+  animation-duration: var(--path-cycle);
+  animation-delay: calc(var(--stop) * var(--path-step));
+  animation-iteration-count: infinite;
+}
+
+.work-path-dot {
+  animation-name: work-path-dot;
+}
+
+.work-path-link {
+  position: relative;
+}
+
+/* The travelling stretch of line, drawn over the resting rule. Half a
+ * step behind its dot, so it reads as growing out of the lit stop. */
+.work-path-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--color-oxblood);
+  animation-name: work-path-link;
+  animation-delay: calc((var(--stop) + 0.5) * var(--path-step));
+}
+
+/* The ping spends the front of its cycle expanding and the rest spent,
+ * so on the shared path cycle it fires once per pass. */
+.work-path-ping {
+  animation-name: work-path-ping;
+  animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes work-path-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  30%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes work-path-dot {
+  0%,
+  2% {
+    background: var(--color-paper);
+  }
+  8%,
+  20% {
+    background: var(--color-oxblood);
+  }
+  30%,
+  100% {
+    background: var(--color-paper);
+  }
+}
+
+@keyframes work-path-link {
+  0%,
+  2% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  12%,
+  22% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  30% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+  31%,
+  100% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
 }
 
 .why-pulse {
@@ -1741,8 +1834,18 @@ button:focus-visible .roll-track {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .work-pulse,
+  .work-path-dot,
+  .work-path-ping,
   .why-pulse {
+    animation: none;
+  }
+
+  .work-path-ping,
+  .why-pulse {
+    opacity: 0;
+  }
+
+  .work-path-link::after {
     animation: none;
     opacity: 0;
   }

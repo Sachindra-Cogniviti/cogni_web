@@ -1,3 +1,4 @@
+import type * as React from "react"
 import type { Metadata } from "next"
 import { draftMode } from "next/headers"
 import Image from "next/image"
@@ -271,22 +272,32 @@ export default async function StoryPage({
               <div className="font-mono text-[10.5px] tracking-[0.2em] text-ink-faint uppercase">
                 {workPage.pathLabel}
               </div>
-              <ol className="m-0 mt-4 flex list-none flex-wrap items-center gap-y-3">
-                {path.map((stop) => (
-                  <li key={stop} className="flex items-center">
+              {/* `--stop` on each entry offsets the loop in globals.css:
+                  the highlight travels the stops in order and the ring
+                  pings as it arrives, same clock as the homepage. */}
+              <ol className="work-path m-0 mt-4 flex list-none flex-wrap items-center gap-y-3">
+                {path.map((stop, index) => (
+                  <li
+                    key={stop}
+                    style={{ "--stop": index } as React.CSSProperties}
+                    className="flex items-center"
+                  >
                     <span className="flex items-center gap-[10px]">
-                      <span className="size-[8px] rounded-full border border-oxblood bg-paper" />
+                      <span className="work-path-dot size-[8px] rounded-full border border-oxblood bg-paper" />
                       <span className="font-mono text-[11px] tracking-[0.08em] text-ink-muted uppercase">
                         {stop}
                       </span>
                     </span>
-                    <span className="mx-[14px] h-px w-[clamp(18px,3vw,40px)] bg-rule-strong" />
+                    <span className="work-path-link mx-[14px] h-px w-[clamp(18px,3vw,40px)] bg-rule-strong" />
                   </li>
                 ))}
-                <li className="flex items-center">
+                <li
+                  style={{ "--stop": path.length } as React.CSSProperties}
+                  className="flex items-center"
+                >
                   <span className="flex items-center gap-[10px]">
                     <span className="relative flex size-[10px] items-center justify-center">
-                      <span className="work-pulse absolute inset-0 rounded-full bg-oxblood" />
+                      <span className="work-path-ping absolute inset-0 rounded-full bg-oxblood" />
                       <span className="relative size-[10px] rounded-full bg-oxblood" />
                     </span>
                     <span className="font-mono text-[11px] font-medium tracking-[0.08em] text-oxblood uppercase">

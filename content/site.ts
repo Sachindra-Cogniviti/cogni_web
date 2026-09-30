@@ -1,4 +1,4 @@
-// All copy and site-wide settings live here. Marketing edits happen in
+﻿// All copy and site-wide settings live here. Marketing edits happen in
 // content/, not in JSX.
 //
 // Source of truth for this page is the Claude Design project
@@ -239,14 +239,9 @@ export const trustedBy = {
  * why this section reuses the wall's armature - the same label column and the
  * same hairline grid - rather than inventing a third layout.
  *
- * Typographic rather than a row of badge graphics, and that is deliberate.
- * ISO does not issue a logo to certified organisations; the mark belongs to
- * whichever body performed the audit, carries their accreditation, and its
- * use is governed by their rules. A generic "ISO 27001 certified" graphic off
- * the web is evidence of nothing, and to a procurement buyer it reads worse
- * than the plain designation set with confidence. `badge` is an optional slot
- * for the real certifier artwork once it exists - see components for how it
- * renders when present.
+ * Each card carries its mark (mapped by `id` in components/certifications.tsx,
+ * artwork in public/logos/certifications/) with the designation set as type
+ * beneath it, because the words are what a procurement buyer can check.
  *
  * `issuer` and `reference` are the two fields that turn a claim into a
  * checkable fact. Both are empty until the certificates are to hand.
@@ -260,27 +255,27 @@ export const certifications = {
   items: [
     {
       id: "iso-27001",
-      eyebrow: "Information security",
-      standard: "ISO/IEC 27001",
-      body: "An audited information security management system, covering how client data is handled across delivery and support.",
+      eyebrow: "Information Security Management Systems",
+      standard: "ISO/IEC 27001 : 2022",
+      body: "Provision of Consulting, Implementation, Managed Support, and Software Product Development Services for Enterprise Software and Digital Solutions.",
       issuer: "",
       reference: "",
     },
     {
       id: "iso-9001",
-      eyebrow: "Quality management",
+      eyebrow: "Quality Management Systems",
       // ISO 9000 is the family's vocabulary document and is not certifiable.
       // Organisations are certified against ISO 9001; that is the claim to
       // make on a page enterprise buyers read.
-      standard: "ISO 9001",
-      body: "A quality management system audited against defined process, review and continual improvement requirements.",
+      standard: "ISO 9001 : 2015",
+      body: "Provision of Consulting, Implementation, Managed Support, and Software Product Development Services for Enterprise Software and Digital Solutions.",
       issuer: "",
       reference: "",
     },
     {
       id: "coupa-partner",
-      eyebrow: "Procurement platform",
-      standard: "Coupa Platform Partner",
+      eyebrow: "Procurement Suite",
+      standard: "Coupa Partner",
       body: "Accredited by Coupa to implement and support the platform, and an Official Coupa Training Partner.",
       issuer: "",
       reference: "",
@@ -290,7 +285,7 @@ export const certifications = {
     // launch, as the badge (and its rules) come from that programme.
     {
       id: "gep-partner",
-      eyebrow: "Procurement platform",
+      eyebrow: "Procurement Suite",
       standard: "GEP Partner",
       body: "Accredited by GEP to implement and support GEP SMART across sourcing, procurement and supplier management.",
       issuer: "",
@@ -298,7 +293,7 @@ export const certifications = {
     },
     {
       id: "ivalua-partner",
-      eyebrow: "Procurement platform",
+      eyebrow: "Procurement Suite",
       standard: "Ivalua Partner",
       body: "Accredited by Ivalua to implement and support the platform across the Source-to-Pay lifecycle.",
       issuer: "",
@@ -1093,15 +1088,10 @@ export const globalPresence = {
  * components/people.tsx, the same arrangement the platform logos use, so this
  * file stays plain data.
  *
- * `role` and `tenure` are separate fields and `previously` is a list, because
- * the "·" between them is punctuation the component draws. Storing
- * "Director · 15+ yrs" as one string would bake a separator into the copy and
- * make it impossible to set the two halves differently, which is exactly what
- * the design does.
- *
- * Team members carry no `tenure` - it was not supplied for them, and inventing
- * years of experience for a named individual is not a gap to fill in with a
- * plausible number.
+ * Nobody carries a years-of-experience figure. The founders used to
+ * (`tenure`, drawn after the role with a "·"), and it was removed on request
+ * - so a number reappearing here needs the component taught to draw it
+ * again, which is deliberate friction.
  * ------------------------------------------------------------------------- */
 
 /**
@@ -1127,7 +1117,6 @@ export const people = {
           name: "Mohammed Zafar Ali",
           photo: "zafar",
           role: "Executive Director",
-          tenure: "25+ yrs",
           body: "Large-scale procurement transformation programs.",
           linkedin: "https://www.linkedin.com/in/mdzafarali/",
         },
@@ -1135,7 +1124,6 @@ export const people = {
           name: "John Philip",
           photo: "john",
           role: "Executive Director",
-          tenure: "22+ yrs",
           body: "Tech consulting, value selling and enterprise delivery.",
           linkedin: "https://www.linkedin.com/in/john-philip-07a29416/",
         },
@@ -1143,7 +1131,6 @@ export const people = {
           name: "Sushil Yerunkar",
           photo: "sushil",
           role: "Director",
-          tenure: "14+ yrs",
           body: "25+ source-to-pay implementations across APAC.",
           linkedin: "https://www.linkedin.com/in/sushil-yerunkar-8a852820/",
         },
@@ -1151,7 +1138,6 @@ export const people = {
           name: "Robin Garg",
           photo: "robin",
           role: "Director",
-          tenure: "15+ yrs",
           body: "Procurement strategy across BCG's global offices.",
           linkedin: "https://www.linkedin.com/in/robingarg15/",
         },
@@ -1159,7 +1145,6 @@ export const people = {
           name: "Kriti Gaurav",
           photo: "kriti",
           role: "Director",
-          tenure: "15+ yrs",
           body: "Transformation and change management at Big-Four scale.",
           linkedin: "https://www.linkedin.com/in/kriti-gaurav-64850a11/",
         },
@@ -1167,7 +1152,6 @@ export const people = {
           name: "Manav Sachdeva",
           photo: "manav",
           role: "Managing Director, Africa",
-          tenure: "15+ yrs",
           body: "Enterprise transformation and delivery leadership.",
           linkedin: "https://www.linkedin.com/in/manav-sachdeva-b191212/",
         },

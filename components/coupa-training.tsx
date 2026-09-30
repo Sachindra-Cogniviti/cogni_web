@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import {
   Container,
   outlineButton,
@@ -10,15 +12,18 @@ import { FlowRule, Parallax, Spin } from "@/components/scroll-motion"
 import { Stagger } from "@/components/stagger"
 import { training } from "@/content/site"
 
+import trainingPartnerBadge from "@/public/logos/certifications/coupa-training-partner.png"
+
 /**
  * Coupa training. Sits on the alternate paper band so it separates from the
  * services section above without needing another rule.
  *
- * The partner badge is an outlined oxblood pill with a rotated square rather
- * than an icon - it reads as a credential mark, and it borrows the same
- * diamond used for the location pins in the global presence section. The
- * diamond turns once every fourteen seconds, slowly enough to be noticed
- * only on a second look.
+ * The credential is stated twice, on purpose: Coupa's Authorized Training
+ * Partner shield above, and beneath it an outlined oxblood pill with a
+ * rotated square - the shield is the vendor's artwork, the pill is the same
+ * claim as text in the site's own voice. The pill borrows the diamond used
+ * for the location pins in the global presence section; it turns once every
+ * fourteen seconds, slowly enough to be noticed only on a second look.
  *
  * Copy and panel drift in opposite directions as the section crosses the
  * viewport, which is what gives the flat band some depth.
@@ -32,8 +37,23 @@ export function CoupaTraining() {
       <Container className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] items-center gap-[clamp(40px,5vw,80px)]">
         <Parallax y={22}>
           <div>
-            <div
+            {/* Coupa's own Authorized Training Partner shield, above the
+                pill. The pill still carries the designation as text - the
+                shield is the vendor's mark, the pill is the claim a reader
+                (and a screen reader) gets without the artwork. Rendered at
+                its native size; the source is small, so scaling it up only
+                softens it. */}
+            <Image
+              src={trainingPartnerBadge}
+              alt=""
+              aria-hidden
               data-reveal="0"
+              data-flow="left"
+              sizes="95px"
+              className="mb-6 h-[115px] w-auto"
+            />
+            <div
+              data-reveal="40"
               data-flow="left"
               className="inline-flex items-center gap-[10px] rounded-[2px] border border-oxblood px-4 py-2 font-mono text-[10.5px] font-medium tracking-[0.18em] text-oxblood uppercase"
             >

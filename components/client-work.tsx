@@ -321,35 +321,46 @@ export function ClientWork({
                     <div className="font-mono text-[10.5px] tracking-[0.2em] text-ink-faint uppercase">
                       {clientWork.pathLabel}
                     </div>
+                    {/* `--stop` on each entry is the loop's clock: the
+                        stylesheet's work-path animations offset themselves
+                        by it, so the highlight travels the stops in order
+                        and the ring pings when it lands (globals.css). */}
                     <motion.ol
                       variants={path}
                       initial="hidden"
                       whileInView="show"
                       viewport={{ amount: 0.5, margin: VIEW_MARGIN }}
-                      className="m-0 mt-4 flex list-none flex-wrap items-center gap-y-3"
+                      className="work-path m-0 mt-4 flex list-none flex-wrap items-center gap-y-3"
                     >
-                      {story.tags.map((tag) => (
+                      {story.tags.map((tag, index) => (
                         <motion.li
                           key={tag}
                           variants={stop}
+                          style={{ "--stop": index } as React.CSSProperties}
                           className="flex items-center"
                         >
                           <span className="flex items-center gap-[10px]">
-                            <span className="size-[8px] rounded-full border border-oxblood bg-paper" />
+                            <span className="work-path-dot size-[8px] rounded-full border border-oxblood bg-paper" />
                             <span className="font-mono text-[11px] tracking-[0.08em] text-ink-muted uppercase">
                               {tag}
                             </span>
                           </span>
                           <motion.span
                             variants={link}
-                            className="mx-[14px] h-px w-[clamp(18px,3vw,40px)] origin-left bg-rule-strong"
+                            className="work-path-link mx-[14px] h-px w-[clamp(18px,3vw,40px)] origin-left bg-rule-strong"
                           />
                         </motion.li>
                       ))}
-                      <motion.li variants={stop} className="flex items-center">
+                      <motion.li
+                        variants={stop}
+                        style={
+                          { "--stop": story.tags.length } as React.CSSProperties
+                        }
+                        className="flex items-center"
+                      >
                         <span className="flex items-center gap-[10px]">
                           <span className="relative flex size-[10px] items-center justify-center">
-                            <span className="work-pulse absolute inset-0 rounded-full bg-oxblood" />
+                            <span className="work-path-ping absolute inset-0 rounded-full bg-oxblood" />
                             <span className="relative size-[10px] rounded-full bg-oxblood" />
                           </span>
                           <span className="font-mono text-[11px] font-medium tracking-[0.08em] text-oxblood uppercase">
