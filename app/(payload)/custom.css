@@ -305,4 +305,110 @@
       white-space: normal;
     }
   }
+
+  /* --- The UTM builder (components/admin/utm-builder.tsx). ---
+   * It reuses the dashboard's masthead classes; these are only the form,
+   * the result strip and the notes, in the same theme variables. */
+  .cl-utm__form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 24px;
+    max-width: 760px;
+    margin-top: calc(var(--base) * 1.6);
+  }
+  .cl-utm__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cl-utm__field--wide {
+    grid-column: 1 / -1;
+  }
+  .cl-utm__label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--theme-elevation-500);
+  }
+  .cl-utm__input,
+  .cl-utm__select {
+    padding: 10px 12px;
+    border: 1px solid var(--theme-elevation-250);
+    border-radius: 2px;
+    background: var(--theme-elevation-0);
+    font-size: 14px;
+    color: var(--theme-elevation-800);
+  }
+  .cl-utm__input:focus,
+  .cl-utm__select:focus {
+    border-color: var(--theme-accent);
+    outline: none;
+  }
+  .cl-utm__hint {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--theme-elevation-500);
+  }
+  .cl-utm__result {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 6px;
+    padding: 14px 16px;
+    border-left: 2px solid var(--theme-accent);
+    background: var(--theme-elevation-50);
+  }
+  .cl-utm__url {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.5;
+    word-break: break-all;
+    color: var(--theme-elevation-800);
+  }
+  .cl-utm__copy {
+    padding: 7px 14px;
+    border: 1px solid var(--theme-elevation-250);
+    border-radius: 2px;
+    background: none;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--theme-elevation-600);
+    cursor: pointer;
+    transition:
+      border-color 150ms ease,
+      color 150ms ease;
+  }
+  .cl-utm__copy:hover:not(:disabled) {
+    border-color: var(--theme-accent);
+    color: var(--theme-accent);
+  }
+  .cl-utm__copy:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .cl-utm__rules {
+    max-width: 70ch;
+    margin-top: calc(var(--base) * 2);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--theme-elevation-600);
+  }
+  .cl-utm__rules p {
+    margin: 0 0 10px;
+  }
+
+  @media (max-width: 640px) {
+    .cl-utm__form {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .cl-utm__result {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
 }

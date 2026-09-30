@@ -109,7 +109,16 @@ export default buildConfig({
       // enquiries called out, in place of Payload's grid of cards.
       views: {
         dashboard: { Component: "@/components/admin/dashboard#Dashboard" },
+        // The UTM link builder, so a tagged link is assembled from the
+        // house vocabulary rather than typed from memory. The view does
+        // its own auth check - custom views are public until they do.
+        utm: {
+          Component: "@/components/admin/utm#UtmView",
+          path: "/utm",
+        },
       },
+      // Its way in, under the collection groups in the sidebar.
+      afterNavLinks: ["@/components/admin/utm-nav#UtmNavLink"],
     },
   },
 

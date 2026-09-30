@@ -31,8 +31,10 @@ import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c08
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { Icon as Icon_334250e18ce0b45af3e0c04bb6fe8307 } from '@/components/admin/logo'
 import { Logo as Logo_334250e18ce0b45af3e0c04bb6fe8307 } from '@/components/admin/logo'
+import { UtmNavLink as UtmNavLink_d4b372cf8cf6fdc3a0a6f30aefa9c0d8 } from '@/components/admin/utm-nav'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { Dashboard as Dashboard_7215358aebef2f123662c81dc8a03dd2 } from '@/components/admin/dashboard'
+import { UtmView as UtmView_39e5ffad74fd8b2a79ba66cd1614050e } from '@/components/admin/utm'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -70,7 +72,9 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@/components/admin/logo#Icon": Icon_334250e18ce0b45af3e0c04bb6fe8307,
   "@/components/admin/logo#Logo": Logo_334250e18ce0b45af3e0c04bb6fe8307,
+  "@/components/admin/utm-nav#UtmNavLink": UtmNavLink_d4b372cf8cf6fdc3a0a6f30aefa9c0d8,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "@/components/admin/dashboard#Dashboard": Dashboard_7215358aebef2f123662c81dc8a03dd2,
+  "@/components/admin/utm#UtmView": UtmView_39e5ffad74fd8b2a79ba66cd1614050e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
