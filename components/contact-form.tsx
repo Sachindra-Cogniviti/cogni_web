@@ -6,6 +6,7 @@ import { submitEnquiry } from "@/app/(frontend)/contact/actions"
 import { initialContactState } from "@/app/(frontend)/contact/state"
 import { Corners, Kicker, pressable, Roll } from "@/components/primitives"
 import { contactPage } from "@/content/pages"
+import { track } from "@/lib/analytics"
 
 const { form } = contactPage
 
@@ -37,8 +38,15 @@ export function ContactForm({ defaultSubject }: { defaultSubject?: string }) {
   // Move focus to the confirmation when it appears. Without this a screen
   // reader user submits and is told nothing: the fields they were in have
   // been replaced and focus has fallen back to the document.
+  //
+  // The same moment is the site's one conversion, so it is also where the
+  // named analytics event fires - on the confirmed success, not the click,
+  // so a validation failure is not counted as an enquiry.
   React.useEffect(() => {
-    if (state.status === "success") headingRef.current?.focus()
+    if (state.status === "success") {
+      headingRef.current?.focus()
+      track("enquiry submitted")
+    }
   }, [state.status])
 
   if (state.status === "success") {

@@ -25,6 +25,13 @@ import type { PageHeader, PageSeo } from "@/content/pages"
  *   either, the pages render the canonical origin; if the live site turns
  *   out to be the www host, changing `siteUrl` changes these with it.
  *
+ * One section is ours rather than supplied: the cookies section of the
+ * privacy policy (§10) describes the analytics this site actually runs -
+ * PostHog on the EU cloud behind the consent notice, see the Analytics
+ * section of CLAUDE.md - because the supplied text predates any analytics
+ * existing. If the analytics setup changes, that section changes with it,
+ * and either way it should be in the next legal review.
+ *
  * A section is a heading and a run of blocks - a paragraph or a bulleted
  * list - in order. Several sections alternate between the two, and a fixed
  * body/list/after shape would have forced an invented sub-heading to hold a
@@ -211,7 +218,10 @@ export const privacyPage: LegalDocument = {
       heading: "10. Cookies and tracking technologies",
       blocks: [
         {
-          p: "Our Website may use cookies or similar technologies to enhance functionality and analyse traffic. You may disable cookies via your browser settings, though some features of the Website may not function properly.",
+          p: "Our Website uses PostHog, an analytics service hosted in the European Union (Frankfurt, Germany), to understand how the Website is used: pages visited, interactions, device and browser information, and approximate location at city level. IP addresses are discarded once approximate location has been derived and are not stored.",
+        },
+        {
+          p: "Until you make a choice in the cookie notice shown on your first visit, analytics run without cookies and your visit is counted anonymously. If you accept, we set analytics cookies that recognise a returning browser and enable recordings of how pages are used, in which anything you type is masked before it leaves your device. If you decline, analytics remain cookieless and anonymous. You can change your choice at any time through the “Cookie settings” link in the footer of every page, and you may also disable cookies via your browser settings, though some features of the Website may not function properly.",
         },
       ],
     },

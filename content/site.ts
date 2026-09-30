@@ -1478,3 +1478,25 @@ export const footer = {
     { label: "Terms and Conditions", href: "/terms-conditions/" },
   ],
 } as const
+
+/* ---------------------------------------------------------------------------
+ * Cookie notice
+ *
+ * The consent banner (components/consent-banner.tsx) and the footer link
+ * that reopens it. The body has to earn a real choice: it says what each
+ * answer does, because "we use cookies - OK?" is not consent under any of
+ * the three regimes this company operates in. What it describes is
+ * implemented in components/analytics.tsx; change one and check the other.
+ * ------------------------------------------------------------------------- */
+
+export const cookieNotice = {
+  label: "Cookie notice",
+  kicker: "Privacy",
+  body: "We measure how this site is used with PostHog, hosted in the EU. Until you choose, visits are counted anonymously, without cookies. Accept and we set an analytics cookie and record how pages are used, with anything you type masked. Decline and you stay anonymous.",
+  accept: "Accept",
+  decline: "Decline",
+  policyLabel: "Privacy Policy",
+  policyHref: "/privacy-policy/",
+  /** The footer link, beside the legal pages. */
+  settings: "Cookie settings",
+} as const

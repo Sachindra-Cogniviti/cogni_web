@@ -2138,3 +2138,13 @@ button:focus-visible .roll-track {
     transition: none;
   }
 }
+
+/* The cookie notice's arrival (components/consent-banner.tsx), referenced
+ * there as an arbitrary animation utility. Reduced motion is handled at the
+ * class site with motion-reduce:animate-none. */
+@keyframes consent-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}

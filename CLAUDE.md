@@ -420,6 +420,45 @@ through a serverless function. Uploads fall back to local disk when
 `R2_BUCKET` is unset — fine locally, broken in production, because a
 serverless filesystem does not persist.
 
+## Analytics
+
+PostHog, EU cloud, and nothing else — no GTM, no GA4. It covers events
+(autocapture plus `track()` from `lib/analytics.ts`), the web-analytics
+dashboard, session replay, web vitals and GeoIP, which is everything the
+site needs; the day an ad-platform pixel is required is the day this
+decision gets revisited. The key lives in `NEXT_PUBLIC_POSTHOG_KEY` —
+publishable by design, not a secret — and with it unset analytics simply
+never boot.
+
+Requests go through `/ingest`, rewritten in `next.config.ts` to the EU
+ingest hosts so they are first-party and survive ad-blockers. The region
+is baked into those two destinations: a key from a US-cloud project would
+send every event into a void, silently.
+
+Consent is the cookieless-first model. Before a choice — and after a
+decline — PostHog runs with `persistence: "memory"` and no replay:
+visits are counted anonymously, no cookie is set. Accept upgrades to
+cookies and starts recording; withdrawing resets the store before
+leaving cookie mode. The choice lives in localStorage under
+`cogniviti-consent`; the store is `lib/consent.ts`, the banner
+`components/consent-banner.tsx`, and the footer's "Cookie settings"
+button reopens it. What the banner promises
+(`cookieNotice` in `content/site.ts`) and what the privacy policy's §10
+describes (`content/legal.ts`) are both descriptions of
+`components/analytics.tsx` — change one, check the other two.
+
+The boot waits for the `load` event plus an idle callback before
+importing posthog-js, for the same reason the hero galaxy does: a library
+parsing during the headline's reveal is a main-thread task the LCP pays
+for. Consequently anything capturing a custom event goes through
+`track()`, which holds the instance and no-ops until it is up, rather
+than importing posthog-js itself. `enquiry submitted`, fired on the
+contact form's confirmed success, is the one conversion.
+
+Two settings live in PostHog, not code: replay masks all input (their
+default — leave it), and "Discard client IP data" is on, so GeoIP runs
+and the address itself is never stored. Both matter to what §10 claims.
+
 ## Design
 
 The homepage design is the Claude Design project "Cogniviti Labs v1":

@@ -185,8 +185,26 @@ been live and stable for a week. Do not delete it.
 
 ## 5. Analytics, tag manager and verification
 
-**Nothing is installed.** No GA, no GTM, no Vercel Analytics, no consent
-tooling — verified by grep across the source.
+> **Decided and installed 2026-09-30: PostHog (EU cloud), no GTM, no GA4.**
+> PostHog covers events, the traffic dashboard, session replay, web vitals
+> and GeoIP in one tool; GTM only earns its place the day an ad-platform
+> pixel is needed. The consent banner (cookieless until accepted), the
+> `/ingest` proxy and the `enquiry submitted` conversion event are in the
+> code — see the Analytics section of CLAUDE.md. §5.3's consent decision is
+> therefore made; what remains from this section:
+>
+> - [ ] Add `NEXT_PUBLIC_POSTHOG_KEY` in Vercel, Production **and** Preview.
+> - [ ] Search Console + Bing verification (§5.2) — unchanged, still to do.
+> - [ ] Privacy policy §10 now describes PostHog; include it in the legal
+>       owner's review (§2).
+> - Speed Insights is now optional rather than a to-do: PostHog's web
+>   vitals autocapture is on and reports field LCP.
+>
+> §5.1 and the GTM/GA4 guidance below are kept as the record of the
+> road not taken.
+
+**Previously nothing was installed.** No GA, no GTM, no Vercel Analytics, no
+consent tooling — verified by grep across the source.
 
 ### 5.1 Where each ID comes from
 

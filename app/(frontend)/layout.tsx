@@ -3,6 +3,8 @@ import { MotionConfig } from "motion/react"
 
 import "./globals.css"
 import { fontMono, fontSans, fontSerif } from "@/app/fonts"
+import { Analytics } from "@/components/analytics"
+import { ConsentBanner } from "@/components/consent-banner"
 import { JsonLd } from "@/components/json-ld"
 import { RevealObserver } from "@/components/reveal-observer"
 import { SmoothAnchors } from "@/components/smooth-anchors"
@@ -176,6 +178,12 @@ export default function RootLayout({
                 cannot fall out of step with sixteen. */}
             <div className="page-frame" aria-hidden="true" />
             {children}
+            {/* PostHog and its consent notice, together and last: the boot
+                reads the choice the banner writes (lib/consent.ts), and
+                neither is allowed near the hero's paint - the boot waits
+                for load + idle, the banner for its own hydration. */}
+            <Analytics />
+            <ConsentBanner />
           </MotionConfig>
         </ThemeProvider>
       </body>

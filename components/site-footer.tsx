@@ -2,6 +2,7 @@ import Image from "next/image"
 
 import logoFile from "@/public/cogniviti-labs-logo.webp"
 
+import { CookieSettings } from "@/components/cookie-settings"
 import { Container, Roll } from "@/components/primitives"
 import { Stagger } from "@/components/stagger"
 import { footer, site } from "@/content/site"
@@ -130,6 +131,7 @@ export function SiteFooter() {
                 <Roll>{link.label}</Roll>
               </a>
             ))}
+            <CookieSettings />
           </span>
         </div>
 

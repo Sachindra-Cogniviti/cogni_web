@@ -54,6 +54,38 @@ const nextConfig: NextConfig = {
   },
 
   /*
+   * PostHog, reverse-proxied through this origin.
+   *
+   * posthog-js is pointed at `/ingest` (components/analytics.tsx) instead
+   * of posthog.com, so its requests are first-party and survive the
+   * ad-blockers that kill anything resolving to a tracker domain -
+   * otherwise a meaningful slice of visitors simply vanishes from the
+   * numbers, weighted towards the technical audience this site courts.
+   *
+   * The EU region is baked into these two hosts on purpose: the project
+   * lives on PostHog's EU cloud (a GDPR decision, not a default), and a
+   * key from a US project sent through these would land in a void. Assets
+   * (the session-recorder script) come from the EU assets host; everything
+   * else goes to ingestion.
+   *
+   * `trailingSlash: true` costs nothing here for the same reason it costs
+   * nothing on /api/*: posthog-js already writes its endpoints slashed,
+   * and the recorder script ends in .js, which the normalisation skips.
+   */
+  async rewrites() {
+    return [
+      {
+        source: "/ingest/static/:path*",
+        destination: "https://eu-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/ingest/:path*",
+        destination: "https://eu.i.posthog.com/:path*",
+      },
+    ]
+  },
+
+  /*
    * The WordPress site this replaces, redirected.
    *
    * SERVED ONLY WHEN `wordpressRedirectsEnabled` IS TRUE, which it is not.
