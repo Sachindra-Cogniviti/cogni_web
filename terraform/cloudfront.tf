@@ -81,7 +81,7 @@ resource "aws_cloudfront_distribution" "cdn" {
     cached_methods  = ["GET", "HEAD", "OPTIONS"]
 
     cache_policy_id          = local.managed_caching_disabled_id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.nextjs.id
+    origin_request_policy_id = local.managed_all_viewer_except_host_id
 
     compress = true
   }

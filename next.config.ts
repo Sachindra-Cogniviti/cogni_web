@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
   // metadata and the 301s off the old WordPress site were all written against.
   // Changing it would move every URL for no gain.
   trailingSlash: true,
+  skipTrailingSlashRedirect: true,
 
   // Media uploaded through the admin is served from S3 / CloudFront or R2,
   // so next/image has to be told that host may be optimised.

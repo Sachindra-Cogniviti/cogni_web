@@ -44,6 +44,10 @@ const isAdminField: FieldAccess = ({ req }) => req.user?.role === "admin"
 export const Users: CollectionConfig = {
   slug: "users",
   auth: {
+    cookies: {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
+    },
     maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000,
     forgotPassword: {

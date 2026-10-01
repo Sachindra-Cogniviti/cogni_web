@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "enable_waf" {
   description = "Whether to attach AWS WAFv2 Web ACL to CloudFront"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "environment" {
