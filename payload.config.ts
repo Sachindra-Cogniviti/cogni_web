@@ -200,7 +200,10 @@ export default buildConfig({
 
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI || "",
+      connectionString: (process.env.DATABASE_URI || "").replace(
+        "sslmode=require",
+        "sslmode=no-verify"
+      ),
       // node-postgres drops an idle connection after ten seconds, so a page
       // that queries once a minute paid for a fresh TLS handshake to Neon on
       // nearly every request - two seconds from here, a good part of a
@@ -212,6 +215,7 @@ export default buildConfig({
       ssl:
         process.env.PG_SSL_REJECT_UNAUTHORIZED === "false" ||
         process.env.DATABASE_URI?.includes("rds.amazonaws.com") ||
+        process.env.DATABASE_URI?.includes("sslmode=no-verify") ||
         process.env.DATABASE_URI?.includes("sslmode=require")
           ? { rejectUnauthorized: false }
           : undefined,

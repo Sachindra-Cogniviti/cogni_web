@@ -44,7 +44,7 @@ resource "aws_ecs_task_definition" "app" {
       environment = [
         { name = "NODE_ENV", value = "production" },
         { name = "PORT", value = tostring(var.container_port) },
-        { name = "DATABASE_URI", value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}?sslmode=require" },
+        { name = "DATABASE_URI", value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.postgres.endpoint}/${var.db_name}?sslmode=no-verify" },
         { name = "S3_BUCKET", value = aws_s3_bucket.media.id },
         { name = "AWS_REGION", value = var.aws_region },
         { name = "PAYLOAD_SECRET", value = var.payload_secret },
