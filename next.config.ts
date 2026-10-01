@@ -12,25 +12,26 @@ const mediaBaseUrl = publicMediaBaseUrl()
 const mediaHostname = mediaBaseUrl ? new URL(mediaBaseUrl).hostname : undefined
 
 const nextConfig: NextConfig = {
+  // Standalone output compiles the server and dependencies for Docker / ECS Fargate
+  output: "standalone",
+
   // Trailing slashes are kept from the Bluehost era on purpose. Nothing here
   // needs them any more, but they are the URL shape the sitemap, the canonical
   // metadata and the 301s off the old WordPress site were all written against.
   // Changing it would move every URL for no gain.
   trailingSlash: true,
 
-  // Media uploaded through the admin is served from the Cloudflare R2 bucket's
-  // public domain, so next/image has to be told that host may be optimised.
-  // Driven by env because the hostname is whatever custom domain is bound to
-  // the bucket; an unset value simply allows nothing, which fails loudly at
-  // the first image rather than silently serving unoptimised originals.
+  // Media uploaded through the admin is served from S3 / CloudFront or R2,
+  // so next/image has to be told that host may be optimised.
   images: {
     // AVIF first, WebP for browsers without it. AVIF comes out a quarter to
     // a third smaller than WebP at the same quality; the only cost is a
     // slower first encode, which the optimiser caches.
     formats: ["image/avif", "image/webp"],
-    remotePatterns: mediaHostname
-      ? [{ protocol: "https", hostname: mediaHostname }]
-      : [],
+    remotePatterns: [
+      ...(mediaHostname ? [{ protocol: "https" as const, hostname: mediaHostname }] : []),
+      { protocol: "https" as const, hostname: "*.cloudfront.net" },
+    ],
   },
 
   // sharp's native addon is loaded as an external module at runtime, and the

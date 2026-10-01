@@ -11,7 +11,10 @@ export { indexingEnabled }
  * be the live site afterwards, when that switch is true for every build.
  */
 export const isLiveSite =
-  indexingEnabled && process.env.VERCEL_ENV === "production"
+  indexingEnabled &&
+  (process.env.VERCEL_ENV === "production" ||
+    process.env.APP_ENV === "production" ||
+    (process.env.NODE_ENV === "production" && process.env.IS_LIVE === "true"))
 
 /**
  * The origin this deployment is actually reachable at.
@@ -22,11 +25,11 @@ export const isLiveSite =
  * it, so a link shared in Slack from a preview would try to load its preview
  * image from a domain that is not serving this site yet, and show nothing.
  *
- * VERCEL_URL is the per-deployment hostname with no protocol; it is always
- * https.
+ * Checks SITE_URL (for AWS CloudFront / ECS), VERCEL_URL, or defaults to localhost.
  */
 export function publicSiteUrl(): string {
   if (isLiveSite) return siteUrl
+  if (process.env.SITE_URL) return process.env.SITE_URL.replace(/\/+$/, "")
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   return "http://localhost:3000"
 }

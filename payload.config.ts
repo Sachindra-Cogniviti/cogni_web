@@ -224,19 +224,33 @@ export default buildConfig({
     // nothing for egress. Every post cover and client logo served is free
     // bandwidth, and binding a custom domain to the bucket puts the files on
     // Cloudflare's CDN without putting Cloudflare in front of the whole app.
+    // Object Storage: Native AWS S3 or Cloudflare R2 via the S3 adapter.
     s3Storage({
-      enabled: Boolean(process.env.R2_BUCKET),
+      enabled: Boolean(process.env.S3_BUCKET || process.env.R2_BUCKET),
       collections: { media: true },
-      bucket: process.env.R2_BUCKET || "",
+      bucket: process.env.S3_BUCKET || process.env.R2_BUCKET || "",
       config: {
-        region: "auto",
-        endpoint: process.env.R2_ENDPOINT || "",
-        credentials: {
-          accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
-          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
-        },
-        // R2 does not support virtual-hosted-style bucket addressing.
-        forcePathStyle: true,
+        region: process.env.AWS_REGION || "auto",
+        ...(process.env.S3_ENDPOINT || process.env.R2_ENDPOINT
+          ? {
+              endpoint: process.env.S3_ENDPOINT || process.env.R2_ENDPOINT,
+              forcePathStyle: true,
+            }
+          : {}),
+        ...(process.env.AWS_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID
+          ? {
+              credentials: {
+                accessKeyId:
+                  process.env.AWS_ACCESS_KEY_ID ||
+                  process.env.R2_ACCESS_KEY_ID ||
+                  "",
+                secretAccessKey:
+                  process.env.AWS_SECRET_ACCESS_KEY ||
+                  process.env.R2_SECRET_ACCESS_KEY ||
+                  "",
+              },
+            }
+          : {}),
       },
       // Serve straight off the bucket's public domain rather than through
       // this app's /api/media route. Without it every image would round-trip

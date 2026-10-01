@@ -20,14 +20,18 @@
 const S3_API_HOST = ".r2.cloudflarestorage.com"
 
 export function publicMediaBaseUrl(): string | undefined {
-  const raw = process.env.R2_PUBLIC_URL?.trim()
+  const raw = (
+    process.env.MEDIA_PUBLIC_URL ||
+    process.env.S3_PUBLIC_URL ||
+    process.env.R2_PUBLIC_URL
+  )?.trim()
   if (!raw) return undefined
 
   let url: URL
   try {
     url = new URL(raw)
   } catch {
-    console.warn(`R2_PUBLIC_URL is not a valid URL (${raw}); serving media through the app.`)
+    console.warn(`Media public URL is not a valid URL (${raw}); serving media through the app.`)
     return undefined
   }
 

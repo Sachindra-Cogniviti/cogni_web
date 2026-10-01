@@ -1,0 +1,13 @@
+aws_region        = "ap-southeast-1"
+enable_waf        = true
+environment       = "prod"
+project_name      = "cogni-web"
+db_name           = "cognidb"
+db_username       = "cogniadmin"
+db_password       = "ReplaceWithStrongPassword123!"
+payload_secret    = "ReplaceWithRandomSecretString32Chars"
+resend_api_key    = "re_your_resend_key_here"
+email_from        = "onboarding@resend.dev"
+app_count         = 2
+fargate_cpu       = 512
+fargate_memory    = 1024

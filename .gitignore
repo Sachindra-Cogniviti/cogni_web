@@ -39,3 +39,14 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+DEPLOYMENT_PLAN.md
+
+# Terraform - NEVER commit these, they contain secrets and local state
+terraform/terraform.tfvars
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfstate*
+terraform/waf-iam-policy.json
