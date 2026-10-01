@@ -113,16 +113,6 @@ export default buildConfig({
   // link back to that preview, and locally to localhost.
   serverURL: publicSiteUrl(),
 
-  csrf: [
-    publicSiteUrl(),
-    "https://d11piod4pwdpov.cloudfront.net",
-    "https://cognivitilabs.com",
-  ],
-  cors: [
-    publicSiteUrl(),
-    "https://d11piod4pwdpov.cloudfront.net",
-    "https://cognivitilabs.com",
-  ],
 
   email: emailAdapter,
 
