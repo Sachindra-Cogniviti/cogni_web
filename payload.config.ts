@@ -209,6 +209,12 @@ export default buildConfig({
       // production; Neon's pooler is what makes holding it cheap.
       idleTimeoutMillis: 60_000,
       keepAlive: true,
+      ssl:
+        process.env.PG_SSL_REJECT_UNAUTHORIZED === "false" ||
+        process.env.DATABASE_URI?.includes("rds.amazonaws.com") ||
+        process.env.DATABASE_URI?.includes("sslmode=require")
+          ? { rejectUnauthorized: false }
+          : undefined,
     },
   }),
 
