@@ -6,6 +6,7 @@ import path from "path"
 import { fileURLToPath } from "url"
 
 import { postgresAdapter } from "@payloadcms/db-postgres"
+import { migrations } from "./migrations"
 import nodemailer from "nodemailer"
 import { seoPlugin } from "@payloadcms/plugin-seo"
 import {
@@ -220,6 +221,7 @@ export default buildConfig({
           ? { rejectUnauthorized: false }
           : undefined,
     },
+    prodMigrations: migrations,
   }),
 
   // Image processing for upload resizing. Payload requires it for the Media
