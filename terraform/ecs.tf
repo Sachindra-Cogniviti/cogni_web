@@ -48,7 +48,8 @@ resource "aws_ecs_task_definition" "app" {
         { name = "S3_BUCKET", value = aws_s3_bucket.media.id },
         { name = "AWS_REGION", value = var.aws_region },
         { name = "PAYLOAD_SECRET", value = var.payload_secret },
-        { name = "RESEND_API_KEY", value = var.resend_api_key },
+        { name = "SES_SMTP_USERNAME", value = var.ses_smtp_username },
+        { name = "SES_SMTP_PASSWORD", value = var.ses_smtp_password },
         { name = "EMAIL_FROM", value = var.email_from },
         { name = "MEDIA_PUBLIC_URL", value = "https://${aws_cloudfront_distribution.cdn.domain_name}/media" },
         { name = "SITE_URL", value = "https://${aws_cloudfront_distribution.cdn.domain_name}" }

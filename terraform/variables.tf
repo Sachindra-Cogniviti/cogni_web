@@ -82,15 +82,28 @@ variable "payload_secret" {
   sensitive   = true
 }
 
-variable "resend_api_key" {
-  description = "Optional Resend API key until SES domain is verified"
+variable "ses_domain" {
+  description = "Domain to verify in SES (e.g. cognivitilabs.com)"
+  type        = string
+  default     = "cognivitilabs.com"
+}
+
+variable "ses_smtp_username" {
+  description = "SES SMTP username (IAM access key ID from ses.tf output)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "ses_smtp_password" {
+  description = "SES SMTP password (derived from IAM secret key via ses.tf output)"
   type        = string
   default     = ""
   sensitive   = true
 }
 
 variable "email_from" {
-  description = "Default sender email"
+  description = "Default sender email — must be on the SES-verified domain"
   type        = string
   default     = "no-reply@cognivitilabs.com"
 }
