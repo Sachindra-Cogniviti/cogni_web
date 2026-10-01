@@ -17,7 +17,7 @@ import {
   UploadFeature,
 } from "@payloadcms/richtext-lexical"
 import { s3Storage } from "@payloadcms/storage-s3"
-import { buildConfig } from "payload"
+import { buildConfig, type EmailAdapter } from "payload"
 import sharp from "sharp"
 
 import { CodeBlock } from "@/payload/blocks/code"
@@ -49,27 +49,36 @@ const mediaBaseUrl = publicMediaBaseUrl()
  * Without credentials Payload falls back to its console adapter, which
  * prints each email to the server log — right for development.
  */
-const sesTransport =
+const emailAdapter: EmailAdapter | undefined =
   process.env.SES_SMTP_USERNAME && process.env.SES_SMTP_PASSWORD
-    ? nodemailer.createTransport({
-        host: `email-smtp.${process.env.AWS_REGION || "ap-southeast-1"}.amazonaws.com`,
-        port: 465,
-        secure: true,
-        auth: {
-          user: process.env.SES_SMTP_USERNAME,
-          pass: process.env.SES_SMTP_PASSWORD,
-        },
-      })
-    : null
+    ? () => {
+        const transport = nodemailer.createTransport({
+          host: `email-smtp.${process.env.AWS_REGION || "ap-southeast-1"}.amazonaws.com`,
+          port: 465,
+          secure: true,
+          auth: {
+            user: process.env.SES_SMTP_USERNAME,
+            pass: process.env.SES_SMTP_PASSWORD,
+          },
+        })
 
-const email = sesTransport
-  ? {
-      transport: sesTransport,
-      defaultFromAddress:
-        process.env.EMAIL_FROM || "no-reply@cognivitilabs.com",
-      defaultFromName: "Cogniviti Labs",
-    }
-  : undefined
+        const defaultFromAddress =
+          process.env.EMAIL_FROM || "no-reply@cognivitilabs.com"
+        const defaultFromName = "Cogniviti Labs"
+
+        return {
+          name: "ses-nodemailer",
+          defaultFromAddress,
+          defaultFromName,
+          sendEmail: async (message) => {
+            return await transport.sendMail({
+              from: message.from || `"${defaultFromName}" <${defaultFromAddress}>`,
+              ...message,
+            })
+          },
+        }
+      }
+    : undefined
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -103,7 +112,7 @@ export default buildConfig({
   // link back to that preview, and locally to localhost.
   serverURL: publicSiteUrl(),
 
-  email,
+  email: emailAdapter,
 
   admin: {
     user: Users.slug,
