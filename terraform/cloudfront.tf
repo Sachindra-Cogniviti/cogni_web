@@ -11,7 +11,7 @@ resource "aws_cloudfront_origin_access_control" "s3_oac" {
 locals {
   managed_caching_optimized_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
   managed_caching_disabled_id         = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
-  managed_all_viewer_except_host_id   = "b684b0a8-5e13-4b33-8221-5a3602ac2a11"
+  managed_all_viewer_except_host_id   = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
 }
 
 # Custom Origin Request Policy for Default Next.js routes
