@@ -22,7 +22,12 @@ export const metadata: Metadata = pageMetadata({
   },
 })
 
-export const revalidate = 60
+// This listing reads live Payload records. The production ECS service runs
+// multiple tasks with independent local Next.js caches, so a time-based ISR
+// page can keep serving an empty list from one task after another task has
+// regenerated it. Render the small index from the CMS on each request so a
+// publish is visible consistently through the ALB.
+export const dynamic = "force-dynamic"
 
 /**
  * /work
