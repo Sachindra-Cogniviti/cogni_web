@@ -53,10 +53,17 @@ export async function generateMetadata({
   const { isEnabled: draft } = await draftMode()
   const story = await getStory(slug, { draft })
   if (!story) return {}
+  // The Payload SEO title is sometimes entered with the site name already
+  // appended. The root layout adds that suffix to document titles, while
+  // Open Graph adds the site name separately, so strip it before building
+  // either metadata set to avoid duplicate branding.
+  const seoTitle = story.meta?.title
+    ?.replace(/\s*\|\s*Cogniviti Labs$/i, "")
+    .trim()
   const chosen = mediaOf(story.meta?.image)
   const image = chosen ? imageSource(chosen, "cover") : null
   return pageMetadata({
-    title: story.meta?.title ?? `${story.client}: ${story.title}`,
+    title: seoTitle || `${story.client}: ${story.title}`,
     description: story.meta?.description ?? story.excerpt,
     path: `/work/${slug}/`,
     article: {
