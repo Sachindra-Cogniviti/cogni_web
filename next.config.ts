@@ -12,6 +12,16 @@ const mediaBaseUrl = publicMediaBaseUrl()
 const mediaHostname = mediaBaseUrl ? new URL(mediaBaseUrl).hostname : undefined
 
 const nextConfig: NextConfig = {
+  // CloudFront is the public origin for production Server Actions. Requests
+  // reach Next through the ALB, so x-forwarded-host can be the ALB hostname
+  // while Origin remains the public CloudFront hostname. Trust only that
+  // exact public host to keep Next's origin check enabled for other hosts.
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["d11piod4pwdpov.cloudfront.net"],
+    },
+  },
+
   // Standalone output compiles the server and dependencies for Docker / ECS Fargate
   output: "standalone",
 
