@@ -66,7 +66,7 @@ jobs:
             --cache-from type=local,src=/tmp/.buildx-cache \
             --cache-to   type=local,dest=/tmp/.buildx-cache-new,mode=max \
             --build-arg  NODE_ENV=production \
-            --build-arg  NEXT_PUBLIC_SITE_URL=https://d11piod4pwdpov.cloudfront.net \
+            --build-arg  SITE_URL=https://cognivitilabs.com \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
             --push \
@@ -92,6 +92,8 @@ jobs:
           task-definition: task-definition.json
           container-name: ${{ env.CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
+          environment-variables: |
+            SITE_URL=https://cognivitilabs.com
 
       # ─── 7. Deploy to ECS ────────────────────────────────────────────
       - name: Deploy to Amazon ECS Service
@@ -119,5 +121,5 @@ jobs:
           echo "| **Image tag** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **ECS service** | \`${{ env.ECS_SERVICE }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Cluster** | \`${{ env.ECS_CLUSTER }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Site URL** | https://d11piod4pwdpov.cloudfront.net |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Site URL** | https://cognivitilabs.com |" >> $GITHUB_STEP_SUMMARY
           echo "| **Status** | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY

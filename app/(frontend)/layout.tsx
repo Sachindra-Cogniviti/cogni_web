@@ -35,16 +35,14 @@ export const metadata: Metadata = {
    * Named explicitly rather than through Next's file convention in app/, for
    * the same reason the share cards are (see app/og.png/route.tsx): the
    * convention's generated URLs and `trailingSlash: true` do not agree.
-   * These are plain files in public/, cropped from the one logo the site
-   * ships - the dot mark occupies its left 384px square.
+   * The browser favicon uses the supplied 32px Cogniviti mark in public/.
+   * Home-screen icons retain the larger artwork for their required sizes.
    *
-   * The .ico stays for old browsers. Google's mobile result favicon prefers
-   * a PNG whose size divides by 48, which the .ico was not.
+   * The .ico contains the same mark as a fallback for older browsers.
    */
   icons: {
     icon: [
-      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon.webp", sizes: "32x32", type: "image/webp" },
       { url: "/favicon.ico", sizes: "any" },
     ],
     apple: { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },

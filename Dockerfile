@@ -14,6 +14,8 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ARG SITE_URL
+ENV SITE_URL=${SITE_URL}
 
 # Run Next.js build (generates .next/standalone)
 RUN npm run build

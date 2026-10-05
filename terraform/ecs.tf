@@ -52,7 +52,7 @@ resource "aws_ecs_task_definition" "app" {
         { name = "SES_SMTP_PASSWORD", value = var.ses_smtp_password },
         { name = "EMAIL_FROM", value = var.email_from },
         { name = "MEDIA_PUBLIC_URL", value = "https://${aws_cloudfront_distribution.cdn.domain_name}/media" },
-        { name = "SITE_URL", value = "https://${aws_cloudfront_distribution.cdn.domain_name}" }
+        { name = "SITE_URL", value = "https://cognivitilabs.com" }
       ]
       logConfiguration = {
         logDriver = "awslogs"

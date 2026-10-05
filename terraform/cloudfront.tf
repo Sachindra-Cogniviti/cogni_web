@@ -14,41 +14,12 @@ locals {
   managed_all_viewer_except_host_id   = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
 }
 
-# Custom Origin Request Policy for Default Next.js routes
-resource "aws_cloudfront_origin_request_policy" "nextjs" {
-  name    = "${var.project_name}-nextjs-origin-request"
-  comment = "Forwards viewer headers and cookies to Next.js while allowing CloudFront host"
-
-  cookies_config {
-    cookie_behavior = "all"
-  }
-
-  headers_config {
-    header_behavior = "whitelist"
-    headers {
-      items = [
-        "Accept",
-        "Accept-Language",
-        "Authorization",
-        "User-Agent",
-        "Referer",
-        "x-forwarded-host",
-
-      ]
-    }
-  }
-
-  query_strings_config {
-    query_string_behavior = "all"
-  }
-}
-
 # CloudFront Distribution
 resource "aws_cloudfront_distribution" "cdn" {
-  depends_on = [aws_cloudfront_origin_request_policy.nextjs]
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "${var.project_name} CloudFront CDN"
+  aliases             = ["cognivitilabs.com", "www.cognivitilabs.com"]
   price_class         = "PriceClass_100"
   web_acl_id          = var.enable_waf ? aws_wafv2_web_acl.cf_waf[0].arn : null
 
@@ -122,7 +93,11 @@ resource "aws_cloudfront_distribution" "cdn" {
     cached_methods  = ["GET", "HEAD"]
 
     cache_policy_id          = local.managed_caching_disabled_id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.nextjs.id
+    # Next Server Actions send framework headers such as Next-Action and
+    # Next-Router-State-Tree. Forward all viewer headers, cookies and query
+    # strings so Payload's admin login and authenticated navigation survive
+    # the CDN hop. The managed policy omits Host so the ALB gets its own host.
+    origin_request_policy_id = local.managed_all_viewer_except_host_id
     compress                 = true
   }
 
@@ -136,7 +111,7 @@ resource "aws_cloudfront_distribution" "cdn" {
     cached_methods  = ["GET", "HEAD"]
 
     cache_policy_id          = local.managed_caching_disabled_id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.nextjs.id
+    origin_request_policy_id = local.managed_all_viewer_except_host_id
     compress                 = true
   }
 
@@ -146,10 +121,11 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
   }
 
-  # Default CloudFront Certificate (*.cloudfront.net)
-  # When you get your custom domain, swap this to an ACM certificate!
+  # DNS-validated custom-domain certificate in us-east-1.
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = "arn:aws:acm:us-east-1:044575975227:certificate/c13e0d11-0d38-4aa7-9af8-d3005f8df865"
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   tags = {

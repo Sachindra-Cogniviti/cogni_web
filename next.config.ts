@@ -18,7 +18,11 @@ const nextConfig: NextConfig = {
   // exact public host to keep Next's origin check enabled for other hosts.
   experimental: {
     serverActions: {
-      allowedOrigins: ["d11piod4pwdpov.cloudfront.net"],
+      allowedOrigins: [
+        "d11piod4pwdpov.cloudfront.net",
+        "cognivitilabs.com",
+        "www.cognivitilabs.com",
+      ],
     },
   },
 
