@@ -6,7 +6,7 @@
 
 // Production origin, no trailing slash. Feeds robots.txt, sitemap.xml and
 // metadataBase.
-export const siteUrl = "https://cognivitilabs.com"
+export const siteUrl = "https://www.cognivitilabs.com"
 
 export const site = {
   name: "Cogniviti Labs",
