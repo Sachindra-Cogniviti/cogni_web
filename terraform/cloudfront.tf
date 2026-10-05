@@ -14,6 +14,11 @@ locals {
   managed_all_viewer_except_host_id   = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
 }
 
+data "aws_ssm_parameter" "cloudfront_origin_secret" {
+  name            = "/cogni-web/cloudfront-origin-secret"
+  with_decryption = true
+}
+
 # CloudFront Distribution
 resource "aws_cloudfront_distribution" "cdn" {
   enabled             = true
@@ -27,6 +32,11 @@ resource "aws_cloudfront_distribution" "cdn" {
   origin {
     domain_name = aws_lb.main.dns_name
     origin_id   = "ALBOrigin"
+
+    custom_header {
+      name  = "X-Cogni-Origin-Verify"
+      value = data.aws_ssm_parameter.cloudfront_origin_secret.value
+    }
 
     custom_origin_config {
       http_port              = 80

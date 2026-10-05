@@ -46,7 +46,34 @@ resource "aws_lb_listener" "http" {
   protocol          = "HTTP"
 
   default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      status_code  = "403"
+      message_body = "Forbidden"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "cloudfront_only" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 10
+
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.app.arn
   }
+
+  condition {
+    http_header {
+      http_header_name = "X-Cogni-Origin-Verify"
+      values           = [data.aws_ssm_parameter.cloudfront_origin_secret.value]
+    }
+  }
+}
+
+# Adopt the rule created during the live security cutover.
+import {
+  to = aws_lb_listener_rule.cloudfront_only
+  id = "arn:aws:elasticloadbalancing:ap-southeast-1:044575975227:listener-rule/app/cogni-web-alb/8062801a00b3573b/7645769af928e830/5d5dea857f0a0ecd"
 }

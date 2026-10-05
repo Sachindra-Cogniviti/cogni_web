@@ -24,10 +24,10 @@ export const metadata: Metadata = pageMetadata({
 
 /**
  * Posts are published from the admin without a deploy, so the listing is
- * revalidated every minute: a post appears while its author is still
- * looking at the tab, and the page is not a database query per visitor.
+ * read at request time. Docker builds have no production database access;
+ * caching their empty fallback can hide published posts in this listing.
  */
-export const revalidate = 60
+export const dynamic = "force-dynamic"
 
 /**
  * /blog
