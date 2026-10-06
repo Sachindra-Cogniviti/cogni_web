@@ -56,4 +56,4 @@ export const indexingEnabled = true
  * `indexingEnabled`. Handing Google a sitemap before the redirects answer is
  * how a migration loses the rankings it was meant to carry over.
  */
-export const wordpressRedirectsEnabled = false
+export const wordpressRedirectsEnabled = true

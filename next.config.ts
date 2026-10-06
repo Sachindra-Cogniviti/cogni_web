@@ -163,6 +163,7 @@ const nextConfig: NextConfig = {
       // Careers
       ["/about/careers", "/careers/"],
       ["/current-openings", "/careers/"],
+      ["/https-cogniflowapp-ai", "/products/cogniflow/"],
       // Contact
       ["/contact-us", "/contact/"],
       ["/book-a-discovery-call", "/contact/"],
@@ -185,7 +186,7 @@ const nextConfig: NextConfig = {
     return [
       ...toPlatforms.map((source) => ({
         source,
-        destination: "/#platforms",
+        destination: "/experience/#platforms",
         permanent: true,
       })),
       ...moved.map(([source, destination]) => ({
