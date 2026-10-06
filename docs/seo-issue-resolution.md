@@ -11,7 +11,7 @@ TypeScript and focused ESLint. Audit script: `scripts/audit-public-seo.py`.
 | Short titles | Expanded Contact and CogniFlow search titles. |
 | URL parameters | Contact topic parameters preselect enquiry fields; Next image parameters select optimized assets. Keep functional parameters. |
 | Canonicalised pages | Contact query variants deliberately canonicalize to `/contact/`. All audited public page canonicals match their URLs. |
-| Low content | Aggregate report does not name the page. Word count is a heuristic; no filler added solely to exceed 200 words. Affected URL export needed to assess its content. |
+| Low content | Live main-content word count identified `/work/` at 173 words. Expanded its introduction to explain what the stories cover, how confidential clients are represented, and how visitors can use the examples. |
 | Difficult readability | Simplified long FAQ answers. Specialist product and legal wording retained; specific URLs needed for the report's three flagged pages. |
 | Missing X-Frame-Options | Added SAMEORIGIN globally; same-origin CMS previews remain possible. |
 | Missing secure Referrer-Policy | Added strict-origin-when-cross-origin globally. |
@@ -23,7 +23,7 @@ TypeScript and focused ESLint. Audit script: `scripts/audit-public-seo.py`.
 | Missing alt text | Reviewed duplicate logos, decorative badges and portrait overlay layers: intentional empty alt / aria-hidden. Informative images retain descriptions. |
 | Long alt text | Shortened award-photo and award-badge descriptions without removing their meaning. |
 | Missing image dimensions | Replaced fill-only team portraits with intrinsic dimensions and preserved absolute layout; added update-photo dimensions (800 × 500). |
-| Image over 100 kB | Identified Indonesia careers event photo (204,819-byte JPEG optimizer response at q75); deliver it at q50 and retain responsive sizes. Verify actual bytes after deployment. |
+| Image over 100 kB | Indonesia careers event photo reduced from 204,819 to 116,345 bytes for the largest JPEG fallback; AVIF is 42,343 bytes and the 1080px responsive JPEG is 87,382 bytes. Browser delivery falls below 100 kB for these measured formats/sizes. The maximum JPEG fallback can still trigger this heuristic. |
 | High external outlinks | Homepage has client/partner references and team LinkedIn links. These are relevant; no blanket nofollow/removal applied. |
 | External 4xx | CARSOME returned 403 to audit requests; do not replace a valid customer website solely for bot refusal. Dynapack additionally produced a Python TLS chain error; no certificate checks bypassed. CSV does not name its two affected URLs; URL-level export needed to match them exactly. |
 

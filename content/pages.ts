@@ -405,7 +405,7 @@ export const workPage = {
     trail: [{ label: "Home", href: "/" }, { label: "Client work" }],
     kicker: "Client work",
     heading: "Programs that reached production",
-    body: "Selected client stories: the platform, the problem it was brought in for, what we did, and what changed. Figures are the client's own.",
+    body: "Explore how our teams put procurement and finance platforms into production. Each story explains the starting problem, the platform involved, our delivery approach and the outcome. Open a story to see its scope, integrations and rollout details. Where a client can be named, we identify them; confidential programs are presented anonymously. Any reported figures belong to the client. Use these examples to compare your own project needs, then talk to us about the systems, data and teams your program would involve.",
   } satisfies PageHeader,
   emptyCount: "Nothing published yet",
   empty: {

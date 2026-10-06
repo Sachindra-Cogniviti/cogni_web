@@ -20,8 +20,13 @@ class Page(HTMLParser):
         self.canonical = None
         self.capture = None
         self.text = ''
+        self.in_main = False
+        self.skip_text = False
+        self.main_text = []
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == 'main': self.in_main = True
+        if tag in ('script', 'style'): self.skip_text = True
         if tag == 'title' or tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
             self.capture = tag
             self.text = ''
@@ -30,7 +35,10 @@ class Page(HTMLParser):
         if tag == 'link' and a.get('rel') == 'canonical': self.canonical = a.get('href')
     def handle_data(self, data):
         if self.capture: self.text += data
+        if self.in_main and not self.skip_text: self.main_text.append(data)
     def handle_endtag(self, tag):
+        if tag == 'main': self.in_main = False
+        if tag in ('script', 'style'): self.skip_text = False
         if tag == self.capture:
             if tag == 'title': self.title = self.text.strip()
             else: self.headings.append([tag, self.text.strip()])
@@ -46,6 +54,7 @@ def audit(url):
         p = Page()
         p.feed(html)
         return dict(url=url, title=p.title, canonical=p.canonical, headings=p.headings,
+                    main_words=len(' '.join(p.main_text).split()),
                     images=p.images, links=p.links, headers=headers)
     except Exception as e: return dict(url=url, error=str(e))
 
