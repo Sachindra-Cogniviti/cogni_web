@@ -136,6 +136,7 @@ export function CareersLife() {
                 <Image
                   src={photos[photo.id]}
                   alt={photo.alt}
+                  quality={photo.id === "indonesia-event" ? 50 : 75}
                   sizes="(min-width: 768px) 28vw, 48vw"
                   className="block h-auto w-full"
                 />

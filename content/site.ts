@@ -400,7 +400,7 @@ export const updates: {
       body: "Chosen from a global field of partners for implementation discipline and the technical glue around it - integrations, data readiness and applied AI.",
       image: {
         src: "/updates/coupa-breakout-partner-award.jpg",
-        alt: "Members of the Cogniviti Labs and Coupa teams on stage at Coupa Inspire 2026, holding the Breakout Partner of the Year award.",
+        alt: "Cogniviti Labs and Coupa teams with the Breakout Partner award at Inspire 2026",
       },
       cta: { label: "Our Coupa practice", href: "/#platforms" },
     },
@@ -1386,7 +1386,7 @@ export const careers = {
 export const contact = {
   disciplines: ["Procurement", "Finance", "Data", "Integration"],
   heading:
-    "Planning an enterprise platform program, or evaluating one of our products?",
+    "Planning a platform program or evaluating our products?",
   body: "Speak with our team about your business processes, technology landscape and operational requirements.",
   actions: [
     {

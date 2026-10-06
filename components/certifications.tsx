@@ -60,6 +60,7 @@ export function Certifications() {
             across the measure leave no side for a label column, and the
             two blocks reading alike is the point of putting them together. */}
         <div className="text-center">
+          <h2 className="sr-only">Certifications and platform partnerships</h2>
           <div
             data-reveal="0"
             className="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase"

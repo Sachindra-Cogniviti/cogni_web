@@ -348,7 +348,9 @@ function PersonCard({ member }: { member: Member }) {
             <Image
               src={portrait}
               alt={member.name}
-              fill
+              width={portrait.width}
+              height={portrait.height}
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
               sizes={sizes}
               className={`object-cover [filter:grayscale(1)_contrast(1.14)_brightness(1.03)_sepia(0.14)] transition-transform ${SWEEP} group-hover:scale-[1.02] group-data-active:scale-[1.02] motion-reduce:group-hover:scale-100`}
             />
@@ -369,7 +371,9 @@ function PersonCard({ member }: { member: Member }) {
               <Image
                 src={portrait}
                 alt=""
-                fill
+                width={portrait.width}
+                height={portrait.height}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
                 sizes={sizes}
                 className={`object-cover transition-transform ${SWEEP} group-hover:scale-[1.02] group-data-active:scale-[1.02] motion-reduce:group-hover:scale-100`}
               />

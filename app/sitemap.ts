@@ -4,10 +4,9 @@ import { products } from "@/content/site"
 import { getPosts, getRoles, getStories } from "@/lib/cms"
 import { isLiveSite, publicSiteUrl } from "@/lib/deployment"
 
-// Rebuilt hourly rather than fixed at build: posts, client stories and open
-// roles are published from the admin without a deploy, and the sitemap has to
-// say so.
-export const revalidate = 3600
+// Build workers cannot reach the private CMS database. Generate on request
+// so published articles, client stories and roles are never frozen out.
+export const dynamic = "force-dynamic"
 
 /*
  * Kept at the app root alongside robots.ts. This one does work from inside a

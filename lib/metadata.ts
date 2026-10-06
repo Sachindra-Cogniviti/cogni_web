@@ -27,6 +27,17 @@ export const DEFAULT_OG_IMAGE = {
   ...OG_IMAGE,
   alt: site.title,
 }
+
+// Search titles for the initial CMS articles. Keep the longer editorial
+// headlines in the article and share card; only these known titles are shortened.
+const searchTitles: Record<string, string> = {
+  "AI in Procurement Needs Trusted Data to Deliver": "AI in Procurement: Trusted Data",
+  "Coupa Inspire 2026: A Partner Award and the Work Behind It":
+    "Coupa Inspire 2026 Partner Award",
+  "CARSOME Goes Live on Coupa: The Source-to-Pay Milestone":
+    "CARSOME Goes Live on Coupa",
+  CogniFlow: "CogniFlow Cash Flow Management",
+}
 export function pageMetadata({
   title,
   description,
@@ -74,7 +85,7 @@ export function pageMetadata({
   const shareTitle = share?.title ?? title
   const shareDescription = share?.description ?? description
   return {
-    title,
+    title: searchTitles[title] ?? title,
     description,
     alternates: { canonical: path },
     openGraph: {

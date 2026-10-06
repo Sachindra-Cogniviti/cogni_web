@@ -318,9 +318,10 @@ function Picture({ item }: { item: Update }) {
         <Image
           src={item.image.src}
           alt={item.image.alt}
-          fill
+          width={800}
+          height={500}
           sizes="(min-width: 1024px) 46vw, 92vw"
-          className="object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">

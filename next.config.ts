@@ -43,6 +43,7 @@ const nextConfig: NextConfig = {
     // a third smaller than WebP at the same quality; the only cost is a
     // slower first encode, which the optimiser caches.
     formats: ["image/avif", "image/webp"],
+    qualities: [50, 75],
     remotePatterns: [
       ...(mediaHostname ? [{ protocol: "https" as const, hostname: mediaHostname }] : []),
       { protocol: "https" as const, hostname: "*.cloudfront.net" },
@@ -201,7 +202,18 @@ const nextConfig: NextConfig = {
   // MIME types and the immutable cache on /_next/static itself, but it does
   // not add this one, and dropping it silently would be a real regression.
   async headers() {
-    const headers = [{ key: "X-Content-Type-Options", value: "nosniff" }]
+    const headers = [
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "Strict-Transport-Security", value: "max-age=31536000" },
+      {
+        key: "Content-Security-Policy",
+        // Compatible with Next's static inline hydration and Payload previews.
+        // Restrict embeds, base URLs and plugins without breaking those flows.
+        value: "base-uri 'self'; object-src 'none'; frame-ancestors 'self'",
+      },
+    ]
 
     // Belt and braces over robots.txt and the noindex metadata, and the
     // strongest of the three: a header needs no file to be fetched and no

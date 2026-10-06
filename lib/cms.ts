@@ -192,7 +192,19 @@ export async function getStory(
 export function mediaOf(
   value: number | Media | null | undefined
 ): Media | null {
-  return value && typeof value === "object" ? value : null
+  if (!value || typeof value !== "object") return null
+  // Concise display text for the imported award photo; keep the CMS document
+  // unchanged and preserve any subsequent editorial replacement of its alt.
+  if (
+    value.alt ===
+    "Cogniviti Labs team receiving Coupa’s New Breakout Partner of the Year International award at Coupa Inspire 2026"
+  ) {
+    return {
+      ...value,
+      alt: "Cogniviti Labs receives Coupa's International Breakout Partner award at Inspire 2026",
+    }
+  }
+  return value
 }
 
 export function authorOf(value: number | Author): Author | null {

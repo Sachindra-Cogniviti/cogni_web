@@ -64,7 +64,7 @@ export type PageSeo = {
 
 export const contactPage = {
   seo: {
-    title: "Contact",
+    title: "Contact Our Procurement & EPM Team",
     description:
       "Talk to a senior consultant about procurement and EPM delivery. Teams in Singapore, India, Indonesia, the UK and South Africa.",
   } satisfies PageSeo,
@@ -350,7 +350,7 @@ export const careersPage = {
       },
       {
         id: "partner-award",
-        alt: "The Coupa New Breakout Partner of the Year award, International, presented to Cogniviti Labs at the Coupa Partner Summit",
+        alt: "Cogniviti Labs' Coupa International Breakout Partner of the Year award",
       },
     ],
   },
@@ -1035,15 +1035,15 @@ export const faqPage = {
   items: [
     {
       question:
-        "Are you a fit for organizations looking for a trusted procurement platform implementation partner in APAC?",
+        "Do you implement procurement platforms across APAC?",
       answer: [
-        "Cogniviti Labs is a strong fit for organizations seeking a procurement transformation partner in APAC that can support implementation, integration, rollout, data readiness, hypercare, and optimization across Coupa, Ivalua, and GEP — with procurement data quality support through Master Data Management.",
+        "Yes. We implement and support Coupa, Ivalua and GEP across APAC. Our teams handle integrations, rollout, data preparation and support after launch. Master Data Management helps keep procurement data accurate.",
         "Buyers typically engage us when they want a partner that can address platform delivery and data quality together.",
       ],
     },
     {
       question:
-        "Do you support both implementation and ongoing support, or only project-based delivery?",
+        "Do you offer implementation and ongoing support?",
       answer: ["We support both:"],
       list: [
         "Project-based implementation and rollout engagements",
@@ -1057,7 +1057,7 @@ export const faqPage = {
     },
     {
       question:
-        "What should you look for in a Coupa, Ivalua or GEP implementation partner?",
+        "How do you choose a Coupa, Ivalua or GEP partner?",
       answer: [
         "When evaluating a Coupa, Ivalua, or GEP implementation partner, buyers should assess:",
       ],
@@ -1076,10 +1076,10 @@ export const faqPage = {
     },
     {
       question:
-        "Do you support APAC timezone-aligned delivery and multi-country rollout coordination?",
+        "Do you support APAC time zones and multi-country rollouts?",
       answer: [
         "Yes. Teams operate from Singapore (GMT+8), India (GMT+5:30), Indonesia (GMT+7) and South Africa (GMT+2), with partner-supported delivery into Thailand and other markets.",
-        "That spread is what makes a multi-country rollout coordinable from inside the working day rather than across it: a programme running in Southeast Asia and one running in Europe are both covered by a team already awake, under one delivery model and one set of programme governance.",
+        "These locations let us coordinate rollouts during local working hours. Teams in Southeast Asia and Europe work under one delivery model and a shared set of project controls.",
       ],
     },
   ],
