@@ -14,6 +14,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV APP_ENV=production
 ARG SITE_URL
 ENV SITE_URL=${SITE_URL}
 
@@ -25,6 +26,7 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV APP_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 

@@ -215,7 +215,13 @@ const nextConfig: NextConfig = {
       headers.push({ key: "X-Robots-Tag", value: "noindex, nofollow" })
     }
 
-    return [{ source: "/:path*", headers }]
+    return [
+      { source: "/:path*", headers },
+      ...["/admin/:path*", "/api/:path*"].map((source) => ({
+        source,
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      })),
+    ]
   },
 }
 

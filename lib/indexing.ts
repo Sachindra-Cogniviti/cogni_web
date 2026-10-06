@@ -29,7 +29,7 @@
  * To go live: set this to true, push, then confirm /robots.txt says "Allow: /"
  * and the response carries no X-Robots-Tag.
  */
-export const indexingEnabled = false
+export const indexingEnabled = true
 
 /**
  * The WordPress redirects. Off until the cutover is actually being done.
