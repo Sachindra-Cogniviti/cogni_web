@@ -121,22 +121,10 @@ export function Certifications() {
                       alt=""
                       aria-hidden
                       sizes="140px"
-                      // `self-start` is load-bearing, not tidying. The card
-                      // is a column flex container, so its children stretch
-                      // to the full cross axis - the width - and that beats
-                      // `w-auto`. Without it a round mark is pulled to the
-                      // card's width against a pinned height and renders as
-                      // an ellipse.
-                      //
-                      // The box is a flat 96px tall on every card so the
-                      // designations below line up across the row: a round
-                      // seal needs that much diameter before "27001"
-                      // resolves. The wordmarks (GEP, Ivalua) are wider than
-                      // the cell at that height, so `max-w-full` clamps them
-                      // and `object-contain` keeps the clamp from squashing
-                      // the mark against the pinned height. `object-left`
-                      // holds every mark to the text edge.
-                      className="mb-5 h-24 w-auto max-w-full self-start object-contain object-left"
+                      // A shared full-width, 96px image box centers each mark
+                      // on both axes while preserving its aspect ratio and
+                      // keeping the designation rows aligned below it.
+                      className="mb-5 h-24 w-full object-contain object-center"
                     />
                   )}
 
