@@ -899,7 +899,7 @@ export const services = {
       ],
     },
   ],
-  cta: { label: "Explore Platform Services", href: "/contact/?subject=platform-implementation" },
+  cta: { label: "Explore Platform Services", href: "/services/" },
 } as const
 
 /* ---------------------------------------------------------------------------

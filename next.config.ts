@@ -105,7 +105,7 @@ const nextConfig: NextConfig = {
   /*
    * The WordPress site this replaces, redirected.
    *
-   * SERVED ONLY WHEN `wordpressRedirectsEnabled` IS TRUE, which it is not.
+   * Served only when `wordpressRedirectsEnabled` is true.
    * The map below is complete and verified; the switch in lib/indexing.ts
    * decides whether it answers, so that pointing the domain at Vercel does
    * not silently start redirecting a set of URLs nobody re-read that day.
@@ -124,14 +124,10 @@ const nextConfig: NextConfig = {
    * tells Google to keep the old URL indexed, which is the opposite of what
    * a migration wants.
    *
-   * The six /solutions/* pages land on the homepage's platforms section.
-   * There is no per-platform page on this site, and sending all six to /
-   * would throw away the one piece of information the old URL carried. A
-   * fragment is not sent to the server, but it is honoured by the browser
-   * from the Location header, so a person lands on the right block; a
-   * crawler reads it as the homepage, which is the honest answer given no
-   * per-platform page exists. If those pages are ever built, these entries
-   * are where they get pointed.
+   * Coupa, OneStream, Ivalua and GEP URLs map directly to their service pages.
+   * The old solutions overview maps to /services/, which now serves content
+   * itself rather than redirecting. SAP and Oracle retain the existing
+   * experience destination until equivalent dedicated pages are available.
    *
    * Sources are written without the trailing slash and match either form:
    * `trailingSlash: true` normalises an unslashed request to the slashed one
@@ -146,21 +142,20 @@ const nextConfig: NextConfig = {
     if (!wordpressRedirectsEnabled) return []
 
     const toPlatforms = [
-      "/solutions",
-      "/solutions/coupa-solutions",
-      "/solutions/gep-solutions",
-      "/solutions/ivalua-solutions",
-      "/solutions/onestream-solutions",
       "/solutions/oracle-solutions",
       "/solutions/sap-solutions",
     ]
 
     const moved: [string, string][] = [
+      ["/solutions", "/services/"],
+      ["/solutions/coupa-solutions", "/services/coupa/"],
+      ["/solutions/onestream-solutions", "/services/onestream/"],
+      ["/solutions/ivalua-solutions", "/services/ivalua/"],
+      ["/solutions/gep-solutions", "/services/gep/"],
       // Company
       ["/about", "/#company"],
       ["/about/why-us", "/#why"],
       ["/team", "/#company"],
-      ["/services", "/#services"],
       // Careers
       ["/about/careers", "/careers/"],
       ["/current-openings", "/careers/"],

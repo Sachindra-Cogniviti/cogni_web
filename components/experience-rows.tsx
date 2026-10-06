@@ -8,6 +8,7 @@ import { FlipTrack, Roll, WideRule } from "@/components/primitives"
 import { ScrambleText } from "@/components/scramble-text"
 import { Stagger } from "@/components/stagger"
 import { services } from "@/content/site"
+import { platformServices } from "@/content/services"
 
 import api from "@/public/logos/platforms/api.png"
 import coupa from "@/public/logos/platforms/coupa.png"
@@ -432,6 +433,17 @@ function DetailPanel({
           <p className="mt-5 max-w-[62ch] text-[14.5px] leading-[1.7] text-pretty text-ink-muted">
             {detail.body}
           </p>
+          {platformServices
+            .filter((platform) => platform.name === name)
+            .map((platform) => (
+              <a
+                key={platform.slug}
+                href={`/services/${platform.slug}/`}
+                className="mt-6 inline-block font-medium text-oxblood underline underline-offset-4"
+              >
+                Explore {platform.name} implementation services →
+              </a>
+            ))}
         </div>
 
         <ul className="m-0 list-none border-t border-rule">

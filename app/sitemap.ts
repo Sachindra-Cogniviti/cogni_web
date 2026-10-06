@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next"
 
 import { products } from "@/content/site"
+import { serviceLinks } from "@/content/services"
 import { getPosts, getRoles, getStories } from "@/lib/cms"
 import { isLiveSite, publicSiteUrl } from "@/lib/deployment"
 
@@ -44,6 +45,7 @@ export const dynamic = "force-dynamic"
 const fixedRoutes = [
   "/",
   "/products/",
+  ...serviceLinks.map((link) => link.href),
   ...products.map((product) => `/products/${product.slug}/`),
   "/experience/",
   "/careers/",

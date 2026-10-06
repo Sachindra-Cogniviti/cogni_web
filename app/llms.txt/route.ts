@@ -1,4 +1,5 @@
 import { publicSiteUrl } from "@/lib/deployment"
+import { platformServices } from "@/content/services"
 import {
   careersPage,
   contactPage,
@@ -47,6 +48,11 @@ export function GET() {
     "",
     `${services.body}`,
     "",
+    `- [Services overview](${url("/services/")}): procurement and EPM implementation, integration and managed support.`,
+    ...platformServices.map(
+      (platform) =>
+        `- [${platform.title}](${url(`/services/${platform.slug}/`)}): ${platform.description}`
+    ),
     ...services.stages.map((stage) =>
       `- [${stage.title}](${url("/#services")}): ${"body" in stage ? stage.body : ""}`.trimEnd()
     ),

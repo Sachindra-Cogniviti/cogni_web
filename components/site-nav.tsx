@@ -40,6 +40,7 @@ const darkIds = rail.sections
  * "Products" lit.
  */
 function isCurrent(href: string, pathname: string, active: string | null) {
+  if (href === "/#services" && pathname.startsWith("/services")) return true
   if (href.includes("#")) {
     return pathname === "/" && href.slice(href.indexOf("#") + 1) === active
   }
