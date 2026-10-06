@@ -17,6 +17,8 @@ ENV NODE_ENV=production
 ENV APP_ENV=production
 ARG SITE_URL
 ENV SITE_URL=${SITE_URL}
+ARG NEXT_PUBLIC_POSTHOG_KEY
+ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
 
 # Run Next.js build (generates .next/standalone)
 RUN npm run build
