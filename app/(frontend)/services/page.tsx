@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ExperienceRows } from "@/components/experience-rows"
 import { PageClose, PageHeader, PageShell } from "@/components/page-shell"
 import { Container, sectionPadding } from "@/components/primitives"
 import { services } from "@/content/site"
@@ -23,6 +24,11 @@ export default function ServicesPage() {
           body: "Cogniviti Labs delivers enterprise platform implementation, ERP integration, data readiness and managed support. We help procurement and finance teams deploy Coupa, OneStream, Ivalua and GEP, then improve the systems through adoption and optimisation.",
         }}
       />
+      <section className={sectionPadding}>
+        <Container>
+          <ExperienceRows />
+        </Container>
+      </section>
       <section className={sectionPadding}>
         <Container>
           <h2 className="text-3xl font-semibold tracking-tight">
