@@ -28,6 +28,7 @@ import { ClientStories } from "@/payload/collections/client-stories"
 import { Enquiries } from "@/payload/collections/enquiries"
 import { Media } from "@/payload/collections/media"
 import { Posts } from "@/payload/collections/posts"
+import { Updates } from "@/payload/collections/updates"
 import { Roles } from "@/payload/collections/roles"
 import { Users } from "@/payload/collections/users"
 import { publicSiteUrl } from "@/lib/deployment"
@@ -150,6 +151,7 @@ export default buildConfig({
   collections: [
     Posts,
     ClientStories,
+    Updates,
     Roles,
     Enquiries,
     Authors,

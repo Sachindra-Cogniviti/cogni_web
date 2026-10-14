@@ -27,6 +27,7 @@ import {
   categoriesOf,
   deliveryPath,
   getPosts,
+  getUpdates,
   getStories,
   imageSource,
   mediaOf,
@@ -97,7 +98,11 @@ export const revalidate = 60
  * uncommenting the import and the element below and moving the id back.
  */
 export default async function Page() {
-  const [stories, posts] = await Promise.all([getStories(3), getPosts(3)])
+  const [stories, posts, updates] = await Promise.all([
+    getStories(3),
+    getPosts(3),
+    getUpdates(),
+  ])
 
   // The three latest stories, each with its delivery path as the stops.
   // Undefined when there are none, so the section falls back to the
@@ -143,7 +148,7 @@ export default async function Page() {
         {/* The announcement band. It sits here because the two blocks
             above are static proof - who trusts us, what we are held to -
             and this is the first thing on the page that is current. */}
-        <Updates />
+        <Updates items={updates} />
         <TwoSides />
         {/* <ProductPortfolio /> */}
         <ProductDesktop />

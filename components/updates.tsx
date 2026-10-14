@@ -82,8 +82,7 @@ const piece: Variants = {
  * interrupt a screen-reader user unbidden. The arrows and dots are ordinary
  * buttons, so the announcements are reachable on demand.
  */
-export function Updates() {
-  const items = updates.items
+export function Updates({ items }: { items: readonly Update[] }) {
   const count = items.length
   // The direction travels with the index so the exit knows which way to go.
   const [[index, dir], setPosition] = React.useState<[number, number]>([0, 1])
@@ -108,14 +107,15 @@ export function Updates() {
   )
 
   React.useEffect(() => {
-    if (!running) return
+    if (!running || count < 2) return
     const timer = window.setTimeout(() => step(1), updates.dwell * 1000)
     // Keyed on `index` too, so a manual step restarts the dwell instead of
     // inheriting whatever was left of the last one.
     return () => window.clearTimeout(timer)
-  }, [running, index, step])
+  }, [running, index, step, count])
 
-  const item = items[index]
+  const item = items[index % count]
+  if (!item) return null
 
   return (
     <section

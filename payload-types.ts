@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     posts: Post;
     'client-stories': ClientStory;
+    updates: Update;
     roles: Role;
     enquiries: Enquiry;
     authors: Author;
@@ -84,6 +85,7 @@ export interface Config {
   collectionsSelect: {
     posts: PostsSelect<false> | PostsSelect<true>;
     'client-stories': ClientStoriesSelect<false> | ClientStoriesSelect<true>;
+    updates: UpdatesSelect<false> | UpdatesSelect<true>;
     roles: RolesSelect<false> | RolesSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     authors: AuthorsSelect<false> | AuthorsSelect<true>;
@@ -354,6 +356,49 @@ export interface ClientStory {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Homepage updates. Drag rows to reorder. Check Hidden to remove an update from the site without deleting it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "updates".
+ */
+export interface Update {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * For example: Award, Client, or Event.
+   */
+  kind: string;
+  /**
+   * Display text, such as Coupa Inspire 2026.
+   */
+  date: string;
+  body: string;
+  image?: (number | null) | Media;
+  /**
+   * Existing site image path. Uploading an image above takes precedence.
+   */
+  imagePath?: string | null;
+  /**
+   * Description of the picture for screen readers.
+   */
+  imageAlt?: string | null;
+  linkType: 'post' | 'story' | 'url';
+  post?: (number | null) | Post;
+  story?: (number | null) | ClientStory;
+  /**
+   * Use https:// for external links or / for a site path.
+   */
+  url?: string | null;
+  linkLabel: string;
+  /**
+   * Hide from the homepage while keeping this update in the CMS.
+   */
+  hidden?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Open positions shown on /careers. Unpublish a role to take it down. There is no need to delete it.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -513,6 +558,10 @@ export interface PayloadLockedDocument {
         value: number | ClientStory;
       } | null)
     | ({
+        relationTo: 'updates';
+        value: number | Update;
+      } | null)
+    | ({
         relationTo: 'roles';
         value: number | Role;
       } | null)
@@ -648,6 +697,28 @@ export interface ClientStoriesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "updates_select".
+ */
+export interface UpdatesSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  kind?: T;
+  date?: T;
+  body?: T;
+  image?: T;
+  imagePath?: T;
+  imageAlt?: T;
+  linkType?: T;
+  post?: T;
+  story?: T;
+  url?: T;
+  linkLabel?: T;
+  hidden?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

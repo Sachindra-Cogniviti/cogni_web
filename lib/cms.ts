@@ -363,3 +363,49 @@ export const REMOTE_LABEL: Record<NonNullable<Role["remote"]>, string> = {
   hybrid: "Hybrid",
   remote: "Remote",
 }
+
+/** Homepage announcements, in the order chosen in the admin. */
+export async function getUpdates(): Promise<import("@/content/site").Update[]> {
+  try {
+    const payload = await db()
+    const { docs } = await payload.find({
+      collection: "updates",
+      sort: "_order",
+      depth: 1,
+      pagination: false,
+      overrideAccess: false,
+      where: { hidden: { not_equals: true } },
+    })
+    return docs.flatMap((doc) => {
+      const target = doc.linkType === "post" ? doc.post : doc.story
+      const href =
+        doc.linkType === "url"
+          ? doc.url
+          : target &&
+              typeof target === "object" &&
+              target._status === "published" &&
+              target.slug
+            ? `${doc.linkType === "post" ? "/blog" : "/work"}/${target.slug}/`
+            : null
+      if (!href) return []
+      const media = mediaOf(doc.image)
+      const src =
+        (media ? imageSource(media, "cover")?.src : null) || doc.imagePath
+      return [
+        {
+          kind: doc.kind,
+          date: doc.date,
+          title: doc.title,
+          body: doc.body,
+          image: src
+            ? { src, alt: doc.imageAlt || media?.alt || doc.title }
+            : null,
+          cta: { label: doc.linkLabel, href },
+        },
+      ]
+    })
+  } catch (error) {
+    console.error("Updates could not be loaded:", error)
+    return []
+  }
+}

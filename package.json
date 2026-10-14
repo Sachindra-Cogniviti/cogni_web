@@ -16,6 +16,8 @@
     "generate:importmap": "payload generate:importmap",
     "migrate:create": "payload migrate:create",
     "migrate": "payload migrate",
+    "migrate:updates": "node --env-file=.env --import=tsx scripts/migrate-updates.ts",
+    "seed:updates": "node --env-file=.env --import=tsx scripts/seed-updates.ts",
     "seed:demo": "node --env-file=.env --import=tsx scripts/seed-demo.ts",
     "seed:demo:remove": "node --env-file=.env --import=tsx scripts/seed-demo.ts --remove"
   },
