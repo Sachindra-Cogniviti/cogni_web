@@ -2,6 +2,7 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto"
 
 import { isPreviewCollection, type PreviewCollection } from "./preview"
 
+export const SHARED_PREVIEW_COOKIE = "cl-shared-preview"
 export const PREVIEW_LIFETIME_SECONDS = 24 * 60 * 60
 
 type PreviewGrant = {

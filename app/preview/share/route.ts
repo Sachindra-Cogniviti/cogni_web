@@ -1,9 +1,10 @@
+import { cookies, draftMode } from "next/headers"
 import { getPayload } from "payload"
 
 import config from "@/payload.config"
 import { publicSiteUrl } from "@/lib/deployment"
 import { isPreviewCollection, pagePath } from "@/lib/preview"
-import { createSharedPreview, verifySharedPreview } from "@/lib/shared-preview"
+import { SHARED_PREVIEW_COOKIE, createSharedPreview, verifySharedPreview } from "@/lib/shared-preview"
 
 const privateHeaders = {
   "Cache-Control": "private, no-store",
@@ -44,12 +45,21 @@ export async function POST(request: Request) {
   return Response.json({ url: url.toString(), expiresAt }, { headers: privateHeaders })
 }
 
-/** No login or global draft cookie: the signature grants access to this one page. */
+/** No login: the signature grants access to this one article, through a cookie that expires with it. */
 export async function GET(request: Request) {
   const token = new URL(request.url).searchParams.get("token") || ""
   const grant = verifySharedPreview(token, process.env.PAYLOAD_SECRET || "")
   if (!grant) return new Response("This preview link has expired or is invalid. Ask the editor for a new 24-hour link.", { status: 410, headers: privateHeaders })
+  const draft = await draftMode()
+  draft.enable()
+  const jar = await cookies()
+  jar.set(SHARED_PREVIEW_COOKIE, token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(grant.expiresAt * 1000),
+  })
   const url = new URL(pagePath(grant.collection, grant.slug), publicSiteUrl())
-  url.searchParams.set("preview", token)
   return new Response(null, { status: 307, headers: { ...privateHeaders, Location: url.toString() } })
 }

@@ -1,5 +1,7 @@
-import { draftMode } from "next/headers"
+import { cookies, draftMode } from "next/headers"
 import { redirect } from "next/navigation"
+
+import { SHARED_PREVIEW_COOKIE } from "@/lib/shared-preview"
 
 /**
  * GET /preview/exit/?path=/blog/some-post/
@@ -13,5 +15,6 @@ export async function GET(request: Request) {
   const path = new URL(request.url).searchParams.get("path") ?? "/"
   const draft = await draftMode()
   draft.disable()
+  ;(await cookies()).delete(SHARED_PREVIEW_COOKIE)
   redirect(path.startsWith("/") && !path.startsWith("//") ? path : "/")
 }

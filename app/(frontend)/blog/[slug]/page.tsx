@@ -44,14 +44,11 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string | string[] }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const { preview: token } = await searchParams
-  const preview = await previewAccess("posts", slug, token)
+  const preview = await previewAccess("posts", slug)
   const { draft } = preview
   const post = await getPost(slug, { draft })
   if (!post) return {}
@@ -103,16 +100,13 @@ export async function generateMetadata({
  */
 export default async function PostPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ preview?: string | string[] }>
 }) {
   const { slug } = await params
   // Draft mode is the preview (lib/preview.ts): the latest draft in place
   // of the published version, for an editor or a valid article-specific share link.
-  const { preview: token } = await searchParams
-  const preview = await previewAccess("posts", slug, token)
+  const preview = await previewAccess("posts", slug)
   const { draft } = preview
   const post = await getPost(slug, { draft })
   if (!post) notFound()
