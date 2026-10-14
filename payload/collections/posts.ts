@@ -21,6 +21,7 @@ export const Posts: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "author", "publishedAt", "_status"],
     group: "Content",
+    components: { edit: { beforeDocumentControls: ["@/components/admin/share-preview#SharePreview"] } },
     livePreview: livePreview("posts"),
     preview: (doc) => previewUrl("posts", doc.slug),
   },

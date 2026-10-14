@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { draftMode } from "next/headers"
+import { previewAccess } from "@/lib/preview-access"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 
@@ -44,11 +44,15 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string | string[] }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const { isEnabled: draft } = await draftMode()
+  const { preview: token } = await searchParams
+  const preview = await previewAccess("posts", slug, token)
+  const { draft } = preview
   const post = await getPost(slug, { draft })
   if (!post) return {}
   // The card drawn beside this page (og.png/route.tsx) is the share image
@@ -58,7 +62,7 @@ export async function generateMetadata({
   const chosen = mediaOf(post.meta?.image)
   const image = chosen ? imageSource(chosen, "cover") : null
   const author = authorOf(post.author)
-  return pageMetadata({
+  return { ...pageMetadata({
     title: post.meta?.title ?? post.title,
     description: post.meta?.description ?? post.excerpt,
     path: `/blog/${slug}/`,
@@ -81,7 +85,7 @@ export async function generateMetadata({
           ...OG_IMAGE,
           alt: post.title,
         },
-  })
+  }), ...(draft ? { robots: { index: false, follow: false, nocache: true } } : {}) }
 }
 
 /**
@@ -99,13 +103,17 @@ export async function generateMetadata({
  */
 export default async function PostPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string | string[] }>
 }) {
   const { slug } = await params
   // Draft mode is the preview (lib/preview.ts): the latest draft in place
-  // of the published version, on this same page, for a signed-in editor.
-  const { isEnabled: draft } = await draftMode()
+  // of the published version, for an editor or a valid article-specific share link.
+  const { preview: token } = await searchParams
+  const preview = await previewAccess("posts", slug, token)
+  const { draft } = preview
   const post = await getPost(slug, { draft })
   if (!post) notFound()
 
@@ -324,7 +332,7 @@ export default async function PostPage({
         label={blogPage.contentsLabel}
       />
 
-      {draft && <DraftPreview path={`/blog/${post.slug}/`} />}
+      {draft && <DraftPreview sharedExpiresAt={preview.sharedExpiresAt} path={`/blog/${post.slug}/`} />}
     </PageShell>
   )
 }

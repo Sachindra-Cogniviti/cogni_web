@@ -1,6 +1,6 @@
 "use client"
 
-import { useSyncExternalStore } from "react"
+import { useEffect, useSyncExternalStore } from "react"
 import { useRouter } from "next/navigation"
 import { RefreshRouteOnSave } from "@payloadcms/live-preview-react"
 
@@ -23,8 +23,13 @@ import { RefreshRouteOnSave } from "@payloadcms/live-preview-react"
  */
 const never = () => () => {}
 
-export function DraftPreview({ path }: { path: string }) {
+export function DraftPreview({ path, sharedExpiresAt }: { path: string; sharedExpiresAt?: string }) {
   const router = useRouter()
+  useEffect(() => {
+    if (!sharedExpiresAt) return
+    const timer = window.setTimeout(() => router.refresh(), Math.max(0, Date.parse(sharedExpiresAt) - Date.now()) + 1000)
+    return () => window.clearTimeout(timer)
+  }, [router, sharedExpiresAt])
   const framed = useSyncExternalStore(
     never,
     () => window.self !== window.top,
@@ -38,7 +43,7 @@ export function DraftPreview({ path }: { path: string }) {
 
   return (
     <>
-      {origin && (
+      {origin && !sharedExpiresAt && (
         <RefreshRouteOnSave
           refresh={() => router.refresh()}
           serverURL={origin}
@@ -50,11 +55,12 @@ export function DraftPreview({ path }: { path: string }) {
           className="fixed inset-x-0 bottom-0 z-[60] flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-night-fg/15 bg-night px-5 py-3 text-night-fg"
         >
           <span className="font-mono text-[11px] tracking-[0.16em] text-night-muted uppercase">
-            <span className="text-oxblood-lift">Draft preview</span> · Not what
-            visitors see
+            <span className="text-oxblood-lift">Draft preview</span> · {sharedExpiresAt
+              ? `Shared until ${new Date(sharedExpiresAt).toLocaleString()}`
+              : "Not what visitors see"}
           </span>
           <a
-            href={`/preview/exit/?path=${encodeURIComponent(path)}`}
+            href={`/preview/exit/?path=${encodeURIComponent(sharedExpiresAt ? `/${path.split("/")[1]}/` : path)}`}
             className="font-mono text-[11px] tracking-[0.16em] text-night-fg uppercase underline-offset-4 hover:text-oxblood-lift hover:underline"
           >
             Exit preview

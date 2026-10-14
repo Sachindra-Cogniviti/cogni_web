@@ -1,6 +1,6 @@
 import type * as React from "react"
 import type { Metadata } from "next"
-import { draftMode } from "next/headers"
+import { previewAccess } from "@/lib/preview-access"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 
@@ -46,11 +46,15 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string | string[] }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const { isEnabled: draft } = await draftMode()
+  const { preview: token } = await searchParams
+  const preview = await previewAccess("client-stories", slug, token)
+  const { draft } = preview
   const story = await getStory(slug, { draft })
   if (!story) return {}
   // The Payload SEO title is sometimes entered with the site name already
@@ -62,7 +66,7 @@ export async function generateMetadata({
     .trim()
   const chosen = mediaOf(story.meta?.image)
   const image = chosen ? imageSource(chosen, "cover") : null
-  return pageMetadata({
+  return { ...pageMetadata({
     title: seoTitle || `${story.client}: ${story.title}`,
     description: story.meta?.description ?? story.excerpt,
     path: `/work/${slug}/`,
@@ -84,7 +88,7 @@ export async function generateMetadata({
           ...OG_IMAGE,
           alt: `${story.client}: ${story.title}`,
         },
-  })
+  }), ...(draft ? { robots: { index: false, follow: false, nocache: true } } : {}) }
 }
 
 /**
@@ -110,13 +114,17 @@ export async function generateMetadata({
  */
 export default async function StoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ preview?: string | string[] }>
 }) {
   const { slug } = await params
   // Draft mode is the preview (lib/preview.ts): the latest draft in place
-  // of the published version, on this same page, for a signed-in editor.
-  const { isEnabled: draft } = await draftMode()
+  // of the published version, for an editor or a valid article-specific share link.
+  const { preview: token } = await searchParams
+  const preview = await previewAccess("client-stories", slug, token)
+  const { draft } = preview
   const story = await getStory(slug, { draft })
   if (!story) notFound()
 
@@ -414,7 +422,7 @@ export default async function StoryPage({
         label={workPage.contentsLabel}
       />
 
-      {draft && <DraftPreview path={`/work/${story.slug}/`} />}
+      {draft && <DraftPreview sharedExpiresAt={preview.sharedExpiresAt} path={`/work/${story.slug}/`} />}
     </PageShell>
   )
 }

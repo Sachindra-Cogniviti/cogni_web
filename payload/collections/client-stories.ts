@@ -27,6 +27,7 @@ export const ClientStories: CollectionConfig = {
     useAsTitle: "client",
     defaultColumns: ["client", "platform", "region", "publishedAt", "_status"],
     group: "Content",
+    components: { edit: { beforeDocumentControls: ["@/components/admin/share-preview#SharePreview"] } },
     livePreview: livePreview("client-stories"),
     preview: (doc) => previewUrl("client-stories", doc.slug),
   },
