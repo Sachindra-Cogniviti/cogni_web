@@ -173,7 +173,8 @@ export default async function PostPage({
             <figure
               data-reveal="0"
               data-flow="fade"
-              className="relative mb-[clamp(40px,5vw,72px)] border border-rule"
+              className="relative mx-auto mb-[clamp(40px,5vw,72px)] w-fit max-w-full border border-rule"
+              style={{ maxWidth: Math.min(image.width, 720) }}
             >
               <Corners />
               <Image
@@ -181,9 +182,9 @@ export default async function PostPage({
                 alt={cover?.alt ?? ""}
                 width={image.width}
                 height={image.height}
-                sizes="(min-width: 1280px) 1184px, 100vw"
-                className="block h-auto w-full"
-                priority
+                sizes="(min-width: 768px) 720px, 100vw"
+                className="mx-auto block h-auto max-h-[360px] w-auto max-w-full object-contain"
+                preload
               />
               {cover?.credit && (
                 <figcaption className="border-t border-rule px-4 py-2 font-mono text-[10.5px] tracking-[0.12em] text-ink-faint uppercase">

@@ -50,15 +50,15 @@ export function PostCard({
     >
       <Corners />
       {featured && image && (
-        <div className="relative overflow-hidden border-b border-rule lg:order-2 lg:border-b-0 lg:border-l">
+        <div className="relative flex h-[clamp(220px,32vw,360px)] items-center justify-center overflow-hidden border-b border-rule bg-paper-alt lg:order-2 lg:border-b-0 lg:border-l">
           <Image
             src={image.src}
             alt={cover?.alt ?? ""}
             width={image.width}
             height={image.height}
             sizes="(min-width: 1024px) 560px, 100vw"
-            className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(.23,1,.32,1)] group-hover:scale-[1.02] motion-reduce:group-hover:scale-100"
-            priority
+            className="block h-auto max-h-full w-auto max-w-full object-contain"
+            preload
           />
         </div>
       )}
