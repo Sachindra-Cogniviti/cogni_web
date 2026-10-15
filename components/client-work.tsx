@@ -17,7 +17,6 @@ import {
   QuietLink,
   Roll,
   WideRule,
-  sectionPadding,
 } from "@/components/primitives"
 import { FlowRule, VIEW_MARGIN } from "@/components/scroll-motion"
 import { clientWork } from "@/content/site"
@@ -153,7 +152,7 @@ export function ClientWork({
     <section
       id="work"
       ref={sectionRef}
-      className={`relative ${sectionPadding}`}
+      className="relative pt-[clamp(24px,3vw,40px)] pb-[clamp(56px,10vw,140px)]"
       // Hold while the reader is in here - focus as well as hover, since
       // someone tabbing the index is reading it just as much.
       onPointerEnter={() => setHeld(true)}

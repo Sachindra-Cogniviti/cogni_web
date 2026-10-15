@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Image, { type StaticImageData } from "next/image"
-import { motion, useMotionValue } from "motion/react"
 
 import { Container, Corners, Kicker, Roll } from "@/components/primitives"
 import { ScrambleText } from "@/components/scramble-text"
@@ -82,233 +81,61 @@ const portraits: Record<string, StaticImageData> = {
 
 type Member = (typeof people.groups)[number]["members"][number]
 
-/**
- * Founders and team. Closes the #company block, and hands off to Careers.
- *
- * One line of people, founders first and then the team, each group opened
- * by its label set on its side. The section pins while the reader scrolls
- * and the line travels sideways under them, one pixel of scroll for one
- * pixel of travel, so meeting everyone is the same gesture as reading the
- * rest of the page; a progress rule at the foot of the screen says how far
- * along the line they are. On a phone that is the same gesture again - a
- * vertical swipe carries the line - which is why it pins there too rather
- * than becoming a row to be scrolled sideways: a second axis on a page
- * that otherwise only goes down is the thing that gets missed. Under
- * reduced motion only, the row scrolls sideways by touch and snaps card to
- * card.
- *
- * The pin is the outer section's height: the viewport plus the distance
- * the row has to travel, with the row's frame stuck to the top of the
- * viewport for the whole of it. So how far the row has moved is simply how
- * far the section's top has gone above the viewport's, clamped to the
- * travel, and that is read straight off the section on every scroll frame.
- * It used to come through Motion's scroll tracking against the section
- * with a start/end offset, which keeps its own measurements and hands the
- * progress on through its frame loop; on the way back up the row would
- * sometimes hold its last position with the section already scrolled past.
- * One rectangle per scroll event, with the last event always applied,
- * cannot be left behind. The frame fills from the top - heading,
- * then the line, then the rule - and the card width is derived from the
- * viewport height on the pin, so the whole thing fits under the bar on a
- * short laptop screen as well as a tall one. Heights are in svh, the
- * small viewport: on a phone 100vh is the screen with the browser's bars
- * hidden, and a frame that tall has its rule under the address bar.
- *
- * The portraits are treated until hovered - or, on a touch screen, tapped
- * (components/tap-reveal.tsx): desaturated, contrast lifted, and warmed
- * slightly so they sit on the paper ground rather than floating as neutral
- * grey. Thirteen photographs with thirteen unrelated backgrounds read as a
- * jumble at this size and pull the eye away from the names; one tonal
- * range makes them a group. Colour on hover keeps the real photograph
- * available rather than replacing it.
- *
- * Written as an explicit four-function filter in both states rather than
- * Tailwind's `grayscale` / `grayscale-0` pair. CSS only interpolates
- * between filter lists that hold the same functions in the same order, so
- * listing all four at their identity values on hover is what makes this a
- * transition instead of a snap.
- */
+/** Founders and team, each in a separate row with its own heading. */
 export function People() {
-  const outer = React.useRef<HTMLElement>(null)
-  const frame = React.useRef<HTMLDivElement>(null)
-  const row = React.useRef<HTMLUListElement>(null)
-
-  const [pinned, setPinned] = React.useState(false)
-  const [travel, setTravel] = React.useState(0)
-
-  // Pin wherever motion is welcome.
-  React.useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)")
-    const sync = () => setPinned(!reduced.matches)
-    sync()
-    reduced.addEventListener("change", sync)
-    return () => reduced.removeEventListener("change", sync)
-  }, [])
-
-  // How far the row has to move for its last card to reach the frame's
-  // right edge. Measured, because the row's width is the sum of thirteen
-  // cards at a width that follows the viewport.
-  React.useEffect(() => {
-    if (!pinned) return
-    const measure = () => {
-      const list = row.current
-      const box = frame.current
-      if (!list || !box) return
-      setTravel(Math.max(0, list.scrollWidth - box.clientWidth))
-    }
-    measure()
-    const observer = new ResizeObserver(measure)
-    if (row.current) observer.observe(row.current)
-    if (frame.current) observer.observe(frame.current)
-    return () => observer.disconnect()
-  }, [pinned])
-
-  // The row's offset and the progress rule, driven from the section's own
-  // position. Coalesced to one read per frame; `scrollend`, where the
-  // browser has it, is a last settle after the final scroll event.
-  const x = useMotionValue(0)
-  const progress = useMotionValue(0.04)
-
-  React.useEffect(() => {
-    if (!pinned) return
-    const section = outer.current
-    if (!section) return
-    let frameId = 0
-    const sync = () => {
-      frameId = 0
-      const top = section.getBoundingClientRect().top
-      const moved = Math.min(travel, Math.max(0, -top))
-      x.set(-moved)
-      progress.set(travel > 0 ? 0.04 + 0.96 * (moved / travel) : 0.04)
-    }
-    const schedule = () => {
-      if (!frameId) frameId = requestAnimationFrame(sync)
-    }
-    sync()
-    window.addEventListener("scroll", schedule, { passive: true })
-    window.addEventListener("resize", schedule)
-    window.addEventListener("scrollend", sync)
-    return () => {
-      cancelAnimationFrame(frameId)
-      window.removeEventListener("scroll", schedule)
-      window.removeEventListener("resize", schedule)
-      window.removeEventListener("scrollend", sync)
-    }
-  }, [pinned, travel, x, progress])
-
   return (
-    <section
-      ref={outer}
-      className={
-        pinned
-          ? "relative"
-          : "pt-[clamp(88px,10vw,140px)] pb-[clamp(88px,10vw,140px)]"
-      }
-      style={pinned ? { height: `calc(100svh + ${travel}px)` } : undefined}
-    >
-      <div
-        className={
-          pinned
-            ? // The card width: what is left of the viewport once the bar,
-              // the heading, the caption under a portrait and the rule have
-              // taken theirs, between 150px and the full 280px - or 360px on
-              // a tablet held upright, which is tall enough to show two
-              // larger cards where 280px left a third of the screen bare. The phone
-              // figure is larger because the heading and the body wrap to
-              // more lines there, and the frame's own padding is tighter to
-              // give some of that back.
-              "sticky top-0 flex h-svh flex-col overflow-hidden pt-[calc(68px+clamp(24px,4vh,48px))] pb-[clamp(16px,2vh,28px)] [--card:clamp(150px,calc(100svh-560px),280px)] max-sm:pt-[84px] max-sm:pb-3 max-sm:[--card:clamp(140px,calc(100svh-560px),280px)] md:max-lg:[--card:clamp(150px,calc(100svh-560px),360px)]"
-            : ""
-        }
-      >
-        <Container>
-          <div className="flex flex-wrap items-end justify-between gap-x-12 gap-y-6">
-            <div>
-              <Kicker data-reveal="0" data-flow="left">
-                {people.kicker}
-              </Kicker>
-              <h2
-                data-reveal="60"
-                data-flow="left"
-                className="mt-4 max-w-[16ch] text-[clamp(30px,3.4vw,48px)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance"
-              >
-                {people.heading}
-              </h2>
-            </div>
-            <p
-              data-reveal="120"
-              data-flow="right"
-              className="max-w-[46ch] text-[15px] leading-[1.6] text-pretty text-ink-soft max-sm:text-[14px]"
+    <section className="pt-[clamp(88px,10vw,140px)] pb-[clamp(24px,3vw,40px)]">
+      <Container className="max-w-none">
+        <div className="flex flex-wrap items-end justify-between gap-x-12 gap-y-6">
+          <div>
+            <Kicker data-reveal="0" data-flow="left">
+              {people.kicker}
+            </Kicker>
+            <h2
+              data-reveal="60"
+              data-flow="left"
+              className="mt-4 max-w-[16ch] text-[clamp(30px,3.4vw,48px)] leading-[1.05] font-semibold tracking-[-0.03em] text-balance"
             >
-              {people.body}
-            </p>
+              {people.heading}
+            </h2>
           </div>
-        </Container>
-
-        {/* The line. Its frame is the page measure; the row inside it starts
-            at the measure's left gutter and runs off the right edge. Off the
-            pin the frame is the scroller, snapping card to card. */}
-        <div
-          ref={frame}
-          data-reveal="180"
-          className={`people-scroller mt-[clamp(28px,4vh,48px)] max-sm:mt-6 ${
-            pinned
-              ? "overflow-hidden"
-              : "snap-x snap-mandatory [scroll-padding-left:clamp(20px,4vw,48px)] overflow-x-auto"
-          }`}
-        >
-          <motion.ul
-            ref={row}
-            style={pinned ? { x } : undefined}
-            className="people-row m-0 flex w-max list-none items-start gap-x-[clamp(16px,2vw,28px)] pr-[clamp(20px,4vw,48px)] pl-[max(clamp(20px,4vw,48px),calc((100vw-1280px)/2+clamp(20px,4vw,48px)))]"
+          <p
+            data-reveal="120"
+            data-flow="right"
+            className="max-w-[46ch] text-[15px] leading-[1.6] text-pretty text-ink-soft max-sm:text-[14px]"
           >
-            {people.groups.map((group) => (
-              <React.Fragment key={group.label}>
-                <GroupLabel label={group.label} />
-                {group.members.map((member) => (
-                  <PersonCard key={member.name} member={member} />
-                ))}
-              </React.Fragment>
-            ))}
-          </motion.ul>
+            {people.body}
+          </p>
         </div>
+      </Container>
 
-        {/* The progress rule, at the foot of the screen on the pin, with
-            the hint that this is the scroll's doing. */}
-        <Container
-          className={pinned ? "mt-auto pt-[clamp(20px,3vh,36px)]" : "mt-8"}
-        >
-          <div className="flex items-center gap-5">
-            <span className="relative block h-px flex-1 bg-rule-strong">
-              <motion.span
-                aria-hidden="true"
-                style={{ scaleX: pinned ? progress : 1 }}
-                className="absolute inset-0 origin-left bg-oxblood"
-              />
-            </span>
-            {pinned && (
-              <span className="font-mono text-[10.5px] tracking-[0.18em] text-ink-faint uppercase">
-                {people.scrollHint}
-              </span>
-            )}
-          </div>
-        </Container>
+      <div className="mt-[clamp(36px,5vw,64px)] space-y-[clamp(40px,6vw,72px)]">
+        {people.groups.map((group, index) => (
+          <section key={group.label} aria-labelledby={`people-group-${index}`}>
+            <Container className="max-w-none">
+              <h3
+                id={`people-group-${index}`}
+                className="mb-6 border-t border-rule-strong pt-5 font-mono text-[12px] tracking-[0.2em] text-ink-soft uppercase"
+              >
+                <ScrambleText text={group.label} />
+              </h3>
+              <div
+                className="people-scroller snap-x snap-mandatory overflow-x-auto pb-2"
+                role="region"
+                aria-labelledby={`people-group-${index}`}
+                tabIndex={0}
+              >
+                <ul className="people-row m-0 grid list-none auto-cols-[minmax(200px,62vw)] grid-flow-col items-stretch gap-5 p-0 sm:auto-cols-[220px] lg:auto-cols-[calc((100%-120px)/6)] lg:gap-6">
+                  {group.members.map((member) => (
+                    <PersonCard key={member.name} member={member} />
+                  ))}
+                </ul>
+              </div>
+            </Container>
+          </section>
+        ))}
       </div>
     </section>
-  )
-}
-
-/** A group's name, set on its side at the head of its run of cards. */
-function GroupLabel({ label }: { label: string }) {
-  return (
-    <li
-      aria-hidden="true"
-      className="flex w-[26px] shrink-0 snap-start items-start justify-center self-stretch border-l border-rule-strong pt-1"
-    >
-      <span className="font-mono text-[10.5px] tracking-[0.2em] whitespace-nowrap text-ink-faint uppercase [writing-mode:vertical-rl]">
-        <ScrambleText text={label} />
-      </span>
-    </li>
   )
 }
 
@@ -326,7 +153,7 @@ function PersonCard({ member }: { member: Member }) {
     ? { scale: String(frame.zoom), transformOrigin: `50% ${frame.eyes}` }
     : undefined
 
-  const sizes = "(min-width: 1024px) 280px, 62vw"
+  const sizes = "(min-width: 1024px) 17vw, (min-width: 640px) 220px, 62vw"
 
   // One gesture, one curve. The wipe, the rule and the brackets all run on
   // these numbers so they read as a single thing travelling across the card
@@ -336,10 +163,7 @@ function PersonCard({ member }: { member: Member }) {
     "duration-[420ms] ease-[cubic-bezier(.22,1,.36,1)] motion-reduce:transition-none"
 
   return (
-    <li
-      data-tap
-      className="group flex w-[var(--card,clamp(200px,62vw,250px))] shrink-0 snap-start flex-col"
-    >
+    <li data-tap className="group flex min-w-0 snap-start flex-col">
       <div className="people-card flex flex-1 flex-col">
         <div className="relative aspect-square w-full overflow-hidden bg-paper-tint">
           {/* Rest layer: the treated photograph. It stays put and grows
@@ -350,7 +174,12 @@ function PersonCard({ member }: { member: Member }) {
               alt={member.name}
               width={portrait.width}
               height={portrait.height}
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+              }}
               sizes={sizes}
               className={`object-cover [filter:grayscale(1)_contrast(1.14)_brightness(1.03)_sepia(0.14)] transition-transform ${SWEEP} group-hover:scale-[1.02] group-data-active:scale-[1.02] motion-reduce:group-hover:scale-100`}
             />
@@ -373,7 +202,12 @@ function PersonCard({ member }: { member: Member }) {
                 alt=""
                 width={portrait.width}
                 height={portrait.height}
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                }}
                 sizes={sizes}
                 className={`object-cover transition-transform ${SWEEP} group-hover:scale-[1.02] group-data-active:scale-[1.02] motion-reduce:group-hover:scale-100`}
               />
@@ -395,45 +229,39 @@ function PersonCard({ member }: { member: Member }) {
 
         {/* The rule runs out beneath the wipe on the same curve, so the
             colour arriving and the line drawing are one movement. */}
-        <div className="relative mt-4 h-px w-full bg-rule">
+        <div className="relative mt-3 h-px w-full bg-rule">
           <span
             aria-hidden="true"
             className={`absolute inset-0 origin-left scale-x-0 bg-oxblood transition-transform ${SWEEP} group-hover:scale-x-100 group-data-active:scale-x-100`}
           />
         </div>
 
-        <div className="mt-4 flex flex-1 flex-col">
+        <div className="mt-3 flex flex-1 flex-col">
           <div className="text-[15px] leading-[1.25] font-semibold tracking-[-0.01em]">
             {member.name}
           </div>
 
-          {/* One line, always: a title that does not fit is cut with an
-              ellipsis rather than wrapped, because the caption's height is
-              what the card budget above is built on. The full title is
-              in the tooltip. */}
+          {/* Reserve two lines for roles so biographies align across the row. */}
           <div
             title={member.role}
-            className="mt-[6px] truncate font-mono text-[10px] leading-[1.4] tracking-[0.14em] text-ink-faint uppercase"
+            className="mt-1 min-h-[2lh] font-mono text-[10px] leading-[1.35] tracking-[0.1em] text-ink-faint uppercase"
           >
             {member.role}
           </div>
 
-          {/* The platforms this person is certified on. The team carry
-              them; the founders do not, but the line's height is reserved
-              on every card (`min-h-[1lh]` on an empty div) so the
-              biography - and everything under it - sits at one level
-              across the whole row. */}
-          <div
-            title={certified ?? undefined}
-            className="mt-[9px] min-h-[1lh] truncate text-[12.5px] leading-[1.45] text-oxblood"
-          >
-            {certified}
-          </div>
+          {certified && (
+            <div
+              title={certified}
+              className="mt-1 min-h-[1lh] truncate text-[12.5px] leading-[1.4] text-oxblood"
+            >
+              {certified}
+            </div>
+          )}
 
           {/* Three lines reserved whether or not the biography fills them
               (two where the phone budget clamps it to two), so the Connect
               link lands on the same level on every card. */}
-          <p className="mt-[9px] line-clamp-3 min-h-[3lh] text-[13px] leading-[1.5] text-pretty text-ink-muted max-sm:line-clamp-2 max-sm:min-h-[2lh]">
+          <p className="mt-1 line-clamp-3 min-h-[3lh] text-[13px] leading-[1.4] text-pretty text-ink-muted max-sm:line-clamp-2 max-sm:min-h-[2lh]">
             {member.body}
           </p>
 
@@ -442,7 +270,7 @@ function PersonCard({ member }: { member: Member }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${member.name} on LinkedIn`}
-            className="mt-auto inline-flex min-h-[44px] w-fit items-center gap-[7px] pt-3 text-[12.5px] font-medium text-ink-soft transition-colors duration-[var(--roll-duration)] ease-[var(--roll-ease)] hover:text-oxblood"
+            className="mt-auto inline-flex min-h-[44px] w-fit items-center gap-[7px] pt-1 text-[12.5px] font-medium text-ink-soft transition-colors duration-[var(--roll-duration)] ease-[var(--roll-ease)] hover:text-oxblood"
           >
             <svg
               viewBox="0 0 24 24"

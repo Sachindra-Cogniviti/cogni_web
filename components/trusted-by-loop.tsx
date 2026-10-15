@@ -7,7 +7,7 @@ import { ScrambleText } from "@/components/scramble-text"
 import { FlowRule, Parallax } from "@/components/scroll-motion"
 import { trustedBy } from "@/content/site"
 
-import aeci from "@/public/logos/aeci.svg"
+import aeci from "@/public/logos/aeci.webp"
 import bangchak from "@/public/logos/bangchak.png"
 import carsome from "@/public/logos/carsome.png"
 import digitalEdge from "@/public/logos/digital_edge.png"
