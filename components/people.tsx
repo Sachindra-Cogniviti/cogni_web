@@ -21,11 +21,12 @@ import niko from "@/public/team/team-niko.jpg"
 import rahul from "@/public/team/team-rahul.jpg"
 import sandesh from "@/public/team/team-sandesh.jpg"
 import valentina from "@/public/team/team-valentina.jpg"
+import vinay from "@/public/team/team-vinay.jpg"
 
 /**
  * Portraits, keyed by the `photo` id used in content.
  *
- * All thirteen are square, which is what lets the row use a plain 1:1 frame
+ * All portraits are square, which is what lets the row use a plain 1:1 frame
  * with no art direction per person. They are otherwise inconsistent - studio
  * white, a brick wall, an office window, an outdoor shot - and that is the
  * reason for the greyscale treatment below rather than a stylistic preference.
@@ -39,15 +40,16 @@ import valentina from "@/public/team/team-valentina.jpg"
  * bands come back.
  */
 /**
- * Framing per portrait: a zoom about a point near the face, so thirteen
- * photographs taken at thirteen distances show a head of about one size.
+ * Framing per portrait: a zoom about a point near the face, so
+ * photographs taken at different distances show a head of about one size.
  * Sushil, Manav and Leroy were shot from across a room and arrive as a
- * small head over a lot of jacket; John and Zafar were shot close and
- * need nothing. The origin is where the eyes sit, so zooming holds them
+ * small head over a lot of jacket. The origin is where the eyes sit, so zooming holds them
  * still and crops away shoulder and ceiling instead. Anyone not listed is
  * shown as cropped.
  */
 const framing: Record<string, { zoom: number; eyes: string }> = {
+  // Crop John's padded sides and excess headroom out of both image layers.
+  john: { zoom: 1.32, eyes: "40%" },
   // Sushil's hair already touches the top of his file, so the zoom is
   // about the top edge: it grows the head downward into the jacket rather
   // than pushing the crown out of the frame, which an origin at the eyes did.
@@ -76,6 +78,7 @@ const portraits: Record<string, StaticImageData> = {
   sandesh,
   sushil,
   valentina,
+  vinay,
   zafar,
 }
 
@@ -216,7 +219,7 @@ function PersonCard({ member }: { member: Member }) {
 
           {/* Brackets, inset so they sit on the photograph rather than on
               its edge. Oxblood rather than the default ink-ghost: these
-              land on thirteen different photographs, and a pale bracket
+              land on different photographs, and a pale bracket
               that reads over a studio backdrop disappears over a dark
               suit. */}
           <span

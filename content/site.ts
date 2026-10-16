@@ -1141,6 +1141,14 @@ export const people = {
           linkedin: "https://www.linkedin.com/in/joyce-kuppekar-7bb7491b8/",
         },
         {
+          name: "Vinay Yerunkar",
+          photo: "vinay",
+          role: "Solutions Consultant",
+          body: "Supply chain management, Coupa-certified P2P & S2P.",
+          certifications: TEAM_CERTIFICATIONS,
+          linkedin: "https://www.linkedin.com/in/vinay-yerunkar-931807201/",
+        },
+        {
           name: "Valentina Aranjo",
           photo: "valentina",
           role: "Software Implementation Consultant",
