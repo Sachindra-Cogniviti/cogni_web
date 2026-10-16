@@ -14,6 +14,8 @@ import { site } from "@/content/site"
 import { isLiveSite, publicSiteUrl } from "@/lib/deployment"
 import { DEFAULT_OG_IMAGE } from "@/lib/metadata"
 import { siteGraph } from "@/lib/schema"
+import { CONSENT_STORAGE_KEY } from "@/lib/consent"
+import { snitcherScript } from "@/lib/snitcher"
 import { cn } from "@/lib/utils"
 
 const origin = publicSiteUrl()
@@ -154,6 +156,18 @@ export default function RootLayout({
             crawler reads one entity instead of several near-identical ones.
             See lib/schema.ts. */}
         <JsonLd data={siteGraph(origin)} />
+        <script
+          id="snitcher-tracker"
+          dangerouslySetInnerHTML={{
+            __html: `${snitcherScript}
+try {
+  var snitcherConsent = window.localStorage.getItem(${JSON.stringify(CONSENT_STORAGE_KEY)});
+  if (snitcherConsent === "granted") window.Snitcher.giveCookieConsent();
+  else if (snitcherConsent === "denied") window.Snitcher.denyCookieConsent();
+} catch (_) {}
+`,
+          }}
+        />
       </head>
       {/* Browser extensions (the VS Code preview adds class="vsc-initialized")
           mutate <body> before React hydrates. The warning is scoped to this

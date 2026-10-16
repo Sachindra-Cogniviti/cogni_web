@@ -19,7 +19,7 @@
 
 export type ConsentChoice = "granted" | "denied"
 
-const STORAGE_KEY = "cogniviti-consent"
+export const CONSENT_STORAGE_KEY = "cogniviti-consent"
 
 type Listener = () => void
 const listeners = new Set<Listener>()
@@ -29,7 +29,7 @@ let reopened = false
 
 export function getConsent(): ConsentChoice | null {
   try {
-    const value = window.localStorage.getItem(STORAGE_KEY)
+    const value = window.localStorage.getItem(CONSENT_STORAGE_KEY)
     return value === "granted" || value === "denied" ? value : null
   } catch {
     return null
@@ -38,11 +38,22 @@ export function getConsent(): ConsentChoice | null {
 
 export function setConsent(choice: ConsentChoice) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, choice)
+    window.localStorage.setItem(CONSENT_STORAGE_KEY, choice)
   } catch {
     // Nothing to do: the choice still applies for this page view through
     // the notification below, it just will not be remembered.
   }
+  const snitcher = (
+    window as Window & {
+      Snitcher?: {
+        giveCookieConsent: () => void
+        denyCookieConsent: () => void
+      }
+    }
+  ).Snitcher
+  if (choice === "granted") snitcher?.giveCookieConsent()
+  else snitcher?.denyCookieConsent()
+
   reopened = false
   notify()
 }
